@@ -7,5 +7,6 @@ $xpdo_meta_map = array (
     1 => 'grvObject',
     2 => 'grvField',
     3 => 'grvRel',
+    4 => 'grvTransport',
   ),
 );

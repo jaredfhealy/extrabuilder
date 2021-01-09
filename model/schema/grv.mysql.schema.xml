@@ -16,6 +16,8 @@
     <field key="phpdoc_subpackage" dbtype="varchar" precision="100" phptype="string" null="false" default="model"/>
     <field key="version" dbtype="varchar" precision="100" phptype="string" null="false" default="1.1"/>
     <field key="sortorder" dbtype="int" precision="10" phptype="integer" null="false" default="0"/>
+    <field key="core_path" dbtype="varchar" precision="191" phptype="string" null="false" default="{core_path}components/{package_key}/"/>
+    <field key="assets_path" dbtype="varchar" precision="191" phptype="string" null="false" default="{assets_path}components/{package_key}/"/>
     <composite alias="Objects" class="grvObject" local="id" foreign="package" cardinality="many" owner="local"/>
   </object>
   <object class="grvObject" table="grv_objects" extends="xPDOSimpleObject">
@@ -33,8 +35,7 @@
       <column key="package" length="" collation="A" null="false"/>
     </index>
     <field key="sortorder" dbtype="int" precision="10" phptype="integer" null="false" default="0"/>
-    <field key="raw_xml" dbtype="text" precision="0" phptype="string" null="true" default=""/>
-    <aggregate alias="Package" class="grvPackage" local="package" foreign="id" cardinality="one" owner="foreign"/>
+    <field key="raw_xml" dbtype="text" phptype="string" null="true" default=""/>
     <aggregate alias="Package" class="grvPackage" local="package" foreign="id" cardinality="one" owner="foreign"/>
     <composite alias="Fields" class="grvField" local="id" foreign="object" cardinality="many" owner="local"/>
     <composite alias="Rels" class="grvRel" local="id" foreign="object" cardinality="many" owner="local"/>
@@ -78,5 +79,8 @@
     <field key="relation_type" dbtype="varchar" precision="20" phptype="string" null="false" default=""/>
     <field key="sortorder" dbtype="int" precision="10" phptype="integer" null="false" default="0"/>
     <aggregate alias="Object" class="grvObject" local="object" foreign="id" cardinality="one" owner="foreign"/>
+  </object>
+  <object class="grvTransport" table="grv_transport" extends="xPDOSimpleObject">
+    <field key="category" dbtype="int" precision="10" phptype="integer" null="false" default="false"/>
   </object>
 </model>

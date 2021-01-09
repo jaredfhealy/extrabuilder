@@ -10,7 +10,7 @@ class GrvBuildPackageProcessor extends modObjectProcessor
 {
 	public $classKey = 'grvPackage';
 	public $languageTopics = array('grv:default');
-	public $objectType = 'grv.schema';
+	public $objectType = 'grv.package';
 	public $logMessages = [];
 
 	// Define the needed paths/directories
@@ -21,62 +21,64 @@ class GrvBuildPackageProcessor extends modObjectProcessor
 	public $schemaFilePath = "";
 
 	/**
+	 * Default to preview only
+	 */
+	public $previewOnly = true;
+
+	/**
 	 * Override the process function
 	 *
 	 */
 	public function process()
 	{
 		// Get parameters to determine actions
-		$packageId = $this->getProperty('package_id');
-		$previewOnly = 'true'; // Default to preview
-		$writeSchema = $this->getProperty('write_schema') === 'true';
+		$writeSchemaOnly = $this->getProperty('write_schema') === 'true';
 		$buildSkip = $this->getProperty('build_skip') === 'true';
 		$buildDelete = $this->getProperty('build_delete') === 'true';
 		$buildDeleteAndDrop = $this->getProperty('build_delete_drop') === 'true';
 
-		if (!empty($packageId)) {
-			// Get the object
-			$package = $this->modx->getObject('grvPackage', $packageId);
-			if (!$package) {
-				// Return here
-				return $this->failure('Unable to retrieve package with supplied ID.', ['package_id' => $packageId]);
-			}
-			else {
-				$this->logMessages[] = "Found package by id $packageId. Name: " . $package->get('display') . ", Key: " . $package->get('package_key');
-			}
+		// Get the object
+		$primaryKey = $this->getProperty($this->primaryKeyField,false);
+		$this->object = $this->modx->getObject($this->classKey, $primaryKey);
+		$package = $this->object;
+		$packageId = $package->get('id');
+		if (!$package) {
+			// Return here
+			return $this->failure('Unable to retrieve package with supplied ID.');
 		}
 		else {
-			return $this->failure('No Package ID supplied.', ['package_id' => $packageId]);
+			$this->logMessages[] = "Found package by id $packageId. Name: " . $package->get('display') . ", Key: " . $package->get('package_key');
 		}
 
 		// Get package key and paths
 		$packageKey = $package->get('package_key');
-		$this->packageBasePath = MODX_CORE_PATH . "components/$packageKey/";
-		$this->schemaPath = $this->packageBasePath . "model/schema/";
-		$this->schemaFilePath = $this->schemaPath . $packageKey . '.mysql.schema.xml';
-		$this->classPath = $this->packageBasePath . "model/$packageKey/";
-		$this->assetsPath = MODX_BASE_PATH . "assets/components/$packageKey/";
+		$corePath = $package->get('core_path') ? $package->get('core_path') : '{core_path}components/{package_key}/';
+		$assetsPath = $package->get('assets_path') ? $package->get('assets_path') : '{assets_path}components/{package_key}/';
 
-		// Make sure directories exist
-		if (!is_dir($this->schemaPath)) {
-			mkdir($this->schemaPath, 0775, true);
-		}
-		if (!is_dir($this->classPath)) {
-			mkdir($this->classPath, 0775, true);
-		}
-		if (!is_dir($this->assetsPath)) {
-			mkdir($this->assetsPath, 0775, true);
-		}
+		// Replace values
+		$corePath = str_replace('{core_path}', MODX_CORE_PATH, $corePath);
+		$corePath = str_replace('{base_path}', MODX_BASE_PATH, $corePath);
+		$corePath = str_replace('{package_key}', $packageKey, $corePath);
+		$assetsPath = str_replace('{assets_path}', MODX_ASSETS_PATH, $assetsPath);
+		$assetsPath = str_replace('{base_path}', MODX_BASE_PATH, $assetsPath);
+		$assetsPath = str_replace('{package_key}', $packageKey, $assetsPath);
+
+		// Setup the paths
+		$this->packageBasePath = $corePath;
+		$this->schemaPath = $corePath . "model/schema/";
+		$this->schemaFilePath = $this->schemaPath . $packageKey . '.mysql.schema.xml';
+		$this->classPath = $corePath . "model/$packageKey/";
+		$this->assetsPath = $assetsPath;
 
 		// Build skip
 		if ($buildSkip) {
-			$previewOnly = false;
+			$this->previewOnly = false;
 		}
 
 		// Handle deletion
 		if ($buildDelete) {
 			// Delete the schema files
-			$previewOnly = false;
+			$this->previewOnly = false;
 			$this->deleteSchemaFiles($package);
 		}
 		if ($buildDeleteAndDrop) {
@@ -88,7 +90,11 @@ class GrvBuildPackageProcessor extends modObjectProcessor
 		// Generate the schema as long as it's not for the package builder
 		$schema = $this->generateSchema($package);
 
-		if ($writeSchema) {
+		if ($writeSchemaOnly || !$this->previewOnly) {
+			// Make sure at least the schema directory exists
+			if (!is_dir($this->schemaPath)) {
+				mkdir($this->schemaPath, 0775, true);
+			}
 			// Create the schema file
 			if (file_put_contents($this->schemaFilePath, $schema)) {
 				// Written successfully
@@ -98,10 +104,9 @@ class GrvBuildPackageProcessor extends modObjectProcessor
 				return $this->failure('Unable to write schema file: '.$this->schemaFilePath, []);
 			}
 		}
-		
 
 		// If not preview only
-		if (!$previewOnly) {
+		if (!$this->previewOnly) {
 			// Call the build script
 			$this->buildSchema($packageKey);
 		}
@@ -109,6 +114,8 @@ class GrvBuildPackageProcessor extends modObjectProcessor
 		$separator = ''.PHP_EOL;
 		return $this->success('', [
 			'schema' => $schema,
+			'core_path' => $corePath,
+			'assets_path' => $assetsPath,
 			'messages' => implode($separator, $this->logMessages)
 		]);
 	}
@@ -125,6 +132,17 @@ class GrvBuildPackageProcessor extends modObjectProcessor
 	 */
 	public function buildSchema($packageKey)
 	{
+		// Make sure directories exist
+		if (!is_dir($this->schemaPath)) {
+			mkdir($this->schemaPath, 0775, true);
+		}
+		if (!is_dir($this->classPath)) {
+			mkdir($this->classPath, 0775, true);
+		}
+		if (!is_dir($this->assetsPath)) {
+			mkdir($this->assetsPath, 0775, true);
+		}
+		
 		// Begin the build script
 		$mtime = microtime();
 		$mtime = explode(" ", $mtime);
@@ -290,13 +308,14 @@ class GrvBuildPackageProcessor extends modObjectProcessor
 		$packageTpl = '<model package="{package_key}" baseClass="{base_class}" platform="{platform}" defaultEngine="{default_engine}" phpdoc-package="{phpdoc_package}" phpdoc-subpackage="{phpdoc_subpackage}" version="1.1">';
 		$objectTpl = '<object class="{class}" table="{table_name}" extends="{extends}">';
 		$fieldTpl = '<field key="{column_name}" dbtype="{dbtype}" precision="{precision}" phptype="{phptype}" null="{allownull}" default="{default}"/>';
+		$textFieldTpl = '<field key="{column_name}" dbtype="{dbtype}" phptype="{phptype}" null="{allownull}" default="{default}"/>';
 		$indexTpl = '<index alias="{column_name}" name="{column_name}" primary="false" unique="false" type="{index}">
 					<column key="{column_name}" length="" collation="A" null="false"/>
 					</index>';
 		$relTpl = '<{relation_type} alias="{alias}" class="{class}" local="{local}" foreign="{foreign}" cardinality="{cardinality}" owner="{owner}"/>';
 
 		// Start the schema
-		$this->logMessages[] = "Building schema...";
+		$this->logMessages[] = "Generating schema...";
 		$xmlSchema = '<?xml version="1.0" encoding="UTF-8"?>';
 
 		// Replace package details
@@ -315,7 +334,12 @@ class GrvBuildPackageProcessor extends modObjectProcessor
 				if ($fields) {
 					foreach ($fields as $field) {
 						// Populate the field row
-						$xmlSchema .= $this->replaceValues($field->toArray(), $fieldTpl);
+						if (stripos($field->get('dbtype'), 'text') !== FALSE) {
+							$xmlSchema .= $this->replaceValues($field->toArray(), $textFieldTpl);
+						}
+						else {
+							$xmlSchema .= $this->replaceValues($field->toArray(), $fieldTpl);
+						}
 
 						// If an index value is set
 						if ($field->get('index')) {

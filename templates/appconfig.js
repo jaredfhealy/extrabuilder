@@ -8,6 +8,7 @@ var app = new Vue({
 			form: '',
 			items: [],
 			package: {},
+			deletePackage: false,
 			object: {},
 			field: {},
 			rel: {},
@@ -25,9 +26,10 @@ var app = new Vue({
 					getlist: 'package/getlist',
 					create: 'package/create',
 					update: 'package/update',
+					remove: 'package/remove',
 					parentField: '',
 					dataKey: 'package',
-					listColumns: ['id', 'display', 'package_key', 'base_class', 'platform', 'default_engine', 'phpdoc_package', 'phpdoc_subpackage', 'sortorder']
+					listColumns: ['id', 'display', 'package_key', 'base_class', 'platform', 'default_engine', 'phpdoc_package', 'phpdoc_subpackage', 'version', 'sortorder']
 				},
 				grvObject: {
 					label_list: 'Objects',
@@ -36,6 +38,7 @@ var app = new Vue({
 					getlist: 'object/getlist',
 					create: 'object/create',
 					update: 'object/update',
+					remove: 'object/remove',
 					parentField: 'package',
 					dataKey: 'object',
 					listColumns: ['id', 'class', 'table_name', 'extends', 'sortorder']
@@ -47,6 +50,7 @@ var app = new Vue({
 					getlist: 'field/getlist',
 					create: 'field/create',
 					update: 'field/update',
+					remove: 'field/remove',
 					parentField: 'object',
 					dataKey: 'field',
 					listColumns: ['id', 'column_name', 'dbtype', 'precision', 'phptype', 'allownull', 'default', 'index', 'sortorder'],
@@ -131,6 +135,7 @@ var app = new Vue({
 					getlist: 'rel/getlist',
 					create: 'rel/create',
 					update: 'rel/update',
+					remove: 'rel/remove',
 					parentField: 'object',
 					dataKey: 'rel',
 					listColumns: ['id', 'relation_type', 'alias', 'class', 'local', 'foreign', 'cardinality', 'owner', 'sortorder'],
@@ -144,8 +149,15 @@ var app = new Vue({
 				import: false,
 				path: '',
 				xml: '',
-				messages: ''
+				messages: '',
+				core_path: '',
+				assets_path: ''
 			}
+		}
+	},
+	watch: {
+		'package.package_key': function(val) {
+			this.package.phpdoc_package = val;
 		}
 	},
 	computed: {
@@ -181,8 +193,8 @@ var app = new Vue({
 			var c2 = this.package.id !== 0;
 			var c3 = this.package.id !== '';
 			var c4 = typeof this.package.id !== 'undefined';
-			var c5 = this.mode == 'create' && this.model == 'grvPackage';
-			return (c1 && c2 !== 0 && c3 && c4) || c5;
+			//var c5 = this.mode == 'create' && this.model == 'grvPackage';
+			return (c1 && c2 !== 0 && c3 && c4)/* || c5*/;
 		},
 		objectSelected: function () {
 			var c1 = this.object.id !== null;
@@ -253,10 +265,10 @@ var app = new Vue({
 
 				// Set the parent as well
 				var parentKey = this.objectMeta[this.model].parentField;
-				this[dataKey][parentKey] = this[parentKey].id;
+				if (parentKey)
+					this[dataKey][parentKey] = this[parentKey].id;
 
 				// Change the view
-				console.log("Setting view to form for " + this.model);
 				this.view = 'form';
 			}
 
@@ -330,8 +342,46 @@ var app = new Vue({
 						if (backToList) {
 							_this.navigate('list', _this.model);
 						}
+						else {
+							console.log("Save Model success and NOT backToList");
+							if (_this.mode == 'create') {
+								console.log("Current mode is Create");
+								_this[_this.objectMeta[_this.model].dataKey].id = response.object.id;
+								_this.navigate('update', _this.model);
+							}
+							else {
+								console.log("Current mode is not Create");
+							}
+						}
 					}
 
+				});
+		},
+		deleteRecord: function() {
+			// Delete the record
+			var _this = this;
+			$.ajax({
+				type: 'POST',
+				headers: { modAuth: this.siteId },
+				url: '/assets/components/grv/connector.php',
+				data: {
+					'action': this.objectMeta[this.model].remove,
+					'id': this[this.objectMeta[this.model].dataKey].id
+				},
+				dataType: 'json'
+			})
+				.always(function (response) {
+					if (response.success) {
+						// Show the alert
+						_this.addAlert('success', _this.objectMeta[_this.model].label_singular + " DELETED successfully");
+						_this.navigate('list', _this.model);
+						if (_this.model === 'grvPackage') {
+							$('#delete_package_modal').modal('hide');
+						}
+					}
+					else {
+						_this.addAlert('danger', 'Unable to delete: ' + response.message || "No error returned.");
+					}
 				});
 		},
 		addAlert: function (type, message) {
@@ -342,16 +392,18 @@ var app = new Vue({
 			};
 			this.alerts.push(alert);
 
-			// If this is not an error, auto dismiss
-			var _this = this;
-			setTimeout(function () {
-				for (var index in _this.alerts) {
-					if (_this.alerts[index].id === alert.id) {
-						_this.removeAlert(index);
+			// If this is success, auto dismiss
+			if (type == 'success') {
+				var _this = this;
+				setTimeout(function () {
+					for (var index in _this.alerts) {
+						if (_this.alerts[index].id === alert.id) {
+							_this.removeAlert(index);
+						}
 					}
-				}
-				_this.removeAlert(alert.id);
-			}, 1000);
+					//_this.removeAlert(alert.id);
+				}, 1000);
+			}
 		},
 		removeAlert: function (index) {
 			this.$delete(this.alerts, index);
@@ -409,7 +461,7 @@ var app = new Vue({
 			var params = {};
 			params[buildAction] = 'true';
 			params.action = 'package/build'
-			params.package_id = this.package.id;
+			params.id = this.package.id;
 
 			// Make the api call
 			var _this = this;
@@ -425,20 +477,17 @@ var app = new Vue({
 						_this.schema.xml = response.object.schema;
 						_this.addAlert('success', 'Preview generated');
 						_this.schema.messages = response.object.messages;
+						if (response.object.core_path) {
+							_this.schema.core_path = response.object.core_path;
+						}
+						if (response.object.assets_path) {
+							_this.schema.assets_path = response.object.assets_path;
+						}
+					}
+					else if (!response.success) {
+						_this.addAlert('danger', response.message || "Unknown error: 500");
 					}
 				});
-		},
-		showImportSchema: function () {
-			this.schema.import = true;
-			this.$nextTick(function () {
-				$('#import_schema_modal').modal('toggle');
-			});
-		},
-		hideImportSchema: function () {
-			$('#import_schema_modal').modal('toggle');
-			this.$nextTick(function () {
-				this.schema.import = false;
-			});
 		},
 		runImportSchema: function () {
 			// Store a reference

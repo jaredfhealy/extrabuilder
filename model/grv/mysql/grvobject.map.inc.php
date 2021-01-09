@@ -62,7 +62,6 @@ $xpdo_meta_map['grvObject']= array (
     'raw_xml' => 
     array (
       'dbtype' => 'text',
-      'precision' => '0',
       'phptype' => 'string',
       'null' => true,
       'default' => '',

@@ -19,6 +19,8 @@ $xpdo_meta_map['grvPackage']= array (
     'phpdoc_subpackage' => 'model',
     'version' => '1.1',
     'sortorder' => 0,
+    'core_path' => '{core_path}components/{package_key}/',
+    'assets_path' => '{assets_path}components/{package_key}/',
   ),
   'fieldMeta' => 
   array (
@@ -93,6 +95,22 @@ $xpdo_meta_map['grvPackage']= array (
       'phptype' => 'integer',
       'null' => false,
       'default' => 0,
+    ),
+    'core_path' => 
+    array (
+      'dbtype' => 'varchar',
+      'precision' => '191',
+      'phptype' => 'string',
+      'null' => false,
+      'default' => '{core_path}components/{package_key}/',
+    ),
+    'assets_path' => 
+    array (
+      'dbtype' => 'varchar',
+      'precision' => '191',
+      'phptype' => 'string',
+      'null' => false,
+      'default' => '{assets_path}components/{package_key}/',
     ),
   ),
   'indexes' => 
