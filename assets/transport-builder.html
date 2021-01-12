@@ -27,10 +27,27 @@
         </div>
 
         <div id="modx-action-buttons">
-			<button type="button" class="btn btn-md btn-primary"
-				onclick="alert('This will do something later')">
-                Transport!
+
+			<button type="button" class="btn btn-md"
+				:class="{'btn-light': form != 'listTransport', 
+						'btn-primary': form == 'listTransport', border: form != 'listTransport'}" 
+				@click="navigate('list', 'grvTransport')"
+				v-show="form !== 'listTransport'">
+                Back to Transports
 			</button>
+			
+			<button type="button" class="btn btn-md btn-primary"
+				v-if="transportSelected"
+				@click="buildTransport()">
+                Build Transport Package!
+			</button>
+
+			<button type="button" class="btn btn-md btn-primary"
+				v-if="!transportSelected"
+				@click="navigate('create', 'grvTransport')">
+                Create Transport Entry
+			</button>
+
         </div>
 
         <div class="container-fluid" style="margin-top: 26px;">
@@ -40,15 +57,182 @@
             </h2>
 
             <ul class="nav nav-tabs">
+
 				<li class="nav-item">
-					<a class="nav-link active" href="#">
+					<a class="nav-link" href="#"
+						:class="{active: form=='listTransport'}"
+						@click="navigate('list', 'grvTransport')">
 						Transport Definitions
 					</a>
 				</li>
+
+				<li class="nav-item">
+					<a class="nav-link" href="#"
+						:class="{active: form=='updateTransport' || form=='createTransport'}"
+						v-show="transportSelected || form=='updateTransport' || form=='createTransport'"
+						@click="navigate('update', 'grvTransport')">
+						{{ transportTabLabel }}
+					</a>
+				</li>
+
             </ul>
             <div class="panel-wrapper shadow-sm">
 
-                <p>Content and functionality goes here</p>
+				<div class="list-mode" v-if="view=='table' && form=='listTransport'">
+					<table class="table table-striped">
+
+						<thead>
+							<tr class="table-secondary">
+								<th>ID</th>
+								<th>Package Display</th>
+								<th>Package key</th>
+								<th>Category</th>
+								<th>Sort Order</th>
+							</tr>
+						</thead>
+						<tbody>
+							<tr v-if="items.length === 0 && dataLoaded">
+								<td colspan="99">
+									Add a new Transport Entry
+								</td>
+							</tr>
+							<tr style="cursor: pointer;" v-for="item in sortedItems" 
+								@click="navigate('update', 'grvTransport', item)">
+								<td v-for="key in meta[model].listColumns">
+									{{ item[key] }}
+								</td>
+							</tr>
+						</tbody>
+					</table>
+				</div>
+				
+				<div class="form-wrapper" v-if="view=='form' && form=='updateTransport' || form=='createTransport'">
+					<form id="transport-form" ref="transportForm" style="max-width: 1000px;"
+					:class="{'was-validated': formErrors, 'needs-validation': !formErrors}">
+
+						<p class="text-muted">
+							This transport feature is "Category" based. All Elements are packaged based on the "Main Category" selected.
+							<br/><br/>If you are using static files in your "core/components/&lt;package-key&gt;/elements/" directory, the files will not be packaged, only the Elements in the database and associated to the slected Category. Use the Static Element feature of MODX and select the /elements/directory of your component/package to store the statick files (Ex: /elements/snippets, /elements/chunks).
+						</p>
+
+						<div class="form-row">
+							<div class="form-group col-md-6">
+								<span class="required">* </span>
+								<label for="package_id">Pick a Defined Package</label>
+								<select type="text" class="form-control" id="package_id" 
+									v-model="transport.package" required>
+									<option value="0" selected>-- Select a Package --</option>
+									<option v-for="package in packages" :value="package.id">{{ package.display }}</option>
+								</select>
+								<div class="invalid-feedback">
+									This field is required
+								</div>
+							</div>
+
+							<div class="form-group col-md-6">
+								<span class="required">* </span>
+								<label for="category_id">Select a Main Category</label>
+								<select type="text" class="form-control" id="category_id" 
+									v-model="transport.category" aria-describedby="categoryHelpBlock" required>
+									<option value="" selected>-- Select a Category --</option>
+									<option v-for="cat in categories" :value="cat.category">{{ cat.category }}</option>
+								</select>
+								<div class="invalid-feedback">
+									This field is required
+								</div>
+								<small id="categoryHelpBlock" class="form-text text-muted">
+									<strong>NOTE: </strong>If you do not already have a main Category for this package, go create one first.
+									<br/><u>ALL Elements</u> including child categories associated to this category will be packaged.
+								</small>
+							</div>
+						</div>
+
+						<hr/>
+						<h5>Category Attributes</h5>
+						<div class="form-row">
+							
+						</div>
+
+						<hr/>
+						<h5>Version and Release</h5>
+						<div class="form-row">
+							<div class="form-group col-md-2">
+								<span class="required">* </span>
+								<label for="version">Major <span class="text-muted">(1.*.*)</span></label>
+								<input type="text" class="form-control" id="version"
+									v-model="transport.major" required>
+								<div class="invalid-feedback">
+									This field is required
+								</div>
+							</div>
+							<div class="form-group col-md-2">
+								<span class="required">* </span>
+								<label for="version">Minor <span class="text-muted">(*.1.*)</span></label>
+								<input type="text" class="form-control" id="version"
+									v-model="transport.minor" required>
+								<div class="invalid-feedback">
+									This field is required
+								</div>
+							</div>
+							<div class="form-group col-md-2">
+								<span class="required">* </span>
+								<label for="version">Patch <span class="text-muted">(*.*.1)</span></label>
+								<input type="text" class="form-control" id="version"
+									v-model="transport.patch" required>
+								<div class="invalid-feedback">
+									This field is required
+								</div>
+							</div>
+
+							<div class="form-group col-md-4">
+								<span class="required">* </span>
+								<label for="release">Release <span class="text-muted">(alpha, beta, rc, pl, dev)</span></label>
+								<select type="text" class="form-control" id="release" aria-describedby="releaseHelpBlock"
+									v-model="transport.release" required>
+									<option value="" selected>-- Select --</option>
+									<option value="pl" selected>pl</option>
+									<option value="rc" selected>rc</option>
+									<option value="alpha" selected>alpha</option>
+									<option value="beta" selected>beta</option>
+									<option value="dev" selected>dev</option>
+								</select>
+								<div class="invalid-feedback">
+									This field is required
+								</div>
+								<small id="releaseHelpBlock" class="form-text text-muted">
+									MODX uses PHP-standardized version number strings:<br>
+									<a href="https://www.php.net/manual/en/function.version-compare.php">Read more here</a>
+									<ul>
+										<li><strong>rc: </strong>Release Candidate</li>
+										<li><strong>pl: </strong>Public Launch</li>
+										<li><strong>beta: </strong>Beta</li>
+										<li><strong>alpha: </strong>Alpha</li>
+										<li><strong>dev: </strong>Dev</li>
+									</ul>
+								</small>
+							</div>
+
+							<div class="form-group col-md-2">
+								<label for="release_index">Release Index</label>
+								<input type="number" class="form-control" id="release_index"
+									v-model="transport.release_index" min="0">
+							</div>
+						</div>
+					</form>
+
+					<button class="btn btn-primary" @click='saveModel()'>
+						Save
+					</button>
+					<button class="btn btn-default border" @click='saveModel(true)'>
+						Save &amp; Back to List
+					</button>
+					<button class="btn btn-warning border" @click="navigate('list','grvTransport')">
+						Cancel
+					</button>
+					<button class="btn btn-danger float-right" @click="deleteModel()">
+						DELETE
+					</button>
+				</div>
 
             </div> <!-- End main panel wrap -->
 
@@ -72,9 +256,8 @@
             }
             else {
                 // Load the resources remotely for development
-                $.get("/app.html", function(data){
+                $.get("/app.html", {type: 'transport'}, function(data){
 					$(data).appendTo('body');
-					enableFullscreen();
                 });
 			}
 		});

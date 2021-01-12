@@ -173,18 +173,30 @@
                     <div id="form-wrapper" v-show="view=='form' && form=='updatePackage'">
 						<form style="max-width: 1000px;">
 
-							<!-- <div class="form-row"> -->
-								<div class="form-group">
-									<label for="core-path">Package Path (Dynamic Variables: {core_path} or {base_path} and {package_key} )</label>
-									<input type="text" class="form-control" id="core-path"
-										v-model="package.core_path">
+							<a data-toggle="collapse" href="#package_paths" role="button" aria-expanded="false" aria-controls="package_paths">
+								Edit/Show Path Definitions
+							</a>
+							<small id="package_paths_help" class="form-text text-muted">
+								Expand to change the default core/asset paths
+							</small>
+
+							<hr/>
+							
+							<div class="collapse" id="package_paths">
+								<div class="mx-auto" style="width: 95%;">
+									<div class="form-group">
+										<label for="core-path">Package Path (Dynamic Variables: {core_path} or {base_path} and {package_key} )</label>
+										<input type="text" class="form-control" id="core-path"
+											v-model="package.core_path">
+									</div>
+									<div class="form-group">
+										<label for="assets-path">Assets Path (Dynamic Variables: {core_path}, {base_path}, {assets_path} and {package_key} )</label>
+										<input type="text" class="form-control" id="assets-path"
+											v-model="package.assets_path">
+									</div>
 								</div>
-								<div class="form-group">
-									<label for="assets-path">Assets Path (Dynamic Variables: {core_path}, {base_path}, {assets_path} and {package_key} )</label>
-									<input type="text" class="form-control" id="assets-path"
-										v-model="package.assets_path">
-								</div>
-							<!-- </div> -->
+								<hr class="mt-4"/>
+							</div>
 
 							<div class="form-row">
 								<div class="form-group col-md-6">
@@ -301,11 +313,23 @@
 
 						<div class="form-group">
 							<label for="xml_preview">XML Schema Preview</label>
+							<small><a href="#" 
+								@click="fullscreenText = {'title': 'XML Schema Preview', 'value': schema.xml}"
+								onclick="$('#full_screen_text').modal('show')"
+								v-show="schema.xml">
+								Fullscreen
+							</a></small>
 							<textarea class="form-control" id="xml_preview" v-model="schema.xml" rows="15" disabled></textarea>
 						</div>
 
 						<div class="form-group">
 							<label for="schema_messages">Build Log Messages</label>
+							<small><a href="#" 
+								@click="fullscreenText = {'title': 'Build Log Messages', 'value': schema.messages}"
+								onclick="$('#full_screen_text').modal('show')"
+								v-show="schema.xml">
+								Fullscreen
+							</a></small>
 							<textarea class="form-control" id="schema_messages" v-model="schema.messages" rows="15" disabled></textarea>
 						</div>
 					</div>
@@ -728,6 +752,28 @@
 					<div class="modal-footer">
 						<button type="button" class="btn btn-danger"
 							@click.prevent="deleteRecord()">Continue with Delete</button>
+						<button type="button" class="btn btn-primary" class="close" 
+							data-dismiss="modal" aria-label="Close">Close</button>
+					</div>
+				</div>
+			</div>
+		</div>
+
+		<div class="modal fade" id="full_screen_text" tabindex="-1">
+			<div class="modal-dialog modal-xl" style="height: 90vh;">
+				<div class="modal-content">
+					<div class="modal-header">
+						<h5 class="modal-title">{{ fullscreenText.title }}</h5>
+						<button type="button" class="close" data-dismiss="modal" aria-label="Close">
+						<span aria-hidden="true">&times;</span>
+						</button>
+					</div>
+					<div class="modal-body" style="height: 80vh;">
+						
+						<textarea style="height: 100%;" class="form-control" v-model="fullscreenText.value" disabled></textarea>
+
+					</div>
+					<div class="modal-footer">
 						<button type="button" class="btn btn-primary" class="close" 
 							data-dismiss="modal" aria-label="Close">Close</button>
 					</div>

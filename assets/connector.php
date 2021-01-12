@@ -11,7 +11,7 @@
 // Development: core/components/<key>/assets
 // Prod:        assets/components/<key>/
 $devFilePath = dirname(__FILE__, 5).'/config.core.php';
-$prodFilePath = dirname(__FILE__, 3).'/config.core.php';
+$prodFilePath = dirname(__FILE__, 4).'/config.core.php';
 if (is_file($devFilePath))
 	require_once $devFilePath;
 else if(is_file($prodFilePath)) {
@@ -27,7 +27,7 @@ if (defined('MODX_CORE_PATH')) {
 	$modx->lexicon->load('grv:default');
 
 	/* handle request */
-	$path = $modx->getOption('processorsPath',$modx->grv->config,$corePath.'processors/');
+	$path = $modx->getOption('processorsPath', $modx->grv->config, $corePath.'processors/');
 	$modx->request->handleRequest(array(
 		'processors_path' => $path,
 		'location' => '',

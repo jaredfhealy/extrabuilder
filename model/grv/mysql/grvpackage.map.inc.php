@@ -101,7 +101,7 @@ $xpdo_meta_map['grvPackage']= array (
       'dbtype' => 'varchar',
       'precision' => '191',
       'phptype' => 'string',
-      'null' => false,
+      'null' => true,
       'default' => '{core_path}components/{package_key}/',
     ),
     'assets_path' => 
@@ -109,7 +109,7 @@ $xpdo_meta_map['grvPackage']= array (
       'dbtype' => 'varchar',
       'precision' => '191',
       'phptype' => 'string',
-      'null' => false,
+      'null' => true,
       'default' => '{assets_path}components/{package_key}/',
     ),
   ),
@@ -153,6 +153,14 @@ $xpdo_meta_map['grvPackage']= array (
     'Objects' => 
     array (
       'class' => 'grvObject',
+      'local' => 'id',
+      'foreign' => 'package',
+      'cardinality' => 'many',
+      'owner' => 'local',
+    ),
+    'Transports' => 
+    array (
+      'class' => 'grvTransport',
       'local' => 'id',
       'foreign' => 'package',
       'cardinality' => 'many',

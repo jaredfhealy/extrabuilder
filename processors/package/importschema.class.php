@@ -25,6 +25,7 @@ class GrvImportSchemaProcessor extends modObjectCreateProcessor
 	{
 		$bodyArr = json_decode(file_get_contents('php://input'), true);
 		$schema = '';
+		$action = 'update';
 
 		$this->modx->log(xPDO::LOG_LEVEL_ERROR, print_r($bodyArr, true));
 		$schemaFilePath = '';
@@ -58,6 +59,7 @@ class GrvImportSchemaProcessor extends modObjectCreateProcessor
 			$package = $this->modx->getObject('grvPackage', ['package_key' => $modelArr['package']->__toString()]);
 			if (!$package) {
 				$package = $this->modx->newObject('grvPackage');
+				$action = 'create';
 			}
 
 			// Set values from the xml
@@ -79,14 +81,15 @@ class GrvImportSchemaProcessor extends modObjectCreateProcessor
 					$objArr = $schemaObject->attributes();
 
 					// Check for an existing field, if we have a package ID or create new
-					if ($package->get('id')) {
+					if ($action === 'update') {
 						$object = $this->modx->getObject('grvObject', [
 							'package' => $package->get('id'),
 							'class' => $objArr['class']->__toString()
 						]);
-						if (!$object) {
-							$object = $this->modx->newObject('grvObject');
-						}
+					}
+					else {
+						// Create a new object
+						$object = $this->modx->newObject('grvObject');
 					}
 
 					// Set values from the xml
@@ -101,15 +104,16 @@ class GrvImportSchemaProcessor extends modObjectCreateProcessor
 							// Get the attributes
 							$objArr = $schemaField->attributes();
 							
-							// Check for an existing field, if we have a package ID or create new
-							if ($object->get('id')) {
+							// Check for an existing field, if we have a object ID or create new
+							if ($action === 'update') {
 								$field = $this->modx->getObject('grvField', [
 									'object' => $object->get('id'),
 									'column_name' => $objArr['key']->__toString()
 								]);
-								if (!$field) {
-									$field = $this->modx->newObject('grvField');
-								}
+							}
+							else {
+								// Create a new fields
+								$field = $this->modx->newObject('grvField');
 							}
 
 							// Set values from the xml
@@ -135,10 +139,13 @@ class GrvImportSchemaProcessor extends modObjectCreateProcessor
 			}
 
 			// Save the package
-			$package->save();
+			if ($package->save()) {
+				return $this->success('Package created from schema');
+			}
 		}
 		else {
 			$this->modx->log(xPDO::LOG_LEVEL_ERROR, "Unable to parse schema");
+			return $this->failure('Unable to parse the schema');
 		}
 	}
 	

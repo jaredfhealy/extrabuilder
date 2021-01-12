@@ -146,12 +146,12 @@ var app = new Vue({
 			debug: [],
 			importSchema: false,
 			schema: {
-				import: false,
 				path: '',
-				xml: '',
-				messages: '',
-				core_path: '',
-				assets_path: ''
+				xml: ''
+			},
+			fullscreenText: {
+				title: '',
+				value: ''
 			}
 		}
 	},
@@ -274,6 +274,9 @@ var app = new Vue({
 
 			// If mode is update
 			if (mode === 'update' && item) {
+				// Clear options
+				this.fieldOptions = '';
+
 				// Set the item
 				this[this.objectMeta[model].dataKey] = item;
 				this.form = mode + this.objectMeta[model].label_singular;
@@ -334,28 +337,25 @@ var app = new Vue({
 				url: '/assets/components/grv/connector.php',
 				data: data,
 				dataType: 'json'
-			})
-				.always(function (response) {
-					if (response.success) {
-						// Show the alert
-						_this.addAlert('success', _this.objectMeta[_this.model].label_singular + " saved successfully");
-						if (backToList) {
-							_this.navigate('list', _this.model);
+			}).always(function (response) {
+				if (response.success) {
+					// Show the alert
+					_this.addAlert('success', _this.objectMeta[_this.model].label_singular + " saved successfully");
+					if (backToList) {
+						_this.navigate('list', _this.model);
+					}
+					else {
+						if (_this.mode == 'create') {
+							console.log("Current mode is Create");
+							_this[_this.objectMeta[_this.model].dataKey].id = response.object.id;
+							_this.navigate('update', _this.model);
 						}
 						else {
-							console.log("Save Model success and NOT backToList");
-							if (_this.mode == 'create') {
-								console.log("Current mode is Create");
-								_this[_this.objectMeta[_this.model].dataKey].id = response.object.id;
-								_this.navigate('update', _this.model);
-							}
-							else {
-								console.log("Current mode is not Create");
-							}
+							console.log("Current mode is not Create");
 						}
 					}
-
-				});
+				}
+			});
 		},
 		deleteRecord: function() {
 			// Delete the record
@@ -509,9 +509,11 @@ var app = new Vue({
 			})
 				.always(function (response) {
 					if (response.success) {
-						_this.schema.xml = response.object.schema;
-						_this.addAlert('success', 'Preview generated');
-						_this.schema.messages = response.object.messages;
+						$('#import_schema_modal').modal('hide');
+						_this.addAlert('success', response.message);
+						_this.schema.xml = '';
+						_this.schema.path = '';
+						_this.navigate('list', 'grvPackage');
 					}
 				});
 		},
@@ -556,7 +558,7 @@ var app = new Vue({
 			var _this = this;
 			$.ajax({
 				type: 'POST',
-				url: '/assets/components/grv/connector.php?action=package/getdefaults',
+				url: '/assets/components/grv/connector.php?action=getdefaults',
 				headers: { modAuth: this.siteId },
 				dataType: 'json'
 			})
@@ -564,7 +566,8 @@ var app = new Vue({
 					if (response.success) {
 						var data = response.object;
 						for (var key in data) {
-							_this.objectMeta[key].fields = data[key];
+							if (typeof _this.objectMeta[key] !== 'undefined')
+								_this.objectMeta[key].fields = data[key];
 						}
 					}
 				});

@@ -423,7 +423,7 @@ class GrvBuildPackageProcessor extends modObjectProcessor
 	 * Replace placeholders with values
 	 * 
 	 */
-	private function replaceValues($objectArray, $stringTpl)
+	public function replaceValues($objectArray, $stringTpl)
 	{
 		$string = $stringTpl;
 		foreach ($objectArray as $key => $value) {
@@ -438,7 +438,7 @@ class GrvBuildPackageProcessor extends modObjectProcessor
 	 * Delete directory recursively
 	 * 
 	 */
-	private function rrmdir($src) {
+	public function rrmdir($src) {
 		$dir = opendir($src);
 		if ($dir) {
 			while(false !== ( $file = readdir($dir)) ) {

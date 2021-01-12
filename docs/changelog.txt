@@ -1,0 +1,9 @@
+grvBuilder 1.0.0 beta
+======================
+- Initial release to gauge interest and get some beta testers
+- Create a Package which contains the model (schema) details
+- Define the Objects within the model
+- Define the Fields within each object with the ability to select common combinations from a dropdown
+- Define 'One to Many' and 'Many to One' relationships between Objects
+- Add additional 'manual' XML entries as needed
+- Build schema files, create tables, modify fields all from the Manager UI
