@@ -3,14 +3,14 @@
 /**
  * Create a Field
  *
- * @package grv
+ * @package extrabuilder
  * @subpackage processors.object
  */
-class GrvFieldCreateProcessor extends modObjectCreateProcessor
+class ExtrabuilderFieldCreateProcessor extends modObjectCreateProcessor
 {
-	public $classKey = 'grvField';
-    public $languageTopics = array('grv:default');
-	public $objectType = 'grv.field';
+	public $classKey = 'ebField';
+    public $languageTopics = array('extrabuilder:default');
+	public $objectType = 'extrabuilder.field';
 	
 }
-return 'GrvFieldCreateProcessor';
+return 'ExtrabuilderFieldCreateProcessor';

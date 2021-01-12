@@ -3,14 +3,14 @@
 /**
  * Remove a Package and all files.
  *
- * @package grv
+ * @package extrabuilder
  * @subpackage processors/package
  */
-class GrvPackageRemoveProcessor extends modObjectRemoveProcessor
+class ExtrabuilderPackageRemoveProcessor extends modObjectRemoveProcessor
 {
-    public $classKey = 'grvPackage';
-    public $languageTopics = array('grv:default');
-	public $objectType = 'grv.package';
+    public $classKey = 'ebPackage';
+    public $languageTopics = array('extrabuilder:default');
+	public $objectType = 'extrabuilder.package';
 
 	/**
 	 * Package key value
@@ -127,4 +127,4 @@ class GrvPackageRemoveProcessor extends modObjectRemoveProcessor
 	}
 }
 
-return 'GrvPackageRemoveProcessor';
+return 'ExtrabuilderPackageRemoveProcessor';

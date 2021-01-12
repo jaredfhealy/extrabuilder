@@ -15,7 +15,7 @@ var app = new Vue({
 			packages: [],
 			package: {},
 			meta: {
-				grvTransport: {
+				ebTransport: {
 					listColumns: ['id','package.display', 'package.package_key', 'category', 'sortorder'],
 					label_list: 'Transports',
 					label_singular: 'Transport',
@@ -29,7 +29,7 @@ var app = new Vue({
 					dataKey: 'transport',
 				}
 			},
-			model: 'grvTransport',
+			model: 'ebTransport',
 			view: 'table',
 			action: 'list',
 			dataLoaded: false,
@@ -40,7 +40,7 @@ var app = new Vue({
 	},
 	computed: {
 		transportTabLabel: function () {
-			return this.transport.id ? this.meta['grvTransport'].label_singular : 'New Transport';
+			return this.transport.id ? this.meta['ebTransport'].label_singular : 'New Transport';
 		},
 		sortedItems: function () {
 			return _.sortBy(this.items, 'sortorder');
@@ -81,8 +81,9 @@ var app = new Vue({
 				this.loadListData();
 			}
 
-			// Update the form and view
-			this.form = model.replace('grv', action);
+			// Update the form and view, replace the class prefix 'eb'
+			// with the action, ex: ebPackage = updatePackage
+			this.form = model.replace('eb', action);
 			this.view = action === 'list' ? 'table' : 'form';
 		},
 		saveModel: function(backToList) {
@@ -108,7 +109,7 @@ var app = new Vue({
 			$.ajax({
 				type: 'POST',
 				headers: { modAuth: this.siteId },
-				url: '/assets/components/grv/connector.php',
+				url: '/assets/components/extrabuilder/connector.php',
 				data: data,
 				dataType: 'json'
 			}).always(function (response) {
@@ -133,7 +134,7 @@ var app = new Vue({
 			$.ajax({
 				type: 'POST',
 				headers: { modAuth: this.siteId },
-				url: '/assets/components/grv/connector.php',
+				url: '/assets/components/extrabuilder/connector.php',
 				data: {
 					'action': this.meta[this.model].remove,
 					'id': this[this.meta[this.model].dataKey].id
@@ -181,7 +182,7 @@ var app = new Vue({
 			$.ajax({
 				type: 'POST',
 				headers: { modAuth: this.siteId },
-				url: '/assets/components/grv/connector.php',
+				url: '/assets/components/extrabuilder/connector.php',
 				data: {
 					action: this.meta[this.model].get,
 					id: id
@@ -201,7 +202,7 @@ var app = new Vue({
 			$.ajax({
 				type: 'POST',
 				headers: { modAuth: this.siteId },
-				url: '/assets/components/grv/connector.php',
+				url: '/assets/components/extrabuilder/connector.php',
 				data: {
 					action: 'package/getlist'
 				},
@@ -219,7 +220,7 @@ var app = new Vue({
 			var _this = this;
 			$.ajax({
 				type: 'POST',
-				url: '/assets/components/grv/connector.php?action=getcategories',
+				url: '/assets/components/extrabuilder/connector.php?action=getcategories',
 				headers: { modAuth: this.siteId },
 				data: {
 					query: JSON.stringify({
@@ -239,7 +240,7 @@ var app = new Vue({
 			$.ajax({
 				type: 'POST',
 				headers: { modAuth: this.siteId },
-				url: '/assets/components/grv/connector.php',
+				url: '/assets/components/extrabuilder/connector.php',
 				data: {
 					action: this.meta[this.model].getlist
 				},
@@ -258,7 +259,7 @@ var app = new Vue({
 			var _this = this;
 			$.ajax({
 				type: 'POST',
-				url: '/assets/components/grv/connector.php?action=getdefaults',
+				url: '/assets/components/extrabuilder/connector.php?action=getdefaults',
 				headers: { modAuth: this.siteId },
 				dataType: 'json'
 			}).always(function (response) {
@@ -273,7 +274,7 @@ var app = new Vue({
 			var _this = this;
 			$.ajax({
 				type: 'POST',
-				url: '/assets/components/grv/connector.php',
+				url: '/assets/components/extrabuilder/connector.php',
 				headers: { modAuth: this.siteId },
 				data: {
 					action: 'transport/build',

@@ -30,8 +30,8 @@
 			<button type="button" class="btn btn-md"
 				:class="{'btn-light': form != 'packageList', 
 						'btn-primary': form == 'packageList', border: form != 'packageList'}" 
-				@click="navigate('list', 'grvPackage')"
-				v-show="model != 'grvPackage'">
+				@click="navigate('list', 'ebPackage')"
+				v-show="model != 'ebPackage'">
                 Back to Packages
 			</button>
             
@@ -63,16 +63,16 @@
             <ul class="nav nav-tabs">
 				<li class="nav-item">
 					<a class="nav-link" href="#"
-						:class="{active: model=='grvPackage' && form=='packageList'}"
-						@click="navigate('list', 'grvPackage')">
+						:class="{active: model=='ebPackage' && form=='packageList'}"
+						@click="navigate('list', 'ebPackage')">
 						Packages
 					</a>
 				</li>
 				<li class="nav-item">
 					<a class="nav-link" href="#"
 						:class="{active: form=='updatePackage'}"
-						v-show="packageSelected || mode == 'create' && model == 'grvPackage'"
-						@click="navigate('update', 'grvPackage')">
+						v-show="packageSelected || mode == 'create' && model == 'ebPackage'"
+						@click="navigate('update', 'ebPackage')">
 						{{ packageTabLabel }}
 					</a>
 				</li>
@@ -80,15 +80,15 @@
 					<a class="nav-link" href="#"
 						:class="{active: form=='packageUtils'}"
 						v-show="packageSelected"
-						@click="navigate('preview', 'grvPackage')">
+						@click="navigate('preview', 'ebPackage')">
 						Preview & Build
 					</a>
 				</li>
 				<li class="nav-item">
 					<a class="nav-link" href="#"
-						:class="{active: model=='grvObject' && form=='objectList'}"
+						:class="{active: model=='ebObject' && form=='objectList'}"
 						v-show="packageSelected"
-						@click="navigate('list', 'grvObject')">
+						@click="navigate('list', 'ebObject')">
 						Objects
 					</a>
 				</li>
@@ -96,7 +96,7 @@
 					<a class="nav-link" href="#"
 						:class="{active: form=='updateObject'}"
 						v-show="objectSelected"
-						@click="navigate('update', 'grvObject')">
+						@click="navigate('update', 'ebObject')">
 						{{ objectTabLabel }}
 					</a>
 				</li>
@@ -104,7 +104,7 @@
 					<a class="nav-link" href="#"
 						:class="{active: form=='fieldList'}"
 						v-show="objectSelected"
-						@click="navigate('list', 'grvField')">
+						@click="navigate('list', 'ebField')">
 						Fields
 					</a>
 				</li>
@@ -112,7 +112,7 @@
 					<a class="nav-link" href="#"
 						:class="{active: form=='updateField'}"
 						v-show="fieldSelected"
-						@click="navigate('update', 'grvField')">
+						@click="navigate('update', 'ebField')">
 						{{ fieldTabLabel }}
 					</a>
 				</li>
@@ -120,7 +120,7 @@
 					<a class="nav-link" href="#"
 						:class="{active: form=='relList'}"
 						v-show="objectSelected"
-						@click="navigate('list', 'grvRel')">
+						@click="navigate('list', 'ebRel')">
 						Relations
 					</a>
 				</li>
@@ -128,14 +128,14 @@
 					<a class="nav-link" href="#"
 						:class="{active: form=='updateRelation'}"
 						v-show="relSelected"
-						@click="navigate('update', 'grvRel')">
+						@click="navigate('update', 'ebRel')">
 						{{ relTabLabel }}
 					</a>
 				</li>
             </ul>
             <div class="panel-wrapper shadow-sm">
 
-                <div v-if="model == 'grvPackage'">
+                <div v-if="model == 'ebPackage'">
                     <div class="list-mode" v-if="view=='table' && form=='packageList'">
 
                         <table class="table table-striped">
@@ -161,7 +161,7 @@
                                     </td>
                                 </tr>
                                 <tr style="cursor: pointer;" v-for="item in sortedItems" 
-                                    @click="navigate('update', 'grvPackage', item)">
+                                    @click="navigate('update', 'ebPackage', item)">
                                     <td v-for="key in objectMeta[model].listColumns">
 										{{ item[key] }}
 									</td>
@@ -268,7 +268,7 @@
 						<button class="btn btn-default border" @click='saveModel(true)'>
 							Save &amp; Back to List
 						</button>
-						<button class="btn btn-warning border" @click="navigate('list','grvPackage')">
+						<button class="btn btn-warning border" @click="navigate('list','ebPackage')">
 							Cancel
 						</button>
 						<button class="btn btn-danger float-right" onclick="$('#delete_package_modal').modal('show')">
@@ -334,10 +334,10 @@
 						</div>
 					</div>
                 </div>
-                <!-- End grvPackage -->
+                <!-- End ebPackage -->
                 
-                <!-- Start grvObject -->
-                <div v-if="model == 'grvObject'">
+                <!-- Start ebObject -->
+                <div v-if="model == 'ebObject'">
                     <div class="list-mode" v-if="view == 'table'">
 
                         <table class="table table-striped">
@@ -358,7 +358,7 @@
                                     </td>
                                 </tr>
                                 <tr style="cursor: pointer;" v-for="item in sortedItems" 
-                                    @click="navigate('update', 'grvObject', item)">
+                                    @click="navigate('update', 'ebObject', item)">
 									<td v-for="key in objectMeta[model].listColumns">
 										{{ item[key] }}
 									</td>
@@ -421,10 +421,10 @@
 
                     </div>
                 </div>
-                <!-- End grvObject -->
+                <!-- End ebObject -->
                 
-                <!-- Start grvField -->
-                <div v-if="model == 'grvField'">
+                <!-- Start ebField -->
+                <div v-if="model == 'ebField'">
                     <div class="list-mode" v-if="view == 'table'">
 
                         <table class="table table-striped">
@@ -449,7 +449,7 @@
                                     </td>
                                 </tr>
                                 <tr style="cursor: pointer;" v-for="item in sortedItems" 
-                                    @click="navigate('update', 'grvField', item)">
+                                    @click="navigate('update', 'ebField', item)">
 									<td v-for="key in objectMeta[model].listColumns">
 										{{ item[key] }}
 									</td>
@@ -468,7 +468,7 @@
 										v-model="fieldOptions"
 										@change="setQuickSelectValues(fieldOptions)">
 										<option value="">-- Quick Select --</option>
-										<option v-for="(option, index) in objectMeta.grvField.quickSelect"
+										<option v-for="(option, index) in objectMeta.ebField.quickSelect"
 											:value="option">{{ option.label }}</option>
 									</select>
 								</div>
@@ -558,10 +558,10 @@
                         </button>
 
                     </div>
-				</div><!-- End grvField -->
+				</div><!-- End ebField -->
 				
-				<!-- Start grvRel -->
-                <div v-if="model == 'grvRel'">
+				<!-- Start ebRel -->
+                <div v-if="model == 'ebRel'">
                     <div class="list-mode" v-if="view == 'table'">
 
                         <table class="table table-striped">
@@ -586,7 +586,7 @@
                                     </td>
                                 </tr>
                                 <tr style="cursor: pointer;" v-for="item in sortedItems" 
-                                    @click="navigate('update', 'grvRel', item)">
+                                    @click="navigate('update', 'ebRel', item)">
 									<td v-for="key in objectMeta[model].listColumns">
 										{{ item[key] }}
 									</td>
@@ -679,7 +679,7 @@
                         </button>
 
                     </div>
-                </div><!-- End grvRel -->
+                </div><!-- End ebRel -->
 
             </div> <!-- End main panel wrap -->
 
@@ -701,7 +701,7 @@
 
 							<div class="form-group">
 								<label for="schema-path">
-									Schema File Path (From MODX Base, ex: /mything/model/schema/mything.mysql.schema.xml)
+									Schema File Path ( From MODX Base, ex: mything/model/schema/mything.mysql.schema.xml )
 								</label>
 								<input type="text" class="form-control" id="schema-path"
 									v-model="schema.path">

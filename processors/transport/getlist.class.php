@@ -3,16 +3,16 @@
 /**
  * Get list Transport
  *
- * @package grv
+ * @package extrabuilder
  * @subpackage processors.transport
  */
-class GrvTransportGetListProcessor extends modObjectGetListProcessor 
+class ExtrabuilderTransportGetListProcessor extends modObjectGetListProcessor 
 {
-    public $classKey = 'grvTransport';
-    public $languageTopics = array('grv:default');
+    public $classKey = 'ebTransport';
+    public $languageTopics = array('extrabuilder:default');
     public $defaultSortField = 'sortorder';
     public $defaultSortDirection = 'ASC';
-	public $objectType = 'grv.transport';
+	public $objectType = 'extrabuilder.transport';
 
 	/**
      * Can be used to adjust the query prior to the COUNT statement
@@ -39,7 +39,7 @@ class GrvTransportGetListProcessor extends modObjectGetListProcessor
      */
     public function afterIteration(array $list) {
 		// Get all packages as an array
-		$packages = $this->modx->getCollection('grvPackage');
+		$packages = $this->modx->getCollection('ebPackage');
 
 		// Loop through and add columns for the Package display
 		foreach ($list as $key => $row) {
@@ -77,4 +77,4 @@ class GrvTransportGetListProcessor extends modObjectGetListProcessor
 		return false;
 	}
 }
-return 'GrvTransportGetListProcessor';
+return 'ExtrabuilderTransportGetListProcessor';

@@ -1,5 +1,5 @@
 <?php
-class Grv {
+class Extrabuilder {
     public $modx;
     public $config = array();
     public function __construct(modX &$modx,array $config = array()) {
@@ -10,8 +10,8 @@ class Grv {
         $assetsPath = $this->modx->getOption('assets_url');
         
         // Check for overrides
-        $basePath = $this->modx->getOption('grv.core_path', $config, $corePath.'components/grv/');
-        $assetsUrl = $this->modx->getOption('grv.assets_url', $config, $assetsPath.'components/grv/');
+        $basePath = $this->modx->getOption('extrabuilder.core_path', $config, $corePath.'components/extrabuilder/');
+        $assetsUrl = $this->modx->getOption('extrabuilder.assets_url', $config, $assetsPath.'components/extrabuilder/');
         $this->config = array_merge(array(
             'basePath' => $basePath,
             'corePath' => $basePath,
@@ -26,7 +26,7 @@ class Grv {
         ),$config);
         
         // Add the package
-        $this->modx->addPackage('grv', $this->config['modelPath']);
+        $this->modx->addPackage('extrabuilder', $this->config['modelPath']);
 	}
 	
 	/**
@@ -119,8 +119,8 @@ class Grv {
 		while(false !== ( $file = readdir($dir)) ) {
 			$exclude = [
 				$file === 'assets',
-				$this->modx->grv->startsWith($file, '_'),
-				$this->modx->grv->startsWith($file, '.'),
+				$this->modx->eb->startsWith($file, '_'),
+				$this->modx->eb->startsWith($file, '.'),
 				$file === '.',
 				$file === '..'
 			];

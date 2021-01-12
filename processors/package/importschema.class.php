@@ -3,14 +3,14 @@
 /**
  * Import schema
  *
- * @package grv
+ * @package extrabuilder
  * @subpackage processors.package
  */
-class GrvImportSchemaProcessor extends modObjectCreateProcessor
+class ExtrabuilderImportSchemaProcessor extends modObjectCreateProcessor
 {
-	public $classKey = 'grvPackage';
-    public $languageTopics = array('grv:default');
-	public $objectType = 'grv.package';
+	public $classKey = 'ebPackage';
+    public $languageTopics = array('extrabuilder:default');
+	public $objectType = 'extrabuilder.package';
 
 	/**
 	 * Parsed XML Document
@@ -31,7 +31,9 @@ class GrvImportSchemaProcessor extends modObjectCreateProcessor
 		$schemaFilePath = '';
 		if ($bodyArr['schema_file_path']) {
 			$schemaFilePath = realpath(MODX_CORE_PATH . 'components/' . $bodyArr['schema_file_path']);
-			$this->modx->log(xPDO::LOG_LEVEL_ERROR, "Schema path: $schemaFilePath, type: ".gettype($schemaFilePath));
+			if (!$schemaFilePath) {
+				return $this->failure('Path Invalid: '.MODX_CORE_PATH . 'components/' . $bodyArr['schema_file_path']);
+			}
 		}
 		
 		if (!empty($schemaFilePath)) {
@@ -42,7 +44,7 @@ class GrvImportSchemaProcessor extends modObjectCreateProcessor
 				$schema = new SimpleXMLElement($schemaFilePath, 0, true);
 			}
 			else {
-				$this->modx->log(xPDO::LOG_LEVEL_ERROR, "This is not a file.");
+				return $this->failure('Incorrect file type: '.MODX_CORE_PATH . 'components/' . $bodyArr['schema_file_path']);
 			}
 		}
 		else if (!empty($bodyArr['schema_xml'])) {
@@ -56,9 +58,9 @@ class GrvImportSchemaProcessor extends modObjectCreateProcessor
 			$modelArr = $schema[0]->attributes();
 
 			// Check for an existing package or start a new entry
-			$package = $this->modx->getObject('grvPackage', ['package_key' => $modelArr['package']->__toString()]);
+			$package = $this->modx->getObject('ebPackage', ['package_key' => $modelArr['package']->__toString()]);
 			if (!$package) {
-				$package = $this->modx->newObject('grvPackage');
+				$package = $this->modx->newObject('ebPackage');
 				$action = 'create';
 			}
 
@@ -77,19 +79,19 @@ class GrvImportSchemaProcessor extends modObjectCreateProcessor
 				$childObjects = [];
 				foreach ($schema->object as $schemaObject) {
 					// Get the attributes
-					$object = $this->modx->newObject('grvObject');
+					$object = $this->modx->newObject('ebObject');
 					$objArr = $schemaObject->attributes();
 
 					// Check for an existing field, if we have a package ID or create new
 					if ($action === 'update') {
-						$object = $this->modx->getObject('grvObject', [
+						$object = $this->modx->getObject('ebObject', [
 							'package' => $package->get('id'),
 							'class' => $objArr['class']->__toString()
 						]);
 					}
 					else {
 						// Create a new object
-						$object = $this->modx->newObject('grvObject');
+						$object = $this->modx->newObject('ebObject');
 					}
 
 					// Set values from the xml
@@ -106,14 +108,14 @@ class GrvImportSchemaProcessor extends modObjectCreateProcessor
 							
 							// Check for an existing field, if we have a object ID or create new
 							if ($action === 'update') {
-								$field = $this->modx->getObject('grvField', [
+								$field = $this->modx->getObject('ebField', [
 									'object' => $object->get('id'),
 									'column_name' => $objArr['key']->__toString()
 								]);
 							}
 							else {
 								// Create a new fields
-								$field = $this->modx->newObject('grvField');
+								$field = $this->modx->newObject('ebField');
 							}
 
 							// Set values from the xml
@@ -128,6 +130,79 @@ class GrvImportSchemaProcessor extends modObjectCreateProcessor
 
 						// Add many fields to the object
 						$object->addMany($childFields);
+						unset($childFields); // save memory
+					}
+
+					// Now add child composite relationship entries
+					if (isset($schemaObject->composite)) {
+						$childRels = [];
+						foreach ($schemaObject->composite as $schemaRel) {
+							// Get the attributes
+							$objArr = $schemaRel->attributes();
+							
+							// Check for an existing field, if we have a object ID or create new
+							if ($action === 'update') {
+								$rel = $this->modx->getObject('ebRel', [
+									'object' => $object->get('id'),
+									'alias' => $objArr['alias']->__toString(),
+									'relation_type' => 'composite'
+								]);
+							}
+							else {
+								// Create a new fields
+								$rel = $this->modx->newObject('ebRel');
+								$rel->set('relation_type', 'composite');
+							}
+
+							// Set values from the xml
+							$this->setValueFromAttribute($rel, 'alias', $objArr, 'alias');
+							$this->setValueFromAttribute($rel, 'class', $objArr, 'class');
+							$this->setValueFromAttribute($rel, 'local', $objArr, 'local');
+							$this->setValueFromAttribute($rel, 'foreign', $objArr, 'foreign');
+							$this->setValueFromAttribute($rel, 'cardinality', $objArr, 'cardinality');
+							$this->setValueFromAttribute($rel, 'owner', $objArr, 'owner');
+							$childRels[] = $rel;
+						}
+
+						// Add many fields to the object
+						$object->addMany($childRels);
+						unset($childRels); // save memory
+					}
+
+					// Now add child aggregate relationship entries
+					if (isset($schemaObject->aggregate)) {
+						$childRels = [];
+						foreach ($schemaObject->aggregate as $schemaRel) {
+							// Get the attributes
+							$objArr = $schemaRel->attributes();
+							
+							// Check for an existing field, if we have a object ID or create new
+							if ($action === 'update') {
+								$rel = $this->modx->getObject('ebRel', [
+									'object' => $object->get('id'),
+									'alias' => $objArr['alias']->__toString(),
+									'relation_type' => 'aggregate'
+								]);
+							}
+							else {
+								// Create a new fields
+								$rel = $this->modx->newObject('ebRel');
+								$rel->set('relation_type', 'aggregate');
+							}
+
+							// Set values from the xml
+							$this->setValueFromAttribute($rel, 'alias', $objArr, 'alias');
+							$this->setValueFromAttribute($rel, 'class', $objArr, 'class');
+							$this->setValueFromAttribute($rel, 'local', $objArr, 'local');
+							$this->setValueFromAttribute($rel, 'foreign', $objArr, 'foreign');
+							$this->setValueFromAttribute($rel, 'cardinality', $objArr, 'cardinality');
+							$this->setValueFromAttribute($rel, 'owner', $objArr, 'owner');
+							$childRels[] = $rel;
+						}
+
+						// Add many fields to the object
+						$object->addMany($childRels);
+						unset($childRels); // save memory
 					}
 
 					// Add the object with child fields to the child object array
@@ -144,7 +219,6 @@ class GrvImportSchemaProcessor extends modObjectCreateProcessor
 			}
 		}
 		else {
-			$this->modx->log(xPDO::LOG_LEVEL_ERROR, "Unable to parse schema");
 			return $this->failure('Unable to parse the schema');
 		}
 	}
@@ -165,4 +239,4 @@ class GrvImportSchemaProcessor extends modObjectCreateProcessor
 		}
 	}
 }
-return 'GrvImportSchemaProcessor';
+return 'ExtrabuilderImportSchemaProcessor';

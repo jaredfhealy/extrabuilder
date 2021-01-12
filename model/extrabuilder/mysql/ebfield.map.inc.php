@@ -1,8 +1,8 @@
 <?php
-$xpdo_meta_map['grvField']= array (
-  'package' => 'grv',
+$xpdo_meta_map['ebField']= array (
+  'package' => 'extrabuilder',
   'version' => '1.1',
-  'table' => 'grv_fields',
+  'table' => 'extrabuilder_fields',
   'extends' => 'xPDOSimpleObject',
   'tableMeta' => 
   array (
@@ -143,7 +143,7 @@ $xpdo_meta_map['grvField']= array (
   array (
     'Object' => 
     array (
-      'class' => 'grvObject',
+      'class' => 'ebObject',
       'local' => 'object',
       'foreign' => 'id',
       'cardinality' => 'one',

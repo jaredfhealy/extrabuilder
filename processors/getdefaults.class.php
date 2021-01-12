@@ -3,14 +3,14 @@
 /**
  * Import schema
  *
- * @package grv
+ * @package extrabuilder
  * @subpackage processors
  */
-class GrvGetDefaultsProcessor extends modProcessor
+class ExtrabuilderGetDefaultsProcessor extends modProcessor
 {
-	public $classKey = 'grvPackage';
-    public $languageTopics = array('grv:default');
-	public $objectType = 'grv.package';
+	public $classKey = 'ebPackage';
+    public $languageTopics = array('extrabuilder:default');
+	public $objectType = 'extrabuilder.package';
 
 	/**
 	 * Override the process function
@@ -20,11 +20,11 @@ class GrvGetDefaultsProcessor extends modProcessor
 	{
 		// Build the return array
 		$objectFields = [
-			'grvPackage' => $this->getFieldDefaults('grvPackage'),
-			'grvObject' => $this->getFieldDefaults('grvObject'),
-			'grvField' => $this->getFieldDefaults('grvField'),
-			'grvRel' => $this->getFieldDefaults('grvRel'),
-			'grvTransport' => $this->getFieldDefaults('grvTransport')
+			'ebPackage' => $this->getFieldDefaults('ebPackage'),
+			'ebObject' => $this->getFieldDefaults('ebObject'),
+			'ebField' => $this->getFieldDefaults('ebField'),
+			'ebRel' => $this->getFieldDefaults('ebRel'),
+			'ebTransport' => $this->getFieldDefaults('ebTransport')
 		];
 
 		// Set the response
@@ -52,4 +52,4 @@ class GrvGetDefaultsProcessor extends modProcessor
 		return json_encode($fields);
 	}
 }
-return 'GrvGetDefaultsProcessor';
+return 'ExtrabuilderGetDefaultsProcessor';

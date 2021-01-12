@@ -1,8 +1,8 @@
 <?php
-$xpdo_meta_map['grvTransport']= array (
-  'package' => 'grv',
+$xpdo_meta_map['ebTransport']= array (
+  'package' => 'extrabuilder',
   'version' => '1.1',
-  'table' => 'grv_transport',
+  'table' => 'extrabuilder_transport',
   'extends' => 'xPDOSimpleObject',
   'tableMeta' => 
   array (
@@ -117,7 +117,7 @@ $xpdo_meta_map['grvTransport']= array (
   array (
     'Package' => 
     array (
-      'class' => 'grvPackage',
+      'class' => 'ebPackage',
       'local' => 'package',
       'foreign' => 'id',
       'cardinality' => 'one',

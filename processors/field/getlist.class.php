@@ -3,15 +3,15 @@
 /**
  * Get list Fields
  *
- * @package grv
+ * @package extrabuilder
  * @subpackage processors.field
  */
-class GrvFieldGetListProcessor extends modObjectGetListProcessor {
-    public $classKey = 'grvField';
-    public $languageTopics = array('grv:default');
+class ExtrabuilderFieldGetListProcessor extends modObjectGetListProcessor {
+    public $classKey = 'ebField';
+    public $languageTopics = array('extrabuilder:default');
     public $defaultSortField = 'sortorder';
     public $defaultSortDirection = 'ASC';
-	public $objectType = 'grv.field';
+	public $objectType = 'extrabuilder.field';
 
 	/**
      * Can be used to adjust the query prior to the COUNT statement
@@ -31,4 +31,4 @@ class GrvFieldGetListProcessor extends modObjectGetListProcessor {
         return $c;
     }
 }
-return 'GrvFieldGetListProcessor';
+return 'ExtrabuilderFieldGetListProcessor';

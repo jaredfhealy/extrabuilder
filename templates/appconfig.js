@@ -4,7 +4,7 @@ var app = new Vue({
 		return {
 			mode: 'list',
 			view: 'table',
-			model: 'grvPackage',
+			model: 'ebPackage',
 			form: '',
 			items: [],
 			package: {},
@@ -19,7 +19,7 @@ var app = new Vue({
 			sortfield: 'sortorder',
 			alerts: [],
 			objectMeta: {
-				grvPackage: {
+				ebPackage: {
 					label_list: 'Packages',
 					label_singular: 'Package',
 					fields: "",
@@ -31,7 +31,7 @@ var app = new Vue({
 					dataKey: 'package',
 					listColumns: ['id', 'display', 'package_key', 'base_class', 'platform', 'default_engine', 'phpdoc_package', 'phpdoc_subpackage', 'version', 'sortorder']
 				},
-				grvObject: {
+				ebObject: {
 					label_list: 'Objects',
 					label_singular: 'Object',
 					fields: "",
@@ -43,7 +43,7 @@ var app = new Vue({
 					dataKey: 'object',
 					listColumns: ['id', 'class', 'table_name', 'extends', 'sortorder']
 				},
-				grvField: {
+				ebField: {
 					label_list: 'Fields',
 					label_singular: 'Field',
 					fields: "",
@@ -128,7 +128,7 @@ var app = new Vue({
 						}
 					]
 				},
-				grvRel: {
+				ebRel: {
 					label_list: 'Relations',
 					label_singular: 'Relation',
 					fields: "",
@@ -166,25 +166,25 @@ var app = new Vue({
 		},
 		packageTabLabel: function () {
 			if (this.package.display) {
-				return this.objectMeta['grvPackage'].label_singular + ": " + this.package.display;
+				return this.objectMeta['ebPackage'].label_singular + ": " + this.package.display;
 			}
 			return 'New Package';
 		},
 		objectTabLabel: function () {
 			if (this.object.class) {
-				return this.objectMeta['grvObject'].label_singular + ": " + this.object.class;
+				return this.objectMeta['ebObject'].label_singular + ": " + this.object.class;
 			}
 			return 'New Object';
 		},
 		fieldTabLabel: function () {
 			if (this.field.column_name) {
-				return this.objectMeta['grvField'].label_singular + ": " + this.field.column_name;
+				return this.objectMeta['ebField'].label_singular + ": " + this.field.column_name;
 			}
 			return 'New Field';
 		},
 		relTabLabel: function () {
 			if (this.rel.alias) {
-				return this.objectMeta['grvRel'].label_singular + ": " + this.rel.alias;
+				return this.objectMeta['ebRel'].label_singular + ": " + this.rel.alias;
 			}
 			return 'New Relation';
 		},
@@ -193,7 +193,7 @@ var app = new Vue({
 			var c2 = this.package.id !== 0;
 			var c3 = this.package.id !== '';
 			var c4 = typeof this.package.id !== 'undefined';
-			//var c5 = this.mode == 'create' && this.model == 'grvPackage';
+			//var c5 = this.mode == 'create' && this.model == 'ebPackage';
 			return (c1 && c2 !== 0 && c3 && c4)/* || c5*/;
 		},
 		objectSelected: function () {
@@ -201,7 +201,7 @@ var app = new Vue({
 			var c2 = this.object.id !== 0;
 			var c3 = this.object.id !== '';
 			var c4 = typeof this.object.id !== 'undefined';
-			var c5 = this.mode == 'create' && this.model == 'grvObject';
+			var c5 = this.mode == 'create' && this.model == 'ebObject';
 			return (c1 && c2 !== 0 && c3 && c4) || c5;
 		},
 		fieldSelected: function () {
@@ -209,7 +209,7 @@ var app = new Vue({
 			var c2 = this.field.id !== 0;
 			var c3 = this.field.id !== '';
 			var c4 = typeof this.field.id !== 'undefined';
-			var c5 = this.mode == 'create' && this.model == 'grvField';
+			var c5 = this.mode == 'create' && this.model == 'ebField';
 			return (c1 && c2 !== 0 && c3 && c4) || c5;
 		},
 		relSelected: function () {
@@ -217,7 +217,7 @@ var app = new Vue({
 			var c2 = this.rel.id !== 0;
 			var c3 = this.rel.id !== '';
 			var c4 = typeof this.rel.id !== 'undefined';
-			var c5 = this.mode == 'create' && this.model == 'grvRel';
+			var c5 = this.mode == 'create' && this.model == 'ebRel';
 			return (c1 && c2 !== 0 && c3 && c4) || c5;
 		}
 	},
@@ -227,7 +227,7 @@ var app = new Vue({
 			 * Function to 'navigate' between modes
 			 *
 			 * Allowed Modes: list, create, update
-			 * Models: Any valid xPDO class, grvPackage
+			 * Models: Any valid xPDO class, ebPackage
 			 * 
 			 * @param {string} mode The current mode value
 			 * @param {string} model The xPDO class name
@@ -296,23 +296,23 @@ var app = new Vue({
 				this.form = this.objectMeta[model].dataKey + "List";
 
 				// Clear data objects per case
-				if (model === 'grvPackage') {
+				if (model === 'ebPackage') {
 					this.package = {};
 					this.object = {};
 					this.field = {};
 					this.schema = {};
 					//this.form = 'packageList';
 				}
-				else if (model === 'grvObject') {
+				else if (model === 'ebObject') {
 					this.object = {};
 					this.field = {};
 					//this.form = 'objectList';
 				}
-				else if (model === 'grvField') {
+				else if (model === 'ebField') {
 					this.field = {};
 					//this.form = 'fieldList';
 				}
-				else if (model === 'grvRel') {
+				else if (model === 'ebRel') {
 					this.rel = {};
 					//this.form = 'fieldList';
 				}
@@ -334,7 +334,7 @@ var app = new Vue({
 			$.ajax({
 				type: 'POST',
 				headers: { modAuth: this.siteId },
-				url: '/assets/components/grv/connector.php',
+				url: '/assets/components/extrabuilder/connector.php',
 				data: data,
 				dataType: 'json'
 			}).always(function (response) {
@@ -363,7 +363,7 @@ var app = new Vue({
 			$.ajax({
 				type: 'POST',
 				headers: { modAuth: this.siteId },
-				url: '/assets/components/grv/connector.php',
+				url: '/assets/components/extrabuilder/connector.php',
 				data: {
 					'action': this.objectMeta[this.model].remove,
 					'id': this[this.objectMeta[this.model].dataKey].id
@@ -375,7 +375,7 @@ var app = new Vue({
 						// Show the alert
 						_this.addAlert('success', _this.objectMeta[_this.model].label_singular + " DELETED successfully");
 						_this.navigate('list', _this.model);
-						if (_this.model === 'grvPackage') {
+						if (_this.model === 'ebPackage') {
 							$('#delete_package_modal').modal('hide');
 						}
 					}
@@ -426,10 +426,10 @@ var app = new Vue({
 			var queryObj = {};
 
 			// Handle limiting child lists to their parent
-			if (this.model === 'grvObject') {
+			if (this.model === 'ebObject') {
 				queryObj.package = this.package.id;
 			}
-			else if (this.model === 'grvField' || this.model === 'grvRel') {
+			else if (this.model === 'ebField' || this.model === 'ebRel') {
 				queryObj.object = this.object.id;
 			}
 
@@ -444,7 +444,7 @@ var app = new Vue({
 			$.ajax({
 				type: 'POST',
 				headers: { modAuth: this.siteId },
-				url: '/assets/components/grv/connector.php',
+				url: '/assets/components/extrabuilder/connector.php',
 				data: params,
 				dataType: 'json'
 			}).always(function (response) {
@@ -467,7 +467,7 @@ var app = new Vue({
 			var _this = this;
 			$.ajax({
 				type: 'POST',
-				url: '/assets/components/grv/connector.php',
+				url: '/assets/components/extrabuilder/connector.php',
 				headers: { modAuth: this.siteId },
 				data: params,
 				dataType: 'json'
@@ -502,7 +502,7 @@ var app = new Vue({
 			// Make the api call
 			$.ajax({
 				type: 'POST',
-				url: '/assets/components/grv/connector.php?action=package/importschema',
+				url: '/assets/components/extrabuilder/connector.php?action=package/importschema',
 				headers: { modAuth: this.siteId },
 				data: JSON.stringify(params),
 				dataType: 'json'
@@ -513,7 +513,10 @@ var app = new Vue({
 						_this.addAlert('success', response.message);
 						_this.schema.xml = '';
 						_this.schema.path = '';
-						_this.navigate('list', 'grvPackage');
+						_this.navigate('list', 'ebPackage');
+					}
+					else {
+						_this.addAlert('danger', response.message);
 					}
 				});
 		},
@@ -558,7 +561,7 @@ var app = new Vue({
 			var _this = this;
 			$.ajax({
 				type: 'POST',
-				url: '/assets/components/grv/connector.php?action=getdefaults',
+				url: '/assets/components/extrabuilder/connector.php?action=getdefaults',
 				headers: { modAuth: this.siteId },
 				dataType: 'json'
 			})
@@ -573,7 +576,7 @@ var app = new Vue({
 				});
 
 			// Trigger the navigate function to setup the default
-			this.navigate('list', 'grvPackage');
+			this.navigate('list', 'ebPackage');
 		})
 	}
 });

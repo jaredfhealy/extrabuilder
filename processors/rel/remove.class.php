@@ -3,14 +3,14 @@
 /**
  * Remove an Relationship.
  *
- * @package grv
+ * @package extrabuilder
  * @subpackage processors/rel
  */
-class GrvRelRemoveProcessor extends modObjectRemoveProcessor
+class ExtrabuilderRelRemoveProcessor extends modObjectRemoveProcessor
 {
-    public $classKey = 'grvRel';
-    public $languageTopics = array('grv:default');
-    public $objectType = 'grv.rel';
+    public $classKey = 'ebRel';
+    public $languageTopics = array('extrabuilder:default');
+    public $objectType = 'extrabuilder.rel';
 }
 
-return 'GrvRelRemoveProcessor';
+return 'ExtrabuilderRelRemoveProcessor';

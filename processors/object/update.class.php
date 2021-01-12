@@ -3,13 +3,13 @@
 /**
  * Update a Object
  *
- * @package grv
+ * @package extrabuilder
  * @subpackage processors.object
  */
-class GrvObjectUpdateProcessor extends modObjectUpdateProcessor
+class ExtrabuilderObjectUpdateProcessor extends modObjectUpdateProcessor
 {
-    public $classKey = 'grvObject';
-    public $languageTopics = array('grv:default');
-	public $objectType = 'grv.object';
+    public $classKey = 'ebObject';
+    public $languageTopics = array('extrabuilder:default');
+	public $objectType = 'extrabuilder.object';
 }
-return 'GrvObjectUpdateProcessor';
+return 'ExtrabuilderObjectUpdateProcessor';

@@ -9,11 +9,10 @@
  * it breaks since the schema files change or are deleted
  * after they are loaded in MODX.
  * 
- * Access to execute this file is done through the Manager.
- * "Enable Rebuild Myself" adds a /_build directory in the
- * publicly accessible assets/components/grv/ with a
- * dynamically generated key which must be present as a query
- * parameter.
+ * The file, build.temp.eb.public.php should be copied to
+ * the root web directory. The parameter '?authkey=' must
+ * be included to build and must match the value stored in
+ * the buildauthkey.json file in the _build directory.
  */
 
 $key = json_decode(file_get_contents(__DIR__.'/buildauthkey.json'), true)['key'];
@@ -42,7 +41,7 @@ $manager= $modx->getManager();
 $generator= $manager->getGenerator();
 
 // Package key
-$packageKey = 'grv';
+$packageKey = 'extrabuilder';
 
 // Define the needed paths/directories
 $packageBasePath = MODX_CORE_PATH."components/$packageKey/";

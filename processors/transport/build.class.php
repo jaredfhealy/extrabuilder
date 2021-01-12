@@ -3,14 +3,14 @@
 /**
  * Build the Transport
  *
- * @package grv
+ * @package extrabuilder
  * @subpackage processors.transport
  */
-class GrvBuildTransportProcessor extends modObjectProcessor
+class ExtrabuilderBuildTransportProcessor extends modObjectProcessor
 {
-	public $classKey = 'grvTransport';
-	public $languageTopics = array('grv:default');
-	public $objectType = 'grv.transport';
+	public $classKey = 'ebTransport';
+	public $languageTopics = array('extrabuilder:default');
+	public $objectType = 'extrabuilder.transport';
 	public $logMessages = [];
 	public $package, $packageKey, $core, $assets, $builder, $category, $defaultAttributes;
 
@@ -27,7 +27,7 @@ class GrvBuildTransportProcessor extends modObjectProcessor
 		}
 
 		// Get the related Package or return failure
-		$this->package = $this->modx->getObject('grvPackage', $this->object->get('package'));
+		$this->package = $this->modx->getObject('ebPackage', $this->object->get('package'));
 		if (!$this->package) {
 			return $this->failure('Unable to get the related Package object record.');
 		}
@@ -48,8 +48,8 @@ class GrvBuildTransportProcessor extends modObjectProcessor
 		$namespace = $this->modx->getObject('modNamespace', ['name' => $key]);
 
 		// Calculate the core and assets path values
-		$this->core = $this->modx->grv->replaceCorePaths($this->package->get('core_path'), $key);
-		$this->assets = $this->modx->grv->replaceCorePaths($this->package->get('assets_path'), $key);
+		$this->core = $this->modx->eb->replaceCorePaths($this->package->get('core_path'), $key);
+		$this->assets = $this->modx->eb->replaceCorePaths($this->package->get('assets_path'), $key);
 
 		// Return error if the paths are not correct
 		if (!$this->core && !$this->assets) {
@@ -109,7 +109,7 @@ class GrvBuildTransportProcessor extends modObjectProcessor
 		// Pack it up
 		if ($this->builder->pack()) {
 			// Clear the _dist folder
-			$this->modx->grv->rrmdir($this->core.'_dist/');
+			$this->modx->eb->rrmdir($this->core.'_dist/');
 
 			// Return success
 			return $this->success('Transport built to packages directory');
@@ -165,12 +165,12 @@ class GrvBuildTransportProcessor extends modObjectProcessor
 		}
 		else {
 			// Clear the directory and rebuild it empty
-			$this->modx->grv->rrmdir($dist);
+			$this->modx->eb->rrmdir($dist);
 			mkdir($dist, 0775, true);
 		}
 
 		// Copy all files except our "excludes" into the $dist folder
-		$this->modx->grv->copyCore($this->core, $dist);
+		$this->modx->eb->copyCore($this->core, $dist);
 		$this->vehicle->resolve('file', [
 			'source' => $dist,
 			'target' => "return MODX_CORE_PATH . 'components/';",
@@ -229,4 +229,4 @@ class GrvBuildTransportProcessor extends modObjectProcessor
 	}
 }
 
-return 'GrvBuildTransportProcessor';
+return 'ExtrabuilderBuildTransportProcessor';

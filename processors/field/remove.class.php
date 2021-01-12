@@ -3,14 +3,14 @@
 /**
  * Remove a Field.
  *
- * @package grv
+ * @package extrabuilder
  * @subpackage processors/field
  */
-class GrvFieldRemoveProcessor extends modObjectRemoveProcessor
+class ExtrabuilderFieldRemoveProcessor extends modObjectRemoveProcessor
 {
-    public $classKey = 'grvField';
-    public $languageTopics = array('grv:default');
-    public $objectType = 'grv.field';
+    public $classKey = 'ebField';
+    public $languageTopics = array('extrabuilder:default');
+    public $objectType = 'extrabuilder.field';
 }
 
-return 'GrvFieldRemoveProcessor';
+return 'ExtrabuilderFieldRemoveProcessor';

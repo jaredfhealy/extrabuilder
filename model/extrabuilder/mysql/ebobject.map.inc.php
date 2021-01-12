@@ -1,8 +1,8 @@
 <?php
-$xpdo_meta_map['grvRel']= array (
-  'package' => 'grv',
+$xpdo_meta_map['ebObject']= array (
+  'package' => 'extrabuilder',
   'version' => '1.1',
-  'table' => 'grv_rel',
+  'table' => 'extrabuilder_objects',
   'extends' => 'xPDOSimpleObject',
   'tableMeta' => 
   array (
@@ -10,81 +10,46 @@ $xpdo_meta_map['grvRel']= array (
   ),
   'fields' => 
   array (
-    'alias' => '',
     'class' => '',
-    'local' => '',
-    'foreign' => '',
-    'cardinality' => '',
-    'owner' => '',
-    'object' => 0,
-    'relation_type' => '',
+    'table_name' => '',
+    'extends' => 'xPDOSimpleObject',
+    'package' => 0,
     'sortorder' => 0,
+    'raw_xml' => '',
   ),
   'fieldMeta' => 
   array (
-    'alias' => 
-    array (
-      'dbtype' => 'varchar',
-      'precision' => '20',
-      'phptype' => 'string',
-      'null' => false,
-      'default' => '',
-    ),
     'class' => 
     array (
       'dbtype' => 'varchar',
-      'precision' => '50',
+      'precision' => '100',
       'phptype' => 'string',
       'null' => false,
       'default' => '',
     ),
-    'local' => 
+    'table_name' => 
     array (
       'dbtype' => 'varchar',
-      'precision' => '50',
+      'precision' => '100',
       'phptype' => 'string',
       'null' => false,
       'default' => '',
     ),
-    'foreign' => 
+    'extends' => 
     array (
       'dbtype' => 'varchar',
-      'precision' => '50',
+      'precision' => '100',
       'phptype' => 'string',
       'null' => false,
-      'default' => '',
+      'default' => 'xPDOSimpleObject',
     ),
-    'cardinality' => 
-    array (
-      'dbtype' => 'varchar',
-      'precision' => '20',
-      'phptype' => 'string',
-      'null' => false,
-      'default' => '',
-    ),
-    'owner' => 
-    array (
-      'dbtype' => 'varchar',
-      'precision' => '20',
-      'phptype' => 'string',
-      'null' => false,
-      'default' => '',
-    ),
-    'object' => 
+    'package' => 
     array (
       'dbtype' => 'int',
       'precision' => '10',
       'phptype' => 'integer',
       'null' => false,
       'default' => 0,
-    ),
-    'relation_type' => 
-    array (
-      'dbtype' => 'varchar',
-      'precision' => '20',
-      'phptype' => 'string',
-      'null' => false,
-      'default' => '',
     ),
     'sortorder' => 
     array (
@@ -94,25 +59,16 @@ $xpdo_meta_map['grvRel']= array (
       'null' => false,
       'default' => 0,
     ),
+    'raw_xml' => 
+    array (
+      'dbtype' => 'text',
+      'phptype' => 'string',
+      'null' => true,
+      'default' => '',
+    ),
   ),
   'indexes' => 
   array (
-    'alias' => 
-    array (
-      'alias' => 'alias',
-      'primary' => false,
-      'unique' => false,
-      'type' => 'BTREE',
-      'columns' => 
-      array (
-        'alias' => 
-        array (
-          'length' => '',
-          'collation' => 'A',
-          'null' => false,
-        ),
-      ),
-    ),
     'class' => 
     array (
       'alias' => 'class',
@@ -129,15 +85,31 @@ $xpdo_meta_map['grvRel']= array (
         ),
       ),
     ),
-    'object' => 
+    'table_name' => 
     array (
-      'alias' => 'object',
+      'alias' => 'table_name',
       'primary' => false,
       'unique' => false,
       'type' => 'BTREE',
       'columns' => 
       array (
-        'object' => 
+        'table_name' => 
+        array (
+          'length' => '',
+          'collation' => 'A',
+          'null' => false,
+        ),
+      ),
+    ),
+    'package' => 
+    array (
+      'alias' => 'package',
+      'primary' => false,
+      'unique' => false,
+      'type' => 'BTREE',
+      'columns' => 
+      array (
+        'package' => 
         array (
           'length' => '',
           'collation' => 'A',
@@ -146,12 +118,31 @@ $xpdo_meta_map['grvRel']= array (
       ),
     ),
   ),
+  'composites' => 
+  array (
+    'Fields' => 
+    array (
+      'class' => 'ebField',
+      'local' => 'id',
+      'foreign' => 'object',
+      'cardinality' => 'many',
+      'owner' => 'local',
+    ),
+    'Rels' => 
+    array (
+      'class' => 'ebRel',
+      'local' => 'id',
+      'foreign' => 'object',
+      'cardinality' => 'many',
+      'owner' => 'local',
+    ),
+  ),
   'aggregates' => 
   array (
-    'Object' => 
+    'Package' => 
     array (
-      'class' => 'grvObject',
-      'local' => 'object',
+      'class' => 'ebPackage',
+      'local' => 'package',
       'foreign' => 'id',
       'cardinality' => 'one',
       'owner' => 'foreign',

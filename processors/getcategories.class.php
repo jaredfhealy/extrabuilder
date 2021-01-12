@@ -3,13 +3,13 @@
 /**
  * Get list Categories
  *
- * @package grv
+ * @package extrabuilder
  * @subpackage processors
  */
-class GrvCategoryGetListProcessor extends modObjectGetListProcessor 
+class ExtrabuilderCategoryGetListProcessor extends modObjectGetListProcessor 
 {
     public $classKey = 'modCategory';
-    public $languageTopics = array('grv:default');
+    public $languageTopics = array('extrabuilder:default');
     public $defaultSortField = 'id';
     public $defaultSortDirection = 'ASC';
 	public $objectType = 'mod.category';
@@ -32,4 +32,4 @@ class GrvCategoryGetListProcessor extends modObjectGetListProcessor
         return $c;
     }
 }
-return 'GrvCategoryGetListProcessor';
+return 'ExtrabuilderCategoryGetListProcessor';

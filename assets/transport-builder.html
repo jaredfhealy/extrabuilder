@@ -31,7 +31,7 @@
 			<button type="button" class="btn btn-md"
 				:class="{'btn-light': form != 'listTransport', 
 						'btn-primary': form == 'listTransport', border: form != 'listTransport'}" 
-				@click="navigate('list', 'grvTransport')"
+				@click="navigate('list', 'ebTransport')"
 				v-show="form !== 'listTransport'">
                 Back to Transports
 			</button>
@@ -44,7 +44,7 @@
 
 			<button type="button" class="btn btn-md btn-primary"
 				v-if="!transportSelected"
-				@click="navigate('create', 'grvTransport')">
+				@click="navigate('create', 'ebTransport')">
                 Create Transport Entry
 			</button>
 
@@ -61,7 +61,7 @@
 				<li class="nav-item">
 					<a class="nav-link" href="#"
 						:class="{active: form=='listTransport'}"
-						@click="navigate('list', 'grvTransport')">
+						@click="navigate('list', 'ebTransport')">
 						Transport Definitions
 					</a>
 				</li>
@@ -70,7 +70,7 @@
 					<a class="nav-link" href="#"
 						:class="{active: form=='updateTransport' || form=='createTransport'}"
 						v-show="transportSelected || form=='updateTransport' || form=='createTransport'"
-						@click="navigate('update', 'grvTransport')">
+						@click="navigate('update', 'ebTransport')">
 						{{ transportTabLabel }}
 					</a>
 				</li>
@@ -97,7 +97,7 @@
 								</td>
 							</tr>
 							<tr style="cursor: pointer;" v-for="item in sortedItems" 
-								@click="navigate('update', 'grvTransport', item)">
+								@click="navigate('update', 'ebTransport', item)">
 								<td v-for="key in meta[model].listColumns">
 									{{ item[key] }}
 								</td>
@@ -226,7 +226,7 @@
 					<button class="btn btn-default border" @click='saveModel(true)'>
 						Save &amp; Back to List
 					</button>
-					<button class="btn btn-warning border" @click="navigate('list','grvTransport')">
+					<button class="btn btn-warning border" @click="navigate('list','ebTransport')">
 						Cancel
 					</button>
 					<button class="btn btn-danger float-right" @click="deleteModel()">

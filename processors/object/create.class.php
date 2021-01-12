@@ -3,14 +3,14 @@
 /**
  * Create a Object
  *
- * @package grv
+ * @package extrabuilder
  * @subpackage processors.object
  */
-class GrvObjectCreateProcessor extends modObjectCreateProcessor
+class ExtrabuilderObjectCreateProcessor extends modObjectCreateProcessor
 {
-	public $classKey = 'grvObject';
-    public $languageTopics = array('grv:default');
-	public $objectType = 'grv.object';
+	public $classKey = 'ebObject';
+    public $languageTopics = array('extrabuilder:default');
+	public $objectType = 'extrabuilder.object';
 	
 }
-return 'GrvObjectCreateProcessor';
+return 'ExtrabuilderObjectCreateProcessor';

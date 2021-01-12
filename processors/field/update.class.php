@@ -3,13 +3,13 @@
 /**
  * Update a Field
  *
- * @package grv
+ * @package extrabuilder
  * @subpackage processors.field
  */
-class GrvFieldUpdateProcessor extends modObjectUpdateProcessor
+class ExtrabuilderFieldUpdateProcessor extends modObjectUpdateProcessor
 {
-    public $classKey = 'grvField';
-    public $languageTopics = array('grv:default');
-	public $objectType = 'grv.field';
+    public $classKey = 'ebField';
+    public $languageTopics = array('extrabuilder:default');
+	public $objectType = 'extrabuilder.field';
 }
-return 'GrvFieldUpdateProcessor';
+return 'ExtrabuilderFieldUpdateProcessor';

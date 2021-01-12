@@ -3,16 +3,16 @@
 /**
  * Get list Package
  *
- * @package grv
+ * @package extrabuilder
  * @subpackage processors.package
  */
-class GrvPackageGetListProcessor extends modObjectGetListProcessor 
+class ExtrabuilderPackageGetListProcessor extends modObjectGetListProcessor 
 {
-    public $classKey = 'grvPackage';
-    public $languageTopics = array('grv:default');
+    public $classKey = 'ebPackage';
+    public $languageTopics = array('extrabuilder:default');
     public $defaultSortField = 'sortorder';
     public $defaultSortDirection = 'ASC';
-	public $objectType = 'grv.package';
+	public $objectType = 'extrabuilder.package';
 
 	/**
      * Can be used to adjust the query prior to the COUNT statement
@@ -32,4 +32,4 @@ class GrvPackageGetListProcessor extends modObjectGetListProcessor
         return $c;
     }
 }
-return 'GrvPackageGetListProcessor';
+return 'ExtrabuilderPackageGetListProcessor';

@@ -3,16 +3,16 @@
 /**
  * Get list Relationship
  *
- * @package grv
+ * @package extrabuilder
  * @subpackage processors.package
  */
-class GrvRelGetListProcessor extends modObjectGetListProcessor 
+class ExtrabuilderRelGetListProcessor extends modObjectGetListProcessor 
 {
-    public $classKey = 'grvRel';
-    public $languageTopics = array('grv:default');
+    public $classKey = 'ebRel';
+    public $languageTopics = array('extrabuilder:default');
     public $defaultSortField = 'sortorder';
     public $defaultSortDirection = 'ASC';
-	public $objectType = 'grv.rel';
+	public $objectType = 'extrabuilder.rel';
 
 	/**
      * Can be used to adjust the query prior to the COUNT statement
@@ -32,4 +32,4 @@ class GrvRelGetListProcessor extends modObjectGetListProcessor
         return $c;
     }
 }
-return 'GrvRelGetListProcessor';
+return 'ExtrabuilderRelGetListProcessor';

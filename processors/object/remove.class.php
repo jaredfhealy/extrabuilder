@@ -3,14 +3,14 @@
 /**
  * Remove an Object.
  *
- * @package grv
+ * @package extrabuilder
  * @subpackage processors/object
  */
-class GrvObjectRemoveProcessor extends modObjectRemoveProcessor
+class ExtrabuilderObjectRemoveProcessor extends modObjectRemoveProcessor
 {
-    public $classKey = 'grvObject';
-    public $languageTopics = array('grv:default');
-    public $objectType = 'grv.object';
+    public $classKey = 'ebObject';
+    public $languageTopics = array('extrabuilder:default');
+    public $objectType = 'extrabuilder.object';
 }
 
-return 'GrvObjectRemoveProcessor';
+return 'ExtrabuilderObjectRemoveProcessor';

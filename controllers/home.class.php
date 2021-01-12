@@ -1,5 +1,5 @@
 <?php
-class GrvHomeManagerController extends modExtraManagerController {
+class ExtrabuilderHomeManagerController extends modExtraManagerController {
     public function process(array $scriptProperties = array()) {
         $html = file_get_contents(dirname(dirname(__FILE__)) . '/templates/home.html');
         $html .= '<script type="text/x-template" id="appconfigjs">'.file_get_contents(dirname(dirname(__FILE__)) . '/templates/appconfig.js').'</script>';

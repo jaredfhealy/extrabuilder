@@ -3,13 +3,13 @@
 /**
  * Update a Transport
  *
- * @package grv
+ * @package extrabuilder
  * @subpackage processors.transport
  */
-class GrvTransportUpdateProcessor extends modObjectUpdateProcessor
+class ExtrabuilderTransportUpdateProcessor extends modObjectUpdateProcessor
 {
-    public $classKey = 'grvTransport';
-    public $languageTopics = array('grv:default');
-	public $objectType = 'grv.transport';
+    public $classKey = 'ebTransport';
+    public $languageTopics = array('extrabuilder:default');
+	public $objectType = 'extrabuilder.transport';
 }
-return 'GrvTransportUpdateProcessor';
+return 'ExtrabuilderTransportUpdateProcessor';

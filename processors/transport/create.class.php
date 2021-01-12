@@ -3,14 +3,14 @@
 /**
  * Create a Transport
  *
- * @package grv
+ * @package extrabuilder
  * @subpackage processors.transport
  */
-class GrvTransportCreateProcessor extends modObjectCreateProcessor
+class ExtrabuilderTransportCreateProcessor extends modObjectCreateProcessor
 {
-	public $classKey = 'grvTransport';
-    public $languageTopics = array('grv:default');
-	public $objectType = 'grv.transport';
+	public $classKey = 'ebTransport';
+    public $languageTopics = array('extrabuilder:default');
+	public $objectType = 'extrabuilder.transport';
 	
 }
-return 'GrvTransportCreateProcessor';
+return 'ExtrabuilderTransportCreateProcessor';

@@ -3,14 +3,14 @@
 /**
  * Create a Package
  *
- * @package grv
+ * @package extrabuilder
  * @subpackage processors.package
  */
-class GrvPackageCreateProcessor extends modObjectCreateProcessor
+class ExtrabuilderPackageCreateProcessor extends modObjectCreateProcessor
 {
-	public $classKey = 'grvPackage';
-    public $languageTopics = array('grv:default');
-	public $objectType = 'grv.package';
+	public $classKey = 'ebPackage';
+    public $languageTopics = array('extrabuilder:default');
+	public $objectType = 'extrabuilder.package';
 	
 }
-return 'GrvPackageCreateProcessor';
+return 'ExtrabuilderPackageCreateProcessor';

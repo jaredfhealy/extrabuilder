@@ -3,14 +3,14 @@
 /**
  * Build the package schema
  *
- * @package grv
+ * @package extrabuilder
  * @subpackage processors.package
  */
-class GrvBuildPackageProcessor extends modObjectProcessor
+class ExtrabuilderBuildPackageProcessor extends modObjectProcessor
 {
-	public $classKey = 'grvPackage';
-	public $languageTopics = array('grv:default');
-	public $objectType = 'grv.package';
+	public $classKey = 'ebPackage';
+	public $languageTopics = array('extrabuilder:default');
+	public $objectType = 'extrabuilder.package';
 	public $logMessages = [];
 
 	// Define the needed paths/directories
@@ -127,7 +127,7 @@ class GrvBuildPackageProcessor extends modObjectProcessor
 	 *  - https://github.com/bezumkin/modExtra (build script)
 	 * 
 	 * @param string $schema The XML xPDO Schema model
-	 * @param object $package The xPDO grvPackage Object
+	 * @param object $package The xPDO ebPackage Object
 	 * @return string Log messages
 	 */
 	public function buildSchema($packageKey)
@@ -300,7 +300,7 @@ class GrvBuildPackageProcessor extends modObjectProcessor
 	 * Use the Package > Object > Field definitions
 	 * to generate the schema file.
 	 * 
-	 * @param object $package The grvPackage xPDOSimpleObject
+	 * @param object $package The ebPackage xPDOSimpleObject
 	 */
 	public function generateSchema($package)
 	{
@@ -459,4 +459,4 @@ class GrvBuildPackageProcessor extends modObjectProcessor
 	}
 }
 
-return 'GrvBuildPackageProcessor';
+return 'ExtrabuilderBuildPackageProcessor';
