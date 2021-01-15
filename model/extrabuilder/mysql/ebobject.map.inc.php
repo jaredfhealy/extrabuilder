@@ -67,57 +67,6 @@ $xpdo_meta_map['ebObject']= array (
       'default' => '',
     ),
   ),
-  'indexes' => 
-  array (
-    'class' => 
-    array (
-      'alias' => 'class',
-      'primary' => false,
-      'unique' => false,
-      'type' => 'BTREE',
-      'columns' => 
-      array (
-        'class' => 
-        array (
-          'length' => '',
-          'collation' => 'A',
-          'null' => false,
-        ),
-      ),
-    ),
-    'table_name' => 
-    array (
-      'alias' => 'table_name',
-      'primary' => false,
-      'unique' => false,
-      'type' => 'BTREE',
-      'columns' => 
-      array (
-        'table_name' => 
-        array (
-          'length' => '',
-          'collation' => 'A',
-          'null' => false,
-        ),
-      ),
-    ),
-    'package' => 
-    array (
-      'alias' => 'package',
-      'primary' => false,
-      'unique' => false,
-      'type' => 'BTREE',
-      'columns' => 
-      array (
-        'package' => 
-        array (
-          'length' => '',
-          'collation' => 'A',
-          'null' => false,
-        ),
-      ),
-    ),
-  ),
   'composites' => 
   array (
     'Fields' => 

@@ -308,7 +308,8 @@ class ExtrabuilderBuildPackageProcessor extends modObjectProcessor
 		$packageTpl = '<model package="{package_key}" baseClass="{base_class}" platform="{platform}" defaultEngine="{default_engine}" phpdoc-package="{phpdoc_package}" phpdoc-subpackage="{phpdoc_subpackage}" version="1.1">';
 		$objectTpl = '<object class="{class}" table="{table_name}" extends="{extends}">';
 		$fieldTpl = '<field key="{column_name}" dbtype="{dbtype}" precision="{precision}" phptype="{phptype}" null="{allownull}" default="{default}"/>';
-		$textFieldTpl = '<field key="{column_name}" dbtype="{dbtype}" phptype="{phptype}" null="{allownull}" default="{default}"/>';
+		$textTpl = '<field key="{column_name}" dbtype="{dbtype}" phptype="{phptype}" null="{allownull}" default="{default}"/>';
+		$datetimeTpl = '<field key="{column_name}" dbtype="{dbtype}" phptype="{phptype}" null="{allownull}"/>';
 		$indexTpl = '<index alias="{column_name}" name="{column_name}" primary="false" unique="false" type="{index}">
 					<column key="{column_name}" length="" collation="A" null="false"/>
 					</index>';
@@ -333,13 +334,13 @@ class ExtrabuilderBuildPackageProcessor extends modObjectProcessor
 				$rels = $object->getMany('Rels');
 				if ($fields) {
 					foreach ($fields as $field) {
+						// Attempt dynamic template or fall back on fieldTpl
+						$dbtype = $field->get('dbtype');
+						$tpl = ${$dbtype.'Tpl'};
+						$tpl = isset($tpl) ? $tpl : $fieldTpl;
+
 						// Populate the field row
-						if (stripos($field->get('dbtype'), 'text') !== FALSE) {
-							$xmlSchema .= $this->replaceValues($field->toArray(), $textFieldTpl);
-						}
-						else {
-							$xmlSchema .= $this->replaceValues($field->toArray(), $fieldTpl);
-						}
+						$xmlSchema .= $this->replaceValues($field->toArray(), $tpl);
 
 						// If an index value is set
 						if ($field->get('index')) {

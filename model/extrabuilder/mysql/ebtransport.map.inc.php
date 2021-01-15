@@ -94,25 +94,6 @@ $xpdo_meta_map['ebTransport']= array (
       'default' => 0,
     ),
   ),
-  'indexes' => 
-  array (
-    'package' => 
-    array (
-      'alias' => 'package',
-      'primary' => false,
-      'unique' => false,
-      'type' => 'BTREE',
-      'columns' => 
-      array (
-        'package' => 
-        array (
-          'length' => '',
-          'collation' => 'A',
-          'null' => false,
-        ),
-      ),
-    ),
-  ),
   'aggregates' => 
   array (
     'Package' => 

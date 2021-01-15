@@ -35,7 +35,9 @@ var app = new Vue({
 			dataLoaded: false,
 			items: [],
 			form: 'listTransport',
-			formErrors: false
+			formErrors: false,
+			resolverName: '',
+			resolverErrors: false
 		}
 	},
 	computed: {
@@ -269,7 +271,42 @@ var app = new Vue({
 				}
 			});
 		},
-		buildTransport: function() {
+		buildTransport: function(backupOnly) {
+			// Set data
+			var data = {
+				action: 'transport/build',
+				id: this.transport.id
+			};
+			if (backupOnly) {
+				data['backup_only'] = 'true';
+			}
+			// Call the build function
+			var _this = this;
+			$.ajax({
+				type: 'POST',
+				url: '/assets/components/extrabuilder/connector.php',
+				headers: { modAuth: this.siteId },
+				data: data,
+				dataType: 'json'
+			}).always(function (response) {
+				if (response.success) {
+					_this.addAlert('success', "Success: " + response.message);
+				}
+				else {
+					_this.addAlert('danger', "Error: " + response.message); 
+				}
+			});
+		},
+		createResolver: function() {
+			// Validate the form
+			if (!this.$refs.resolverForm.checkValidity()) {
+				this.resolverErrors = true;
+				return;
+			}
+			else {
+				this.resolverErrors = false;
+			}
+
 			// Call the build function
 			var _this = this;
 			$.ajax({
@@ -277,13 +314,35 @@ var app = new Vue({
 				url: '/assets/components/extrabuilder/connector.php',
 				headers: { modAuth: this.siteId },
 				data: {
-					action: 'transport/build',
+					action: 'transport/addresolver',
+					id: this.transport.id,
+					filename: this.resolverName.replace('.php', '')
+				},
+				dataType: 'json'
+			}).always(function (response) {
+				if (response.success) {
+					_this.addAlert('warning', "Success: " + response.message);
+				}
+				else {
+					_this.addAlert('danger', "Error: " + response.message); 
+				}
+			});
+		},
+		addTablesResolver: function() {
+			// Call the build function
+			var _this = this;
+			$.ajax({
+				type: 'POST',
+				url: '/assets/components/extrabuilder/connector.php',
+				headers: { modAuth: this.siteId },
+				data: {
+					action: 'transport/addtablesresolver',
 					id: this.transport.id
 				},
 				dataType: 'json'
 			}).always(function (response) {
 				if (response.success) {
-					_this.addAlert('success', "Success: " + response.message);
+					_this.addAlert('warning', "Success: " + response.message);
 				}
 				else {
 					_this.addAlert('danger', "Error: " + response.message); 

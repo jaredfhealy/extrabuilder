@@ -104,41 +104,6 @@ $xpdo_meta_map['ebField']= array (
       'default' => '',
     ),
   ),
-  'indexes' => 
-  array (
-    'column_name' => 
-    array (
-      'alias' => 'column_name',
-      'primary' => false,
-      'unique' => false,
-      'type' => 'BTREE',
-      'columns' => 
-      array (
-        'column_name' => 
-        array (
-          'length' => '',
-          'collation' => 'A',
-          'null' => false,
-        ),
-      ),
-    ),
-    'object' => 
-    array (
-      'alias' => 'object',
-      'primary' => false,
-      'unique' => false,
-      'type' => 'BTREE',
-      'columns' => 
-      array (
-        'object' => 
-        array (
-          'length' => '',
-          'collation' => 'A',
-          'null' => false,
-        ),
-      ),
-    ),
-  ),
   'aggregates' => 
   array (
     'Object' => 

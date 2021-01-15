@@ -95,57 +95,6 @@ $xpdo_meta_map['ebRel']= array (
       'default' => 0,
     ),
   ),
-  'indexes' => 
-  array (
-    'alias' => 
-    array (
-      'alias' => 'alias',
-      'primary' => false,
-      'unique' => false,
-      'type' => 'BTREE',
-      'columns' => 
-      array (
-        'alias' => 
-        array (
-          'length' => '',
-          'collation' => 'A',
-          'null' => false,
-        ),
-      ),
-    ),
-    'class' => 
-    array (
-      'alias' => 'class',
-      'primary' => false,
-      'unique' => false,
-      'type' => 'BTREE',
-      'columns' => 
-      array (
-        'class' => 
-        array (
-          'length' => '',
-          'collation' => 'A',
-          'null' => false,
-        ),
-      ),
-    ),
-    'object' => 
-    array (
-      'alias' => 'object',
-      'primary' => false,
-      'unique' => false,
-      'type' => 'BTREE',
-      'columns' => 
-      array (
-        'object' => 
-        array (
-          'length' => '',
-          'collation' => 'A',
-          'null' => false,
-        ),
-      ),
-    ),
-  ),
   'aggregates' => 
   array (
     'Object' => 

@@ -113,41 +113,6 @@ $xpdo_meta_map['ebPackage']= array (
       'default' => '{assets_path}components/{package_key}/',
     ),
   ),
-  'indexes' => 
-  array (
-    'display' => 
-    array (
-      'alias' => 'display',
-      'primary' => false,
-      'unique' => false,
-      'type' => 'BTREE',
-      'columns' => 
-      array (
-        'display' => 
-        array (
-          'length' => '',
-          'collation' => 'A',
-          'null' => false,
-        ),
-      ),
-    ),
-    'package_key' => 
-    array (
-      'alias' => 'package_key',
-      'primary' => false,
-      'unique' => false,
-      'type' => 'BTREE',
-      'columns' => 
-      array (
-        'package_key' => 
-        array (
-          'length' => '',
-          'collation' => 'A',
-          'null' => false,
-        ),
-      ),
-    ),
-  ),
   'composites' => 
   array (
     'Objects' => 

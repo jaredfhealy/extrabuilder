@@ -18,7 +18,7 @@
             <transition-group name="slide-fade">
                 <div v-for="(alert, index) in alerts" class="alert" :class="'alert-' + alert.type"
                      :key="alert.id" role="alert">
-                    {{ alert.message }}
+                    <span v-html="alert.message"></span>
                     <button type="button" class="close" aria-label="Close" @click="removeAlert(index)">
                         <span aria-hidden="true">&times;</span>
                     </button>
@@ -38,9 +38,25 @@
 			
 			<button type="button" class="btn btn-md btn-primary"
 				v-if="transportSelected"
-				@click="buildTransport()">
+				@click="buildTransport(false)">
                 Build Transport Package!
 			</button>
+
+			<button id="transport_utils" type="button" class="btn btn-secondary dropdown-toggle" 
+				data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" v-if="transportSelected">
+				Transport Utilities
+			</button>
+			<div class="dropdown-menu" aria-labelledby="transport_utils">
+				<a class="dropdown-item" href="#"  onclick="$('#new_resolver_modal').modal('show');" @click="resolverName = ''">
+					Create New PHP Resolver (Run a srcript on Install/Update/Uninstall)
+				</a>
+				<a class="dropdown-item" href="#" @click="addTablesResolver()">
+					Add Tables Resolver (Creates/Updates Tables on Install/Update)
+				</a>
+				<a class="dropdown-item" href="#"  @click="buildTransport(true)">
+					Backup All Elements (Create a backup in your _build/ for source control)
+				</a>
+			</div>
 
 			<button type="button" class="btn btn-md btn-primary"
 				v-if="!transportSelected"
@@ -112,7 +128,7 @@
 
 						<p class="text-muted">
 							This transport feature is "Category" based. All Elements are packaged based on the "Main Category" selected.
-							<br/><br/>If you are using static files in your "core/components/&lt;package-key&gt;/elements/" directory, the files will not be packaged, only the Elements in the database and associated to the slected Category. Use the Static Element feature of MODX and select the /elements/directory of your component/package to store the statick files (Ex: /elements/snippets, /elements/chunks).
+							<br/><br/>Currently only one Category is supported. It will not work with child categories or multiple categories.
 						</p>
 
 						<div class="form-row">
@@ -145,12 +161,6 @@
 									<br/><u>ALL Elements</u> including child categories associated to this category will be packaged.
 								</small>
 							</div>
-						</div>
-
-						<hr/>
-						<h5>Category Attributes</h5>
-						<div class="form-row">
-							
 						</div>
 
 						<hr/>
@@ -239,6 +249,39 @@
 		</div> <!-- End container-fluid -->
 		
 		<!-- Modals and other HTML here -->
+		<div class="modal fade" id="new_resolver_modal" tabindex="-1">
+			<div class="modal-dialog modal-lg">
+				<div class="modal-content">
+					<div class="modal-header">
+						<h5 class="modal-title">Enter A Filename</h5>
+						<button type="button" class="close" data-dismiss="modal" aria-label="Close">
+						<span aria-hidden="true">&times;</span>
+						</button>
+					</div>
+					<div class="modal-body">
+						<form id="resolver-form" ref="resolverForm"
+						:class="{'was-validated': resolverErrors, 'needs-validation': !resolverErrors}">
+							<div class="form-group">
+								<span class="required">* </span>
+								<label for="version">Filename <span class="text-muted">(Excluding '.php')</span></label>
+								<input type="text" class="form-control" id="version"
+									v-model="resolverName" required>
+								<div class="invalid-feedback">
+									This field is required
+								</div>
+							</div>
+						</form>
+
+					</div>
+					<div class="modal-footer">
+						<button type="button" class="btn btn-primary"
+							@click.prevent="createResolver(resolverName)">Create Resolver Template</button>
+						<button type="button" class="btn btn-primary" class="close" 
+							data-dismiss="modal" aria-label="Close">Close</button>
+					</div>
+				</div>
+			</div>
+		</div>
 
 	</div> <!-- End App -->
     
