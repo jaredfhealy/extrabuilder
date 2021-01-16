@@ -89,10 +89,10 @@ class ExtrabuilderPackageRemoveProcessor extends modObjectRemoveProcessor
 			
 			// Delete all files
 			if (is_dir($this->corePath)) {
-				$this->eb->rrmdir($this->corePath);
+				$this->modx->eb->rrmdir($this->corePath);
 			}
 			if (is_dir($this->assetsPath)) {
-				$this->eb->rrmdir($this->assetsPath);
+				$this->modx->eb->rrmdir($this->assetsPath);
 			}
 
 			// Delete the namespace
