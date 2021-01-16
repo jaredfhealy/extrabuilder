@@ -38,7 +38,7 @@
             <button type="button" class="btn btn-md btn-primary"
                         @click="navigate('create', model)"
                         v-if="view == 'table'">
-                New {{ objectMeta[model].label_singular }}
+                New {{ meta[model].label_singular }}
 			</button>
 			
 			<button type="button" class="btn btn-md btn-secondary"
@@ -50,7 +50,7 @@
             <button type="button" class="btn btn-md btn-primary" 
                     @click="navigate('list', model)"
                     v-if="view == 'form'">
-                Back to {{ objectMeta[model].label_list }}
+                Back to {{ meta[model].label_list }}
             </button>
         </div>
 
@@ -162,7 +162,7 @@
                                 </tr>
                                 <tr style="cursor: pointer;" v-for="item in sortedItems" 
                                     @click="navigate('update', 'ebPackage', item)">
-                                    <td v-for="key in objectMeta[model].listColumns">
+                                    <td v-for="key in meta[model].listColumns">
 										{{ item[key] }}
 									</td>
                                 </tr>
@@ -271,9 +271,15 @@
 						<button class="btn btn-warning border" @click="navigate('list','ebPackage')">
 							Cancel
 						</button>
-						<button class="btn btn-danger float-right" onclick="$('#delete_package_modal').modal('show')">
-                            DELETE
-                        </button>
+						
+						<div class="float-right">
+							<button class="btn btn-warning" onclick="$('#delete_package_modal').modal('show')" @click="safeDelete = true;">
+								Safe DELETE
+							</button>
+							<button class="btn btn-danger" onclick="$('#delete_package_modal').modal('show')" @click="safeDelete = false;">
+								DELETE EVERYTHING
+							</button>
+						</div>
 					</div>
 
 					<div id="package-utilities" v-show="view=='form' && form=='packageUtils'">
@@ -359,7 +365,7 @@
                                 </tr>
                                 <tr style="cursor: pointer;" v-for="item in sortedItems" 
                                     @click="navigate('update', 'ebObject', item)">
-									<td v-for="key in objectMeta[model].listColumns">
+									<td v-for="key in meta[model].listColumns">
 										{{ item[key] }}
 									</td>
                                 </tr>
@@ -450,7 +456,7 @@
                                 </tr>
                                 <tr style="cursor: pointer;" v-for="item in sortedItems" 
                                     @click="navigate('update', 'ebField', item)">
-									<td v-for="key in objectMeta[model].listColumns">
+									<td v-for="key in meta[model].listColumns">
 										{{ item[key] }}
 									</td>
                                 </tr>
@@ -468,7 +474,7 @@
 										v-model="fieldOptions"
 										@change="setQuickSelectValues(fieldOptions)">
 										<option value="">-- Quick Select --</option>
-										<option v-for="(option, index) in objectMeta.ebField.quickSelect"
+										<option v-for="(option, index) in meta.ebField.quickSelect"
 											:value="option">{{ option.label }}</option>
 									</select>
 								</div>
@@ -587,7 +593,7 @@
                                 </tr>
                                 <tr style="cursor: pointer;" v-for="item in sortedItems" 
                                     @click="navigate('update', 'ebRel', item)">
-									<td v-for="key in objectMeta[model].listColumns">
+									<td v-for="key in meta[model].listColumns">
 										{{ item[key] }}
 									</td>
                                 </tr>
@@ -734,24 +740,39 @@
 			<div class="modal-dialog modal-lg">
 				<div class="modal-content">
 					<div class="modal-header">
-						<h5 class="modal-title">Warning: Confirm Package Deletion</h5>
+						<h5 class="modal-title">Warning: Delete Action</h5>
 						<button type="button" class="close" data-dismiss="modal" aria-label="Close">
 						<span aria-hidden="true">&times;</span>
 						</button>
 					</div>
 					<div class="modal-body">
 						
-						<p><strong>Be aware: </strong> Deleting a package also takes the following actions</p>
-						<ol>
-							<li>Deletes all component files</li>
-							<li>Deletes all database tables</li>
-							<li>Removes the namespace</li>
-						</ol>
+						<div v-if="!safeDelete">
+							<p><strong>WARNING: </strong> Deleting a package also takes the following actions</p>
+							<ol>
+								<li>Deletes all component files</li>
+								<li>Deletes all database tables</li>
+								<li>Deletes the namespace</li>
+							</ol>
+							<p>This will <strong>NOT</strong> delete any Categories or Elements from your instance. Those must be handled manually.</p>
+						</div>
+
+						<div v-if="safeDelete">
+							<p><strong>Reminder:</strong> If you want to keep the structure, make sure you have generated your schema file before deleting the ExtraBuilder data.</p>
+							<p><strong>NOTE:</strong> This delete option only removes the data from the ExtraBuilder tables. No files are removed, and the no database actions are taken.</p>
+							<p>This delete action is considered "Safe" because you can restore the records from your Schema file.</p>
+						</div>
 
 					</div>
 					<div class="modal-footer">
 						<button type="button" class="btn btn-danger"
-							@click.prevent="deleteRecord()">Continue with Delete</button>
+							@click.prevent="deleteRecord();" v-if="!safeDelete">
+							Proceed: DELETE EVERYTHING
+						</button>
+						<button type="button" class="btn btn-warning"
+							@click.prevent="deleteRecord();" v-if="safeDelete">
+							Proceed with "Safe" Delete
+						</button>
 						<button type="button" class="btn btn-primary" class="close" 
 							data-dismiss="modal" aria-label="Close">Close</button>
 					</div>
