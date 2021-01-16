@@ -51,7 +51,10 @@
 					Create New PHP Resolver (Run a srcript on Install/Update/Uninstall)
 				</a>
 				<a class="dropdown-item" href="#" @click="addTablesResolver()">
-					Add Tables Resolver (Creates/Updates Tables on Install/Update)
+					Add Create Tables Resolver (Creates/Updates Tables on Install/Update)
+				</a>
+				<a class="dropdown-item" href="#" @click="addRemoveTablesResolver()">
+					Add Remove Tables Resolver (Drop Tables on Uninstall)
 				</a>
 				<a class="dropdown-item" href="#"  @click="buildTransport(true)">
 					Backup All Elements (Create a backup in your _build/ for source control)

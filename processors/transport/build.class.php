@@ -140,11 +140,15 @@ class ExtrabuilderBuildTransportProcessor extends modObjectProcessor
 		
 		// Add file and build resolvers if this is NOT a backupOnly
 		if (!$backupOnly) {
+			// Add Uninstall resolvers: These execute before file resolvers remove all files
+			$this->addBuildResolvers('uninstall');
+
 			// Add file resolvers to the category vehicle
 			$this->addFileResolvers();
 
 			// Add resolvers from the build directory
-			$this->addBuildResolvers();
+			// Files in the root /resolvers directory are assumed to be install actions
+			$this->addBuildResolvers('install');
 		}
 
 		// Add the category vehicle
@@ -239,24 +243,37 @@ class ExtrabuilderBuildTransportProcessor extends modObjectProcessor
 	/**
 	 * Add resolvers from _build/resolvers
 	 */
-	public function addBuildResolvers()
+	public function addBuildResolvers($action)
 	{
 		// Setup the resolver directory
 		$resolverTemplatePath = "{$this->core}_build/resolvers/";
 		$resolverPath = "{$this->core}_dist/resolvers/";
+		if ($action === 'uninstall') {
+			$resolverTemplatePath .= 'uninstall/';
+			$resolverPath .= 'uninstall/';
+		}
 		if (!is_dir($resolverPath)) {
-			mkdir($resolverPath, 0775, true);
+			mkdir($resolverPath, 0755, true);
 		}
 		if (!is_dir($resolverTemplatePath)) {
 			// Create the directory
-			mkdir($resolverTemplatePath, 0775, true);
+			mkdir($resolverTemplatePath, 0755, true);
 		}
 		
 		// Loop through the resolver templates
         $resolvers = scandir($resolverTemplatePath);
         foreach ($resolvers as $resolver) {
-            if (in_array($resolver[0], ['_', '.'])) {
+            if (in_array($resolver[0], ['_', '.']) || is_dir($resolverTemplatePath.$resolver)) {
                 continue;
+			}
+
+			// Get classes array
+			$classArr = [];
+			$objects = $this->package->getMany('Objects');
+			if ($objects) {
+				foreach ($objects as $object) {
+					$classArr[] = $object->get('class');
+				}
 			}
 			
 			// Handle possible replacements
@@ -264,6 +281,11 @@ class ExtrabuilderBuildTransportProcessor extends modObjectProcessor
 				'{package_key}',
 				$this->packageKey,
 				file_get_contents($resolverTemplatePath.$resolver)
+			);
+			$contents = str_replace(
+				"{classes_array}",
+				json_encode($classArr),
+				$contents
 			);
 
 			// Create the new file in the _dist folder

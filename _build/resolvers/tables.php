@@ -4,26 +4,26 @@
 /** @var modX $modx */
 if ($transport->xpdo) {
 	$modx =& $transport->xpdo;
-	
-	// Load dependencies so we can access for all actions
-	$modx->addPackage('{package_key}', MODX_CORE_PATH . 'components/{package_key}/model/');
-	$manager = $modx->getManager();
-	$objects = [];
-	$schemaFile = MODX_CORE_PATH . 'components/{package_key}/model/schema/{package_key}.mysql.schema.xml';
-	if (is_file($schemaFile)) {
-		$schema = new SimpleXMLElement($schemaFile, 0, true);
-		if (isset($schema->object)) {
-			foreach ($schema->object as $obj) {
-				$objects[] = (string)$obj['class'];
-			}
-		}
-		unset($schema);
-	}
 
 	switch ($options[xPDOTransport::PACKAGE_ACTION]) {
         case xPDOTransport::ACTION_INSTALL:
-        case xPDOTransport::ACTION_UPGRADE:
+		case xPDOTransport::ACTION_UPGRADE:
+			// Load classes from the schema
+			$manager = $modx->getManager();
+			$modx->addPackage('{package_key}', MODX_CORE_PATH . 'components/{package_key}/model/');
+			$objects = [];
+			$schemaFile = MODX_CORE_PATH . 'components/{package_key}/model/schema/{package_key}.mysql.schema.xml';
+			if (is_file($schemaFile)) {
+				$schema = new SimpleXMLElement($schemaFile, 0, true);
+				if (isset($schema->object)) {
+					foreach ($schema->object as $obj) {
+						$objects[] = (string)$obj['class'];
+					}
+				}
+				unset($schema);
+			}
             foreach ($objects as $class) {
+				// Get the table for this class
                 $table = $modx->getTableName($class);
                 $sql = "SHOW TABLES LIKE '" . trim($table, '`') . "'";
                 $stmt = $modx->prepare($sql);
@@ -99,14 +99,6 @@ if ($transport->xpdo) {
                     }
                 }
             }
-            break;
-
-		case xPDOTransport::ACTION_UNINSTALL:
-			// Loop through all classes
-			foreach ($objects as $class) {
-				// Drop the table if it exists
-				$manager->removeObjectContainer($class);
-			}
             break;
     }
 }

@@ -293,13 +293,13 @@
 								</button>
 								<div class="dropdown-menu" aria-labelledby="package_actions">
 									<a class="dropdown-item" href="#"  @click="buildSchema('write_schema')">
-										Update Main Schema XML Only (mything.mysql.schema.xml)
+										Update Main Schema XML Only ({{package.package_key}}.mysql.schema.xml)
 									</a>
 									<a class="dropdown-item" href="#"  @click="buildSchema('build_skip')">
 										Update Schema Files & Build (Skip existing, Create missing tables & Columns)
 									</a>
 									<a class="dropdown-item" href="#"  @click="buildSchema('build_delete')">
-										Delete & Regenerate Schema Files
+										Delete Class and Schema Files > Then Regenerate
 									</a>
 									<a class="dropdown-item" href="#"  @click="buildSchema('build_delete_drop')">
 										Rebuild All (Delete Schema Files, Drop All Tables, Recreate)

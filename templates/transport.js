@@ -349,6 +349,28 @@ var app = new Vue({
 				}
 			});
 		}
+		,
+		addRemoveTablesResolver: function() {
+			// Call the build function
+			var _this = this;
+			$.ajax({
+				type: 'POST',
+				url: '/assets/components/extrabuilder/connector.php',
+				headers: { modAuth: this.siteId },
+				data: {
+					action: 'transport/addremovetablesresolver',
+					id: this.transport.id
+				},
+				dataType: 'json'
+			}).always(function (response) {
+				if (response.success) {
+					_this.addAlert('warning', "Success: " + response.message);
+				}
+				else {
+					_this.addAlert('danger', "Error: " + response.message); 
+				}
+			});
+		}
 	},
 	mounted: function () {
 		// Setup the siteId
