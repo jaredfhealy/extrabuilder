@@ -64,66 +64,46 @@ class ExtrabuilderPackageRemoveProcessor extends modObjectRemoveProcessor
 		// Add the package so we can use getMany
 		$this->modx->addPackage($this->packageKey, $this->corePath.'model/');
 
-		// Get the related object entries and loop through
-		$objectEntries = $this->object->getMany('Objects');
-		$dropErrors = [];
-		if ($objectEntries) {
-			foreach ($objectEntries as $entry) {
-				$class = $entry->get('class');
-				if ($class) {
-					// Get the xpdo manager and drop the table
-					$manager = $this->modx->getManager();
-					if (!$manager->removeObjectContainer($class)) {
-						// Add to the error list
-						$dropErrors[] = $class;
+		// If safe_delete is false
+		$nukeIt = $this->getProperty('safe_delete', 'true') === 'false' ? true : false;
+		if ($nukeIt === true) {
+			// Get the related object entries and loop through
+			$objectEntries = $this->object->getMany('Objects');
+			$dropErrors = [];
+			if ($objectEntries) {
+				foreach ($objectEntries as $entry) {
+					$class = $entry->get('class');
+					if ($class) {
+						// Get the xpdo manager and drop the table
+						$manager = $this->modx->getManager();
+						if (!$manager->removeObjectContainer($class)) {
+							// Add to the error list
+							$dropErrors[] = $class;
+						}
 					}
 				}
 			}
-		}
-		else {
-			$this->modx->log(xPDO::LOG_LEVEL_ERROR, 'Unable to get child objects.');
-		}
+			else {
+				$this->failure('Unable to determine tables to drop. Please remove manually.');
+			}
+			
+			// Delete all files
+			if (is_dir($this->corePath)) {
+				$this->eb->rrmdir($this->corePath);
+			}
+			if (is_dir($this->assetsPath)) {
+				$this->eb->rrmdir($this->assetsPath);
+			}
 
-		// Delete all files
-		if (is_dir($this->corePath)) {
-			$this->rrmdir($this->corePath);
-		}
-		if (is_dir($this->assetsPath)) {
-			$this->rrmdir($this->assetsPath);
-		}
-
-		// Delete the namespace
-		$nameSpace = $this->modx->getObject('modNamespace', ['name' => $this->packageKey]);
-		if ($nameSpace) {
-			$nameSpace->remove();
+			// Delete the namespace
+			$nameSpace = $this->modx->getObject('modNamespace', ['name' => $this->packageKey]);
+			if ($nameSpace) {
+				$nameSpace->remove();
+			}
 		}
 
 		// Return false to block remove
 		return !$this->hasErrors();
-	}
-	
-	/**
-	 * Delete directory recursively
-	 * 
-	 */
-	private function rrmdir($src) {
-		$dir = opendir($src);
-		if ($dir) {
-			while(false !== ( $file = readdir($dir)) ) {
-				if (( $file != '.' ) && ( $file != '..' )) {
-					$full = $src . '/' . $file;
-					if ( is_dir($full) ) {
-						$this->rrmdir($full);
-					}
-					else {
-						unlink($full);
-					}
-				}
-			}
-
-			closedir($dir);
-			rmdir($src);
-		}
 	}
 }
 

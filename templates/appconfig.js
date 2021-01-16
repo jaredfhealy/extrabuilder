@@ -8,7 +8,7 @@ var app = new Vue({
 			form: '',
 			items: [],
 			package: {},
-			deletePackage: false,
+			safeDelete: true,
 			object: {},
 			field: {},
 			rel: {},
@@ -18,7 +18,7 @@ var app = new Vue({
 			page: 1,
 			sortfield: 'sortorder',
 			alerts: [],
-			objectMeta: {
+			meta: {
 				ebPackage: {
 					label_list: 'Packages',
 					label_singular: 'Package',
@@ -166,25 +166,25 @@ var app = new Vue({
 		},
 		packageTabLabel: function () {
 			if (this.package.display) {
-				return this.objectMeta['ebPackage'].label_singular + ": " + this.package.display;
+				return this.meta['ebPackage'].label_singular + ": " + this.package.display;
 			}
 			return 'New Package';
 		},
 		objectTabLabel: function () {
 			if (this.object.class) {
-				return this.objectMeta['ebObject'].label_singular + ": " + this.object.class;
+				return this.meta['ebObject'].label_singular + ": " + this.object.class;
 			}
 			return 'New Object';
 		},
 		fieldTabLabel: function () {
 			if (this.field.column_name) {
-				return this.objectMeta['ebField'].label_singular + ": " + this.field.column_name;
+				return this.meta['ebField'].label_singular + ": " + this.field.column_name;
 			}
 			return 'New Field';
 		},
 		relTabLabel: function () {
 			if (this.rel.alias) {
-				return this.objectMeta['ebRel'].label_singular + ": " + this.rel.alias;
+				return this.meta['ebRel'].label_singular + ": " + this.rel.alias;
 			}
 			return 'New Relation';
 		},
@@ -233,14 +233,10 @@ var app = new Vue({
 			 * @param {string} model The xPDO class name
 			 * @param {object} item (Optional) row to edit
 			 */
-			var modeChanged = false;
-			var modelChanged = false;
 			if (this.mode != mode) {
-				modeChanged = true;
 				this.mode = mode;
 			}
 			if (this.model != model) {
-				modelChanged = true;
 				this.model = model;
 			}
 
@@ -256,15 +252,15 @@ var app = new Vue({
 				this.fieldOptions = '';
 
 				// Set the form
-				this.form = 'update' + this.objectMeta[model].label_singular;
+				this.form = 'update' + this.meta[model].label_singular;
 
 				// Get the default values
-				var dataKey = this.objectMeta[this.model].dataKey;
-				var fieldsString = this.objectMeta[this.model].fields;
+				var dataKey = this.meta[this.model].dataKey;
+				var fieldsString = this.meta[this.model].fields;
 				this[dataKey] = JSON.parse(fieldsString);
 
 				// Set the parent as well
-				var parentKey = this.objectMeta[this.model].parentField;
+				var parentKey = this.meta[this.model].parentField;
 				if (parentKey)
 					this[dataKey][parentKey] = this[parentKey].id;
 
@@ -278,22 +274,22 @@ var app = new Vue({
 				this.fieldOptions = '';
 
 				// Set the item
-				this[this.objectMeta[model].dataKey] = item;
-				this.form = mode + this.objectMeta[model].label_singular;
+				this[this.meta[model].dataKey] = item;
+				this.form = mode + this.meta[model].label_singular;
 
 				// Change the view
 				this.view = 'form'
 			}
 			else if (mode === 'update') {
 				// Just change the view
-				this.form = mode + this.objectMeta[model].label_singular;
+				this.form = mode + this.meta[model].label_singular;
 				this.view = 'form';
 			}
 
 			// If this is list mode, load the list data
 			if (mode === 'list') {
 				// Set the list form
-				this.form = this.objectMeta[model].dataKey + "List";
+				this.form = this.meta[model].dataKey + "List";
 
 				// Clear data objects per case
 				if (model === 'ebPackage') {
@@ -301,20 +297,21 @@ var app = new Vue({
 					this.object = {};
 					this.field = {};
 					this.schema = {};
+					this.rel = {};
 					//this.form = 'packageList';
 				}
 				else if (model === 'ebObject') {
 					this.object = {};
 					this.field = {};
-					//this.form = 'objectList';
+					this.rel = {};
 				}
 				else if (model === 'ebField') {
 					this.field = {};
-					//this.form = 'fieldList';
+					this.rel = {};
 				}
 				else if (model === 'ebRel') {
+					this.field = {};
 					this.rel = {};
-					//this.form = 'fieldList';
 				}
 				this.loadListData();
 				this.view = 'table';
@@ -326,8 +323,8 @@ var app = new Vue({
 
 			// Save the data
 			var _this = this;
-			var data = this[this.objectMeta[this.model].dataKey];
-			data.action = this.objectMeta[this.model][this.mode];
+			var data = this[this.meta[this.model].dataKey];
+			data.action = this.meta[this.model][this.mode];
 			data.id = this.mode == 'create' ? undefined : data.id;
 
 			// Make the api calls
@@ -340,14 +337,14 @@ var app = new Vue({
 			}).always(function (response) {
 				if (response.success) {
 					// Show the alert
-					_this.addAlert('success', _this.objectMeta[_this.model].label_singular + " saved successfully");
+					_this.addAlert('success', _this.meta[_this.model].label_singular + " saved successfully");
 					if (backToList) {
 						_this.navigate('list', _this.model);
 					}
 					else {
 						if (_this.mode == 'create') {
 							console.log("Current mode is Create");
-							_this[_this.objectMeta[_this.model].dataKey].id = response.object.id;
+							_this[_this.meta[_this.model].dataKey].id = response.object.id;
 							_this.navigate('update', _this.model);
 						}
 						else {
@@ -358,22 +355,30 @@ var app = new Vue({
 			});
 		},
 		deleteRecord: function() {
+			// Setup the data object
+			var data = {
+				'action': this.meta[this.model].remove,
+				'id': this[this.meta[this.model].dataKey].id
+			};
+			
+			// If this is a package, check delete settings
+			if (this.model === 'ebPackage') {
+				data.safe_delete = this.safeDelete ? 'true' : 'false';
+			}
+
 			// Delete the record
 			var _this = this;
 			$.ajax({
 				type: 'POST',
 				headers: { modAuth: this.siteId },
 				url: '/assets/components/extrabuilder/connector.php',
-				data: {
-					'action': this.objectMeta[this.model].remove,
-					'id': this[this.objectMeta[this.model].dataKey].id
-				},
+				data: data,
 				dataType: 'json'
 			})
 				.always(function (response) {
 					if (response.success) {
 						// Show the alert
-						_this.addAlert('success', _this.objectMeta[_this.model].label_singular + " DELETED successfully");
+						_this.addAlert('success', _this.meta[_this.model].label_singular + " DELETED successfully");
 						_this.navigate('list', _this.model);
 						if (_this.model === 'ebPackage') {
 							$('#delete_package_modal').modal('hide');
@@ -439,7 +444,7 @@ var app = new Vue({
 			}
 
 			// Add action
-			params['action'] = this.objectMeta[this.model].getlist;
+			params['action'] = this.meta[this.model].getlist;
 
 			$.ajax({
 				type: 'POST',
@@ -471,23 +476,22 @@ var app = new Vue({
 				headers: { modAuth: this.siteId },
 				data: params,
 				dataType: 'json'
-			})
-				.always(function (response) {
-					if (response.success) {
-						_this.schema.xml = response.object.schema;
-						_this.addAlert('success', 'Preview generated');
-						_this.schema.messages = response.object.messages;
-						if (response.object.core_path) {
-							_this.schema.core_path = response.object.core_path;
-						}
-						if (response.object.assets_path) {
-							_this.schema.assets_path = response.object.assets_path;
-						}
+			}).always(function (response) {
+				if (response.success) {
+					_this.schema.xml = response.object.schema;
+					_this.addAlert('success', 'Preview generated');
+					_this.schema.messages = response.object.messages;
+					if (response.object.core_path) {
+						_this.schema.core_path = response.object.core_path;
 					}
-					else if (!response.success) {
-						_this.addAlert('danger', response.message || "Unknown error: 500");
+					if (response.object.assets_path) {
+						_this.schema.assets_path = response.object.assets_path;
 					}
-				});
+				}
+				else if (!response.success) {
+					_this.addAlert('danger', response.message || "Unknown error: 500");
+				}
+			});
 		},
 		runImportSchema: function () {
 			// Store a reference
@@ -506,19 +510,18 @@ var app = new Vue({
 				headers: { modAuth: this.siteId },
 				data: JSON.stringify(params),
 				dataType: 'json'
-			})
-				.always(function (response) {
-					if (response.success) {
-						$('#import_schema_modal').modal('hide');
-						_this.addAlert('success', response.message);
-						_this.schema.xml = '';
-						_this.schema.path = '';
-						_this.navigate('list', 'ebPackage');
-					}
-					else {
-						_this.addAlert('danger', response.message);
-					}
-				});
+			}).always(function (response) {
+				if (response.success) {
+					$('#import_schema_modal').modal('hide');
+					_this.addAlert('success', response.message);
+					_this.schema.xml = '';
+					_this.schema.path = '';
+					_this.navigate('list', 'ebPackage');
+				}
+				else {
+					_this.addAlert('danger', response.message);
+				}
+			});
 		},
 		setQuickSelectValues: function (options) {
 			// Loop through current quick select
@@ -564,16 +567,15 @@ var app = new Vue({
 				url: '/assets/components/extrabuilder/connector.php?action=getdefaults',
 				headers: { modAuth: this.siteId },
 				dataType: 'json'
-			})
-				.always(function (response) {
-					if (response.success) {
-						var data = response.object;
-						for (var key in data) {
-							if (typeof _this.objectMeta[key] !== 'undefined')
-								_this.objectMeta[key].fields = data[key];
-						}
+			}).always(function (response) {
+				if (response.success) {
+					var data = response.object;
+					for (var key in data) {
+						if (typeof _this.meta[key] !== 'undefined')
+							_this.meta[key].fields = data[key];
 					}
-				});
+				}
+			});
 
 			// Trigger the navigate function to setup the default
 			this.navigate('list', 'ebPackage');
