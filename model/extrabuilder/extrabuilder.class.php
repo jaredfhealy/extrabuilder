@@ -1,41 +1,43 @@
 <?php
-class Extrabuilder {
-    public $modx;
-    public $config = array();
-    public function __construct(modX &$modx,array $config = array()) {
-        $this->modx =& $modx;
-        
-        // Default paths
-        $corePath = $this->modx->getOption('core_path');
-        $assetsPath = $this->modx->getOption('assets_url');
-        
-        // Check for overrides
-        $basePath = $this->modx->getOption('extrabuilder.core_path', $config, $corePath.'components/extrabuilder/');
-        $assetsUrl = $this->modx->getOption('extrabuilder.assets_url', $config, $assetsPath.'components/extrabuilder/');
-        $this->config = array_merge(array(
-            'basePath' => $basePath,
-            'corePath' => $basePath,
-            'modelPath' => $basePath.'model/',
-            'processorsPath' => $basePath.'processors/',
-            'templatesPath' => $basePath.'templates/',
-            'chunksPath' => $basePath.'elements/chunks/',
-            'jsUrl' => $assetsUrl.'js/',
-            'cssUrl' => $assetsUrl.'css/',
-            'assetsUrl' => $assetsUrl,
-            'connectorUrl' => $assetsUrl.'connector.php',
-        ),$config);
-        
-        // Add the package
-        $this->modx->addPackage('extrabuilder', $this->config['modelPath']);
+class Extrabuilder
+{
+	public $modx;
+	public $config = array();
+	public function __construct(modX &$modx, array $config = array())
+	{
+		$this->modx = &$modx;
+
+		// Default paths
+		$corePath = $this->modx->getOption('core_path');
+		$assetsPath = $this->modx->getOption('assets_url');
+
+		// Check for overrides
+		$basePath = $this->modx->getOption('extrabuilder.core_path', $config, $corePath . 'components/extrabuilder/');
+		$assetsUrl = $this->modx->getOption('extrabuilder.assets_url', $config, $assetsPath . 'components/extrabuilder/');
+		$this->config = array_merge(array(
+			'basePath' => $basePath,
+			'corePath' => $basePath,
+			'modelPath' => $basePath . 'model/',
+			'processorsPath' => $basePath . 'processors/',
+			'templatesPath' => $basePath . 'templates/',
+			'chunksPath' => $basePath . 'elements/chunks/',
+			'jsUrl' => $assetsUrl . 'js/',
+			'cssUrl' => $assetsUrl . 'css/',
+			'assetsUrl' => $assetsUrl,
+			'connectorUrl' => $assetsUrl . 'connector.php',
+		), $config);
+
+		// Add the package
+		$this->modx->addPackage('extrabuilder', $this->config['modelPath']);
 	}
-	
+
 	/**
 	 * Utility function to replace placeholders in a URL path
 	 * with any global values.
 	 * @param string $path Path with placeholders {core_path}
 	 * @return string The resulting real path
 	 */
-	public function replaceCorePaths($path, $packageKey) 
+	public function replaceCorePaths($path, $packageKey)
 	{
 		// Replace the possibilities
 		$path = str_replace('{core_path}', MODX_CORE_PATH, $path);
@@ -46,8 +48,7 @@ class Extrabuilder {
 		// Return the final value
 		if (is_dir($path)) {
 			return $path;
-		}
-		else {
+		} else {
 			return false;
 		}
 	}
@@ -62,7 +63,7 @@ class Extrabuilder {
 	{
 		$string = $stringTpl;
 		foreach ($objectArray as $key => $value) {
-			$string = str_replace('{'.$key.'}', $value, $string);
+			$string = str_replace('{' . $key . '}', $value, $string);
 		}
 
 		// Return the new string
@@ -73,16 +74,16 @@ class Extrabuilder {
 	 * Delete directory recursively
 	 * 
 	 */
-	public function rrmdir($src) {
+	public function rrmdir($src)
+	{
 		$dir = opendir($src);
 		if ($dir) {
-			while(false !== ( $file = readdir($dir)) ) {
-				if (( $file != '.' ) && ( $file != '..' )) {
+			while (false !== ($file = readdir($dir))) {
+				if (($file != '.') && ($file != '..')) {
 					$full = $src . '/' . $file;
-					if ( is_dir($full) ) {
+					if (is_dir($full)) {
 						$this->rrmdir($full);
-					}
-					else {
+					} else {
 						unlink($full);
 					}
 				}
@@ -111,27 +112,32 @@ class Extrabuilder {
 	 * process to copy all core folders/files into
 	 * the _dist/<package_key> directory
 	 */
-	public function copyCore($src, $dst) {
-		$max = 500;
-		$count = 0;
+	public function copyCore($src, $dst)
+	{
+		// Open the source directory
 		$dir = opendir($src);
-		@mkdir($dst);
-		while(false !== ( $file = readdir($dir)) ) {
+
+		// Make the destination directory if not exist 
+		if (!is_dir($dst)) {
+			mkdir($dst, 0775, true);
+		}
+
+		// Loop through
+		while (false !== ($file = readdir($dir))) {
 			$exclude = [
 				$file === 'assets',
-				$this->modx->eb->startsWith($file, '_'),
-				$this->modx->eb->startsWith($file, '.'),
+				$this->startsWith($file, '_'),
+				$this->startsWith($file, '.'),
 				$file === '.',
 				$file === '..'
 			];
 
 			// If none of the checks in the array resulted in true
 			if (!in_array(true, $exclude)) {
-				if ( is_dir($src . '/' . $file) ) {
-					$this->copyCore($src . '/' . $file,$dst . '/' . $file);
-				}
-				else {
-					copy($src . '/' . $file,$dst . '/' . $file);
+				if (is_dir($src . '/' . $file)) {
+					$this->copyCore($src . '/' . $file, $dst . '/' . $file);
+				} else {
+					copy($src . '/' . $file, $dst . '/' . $file);
 				}
 			}
 		}
@@ -141,32 +147,30 @@ class Extrabuilder {
 	/**
 	 * Copy directory recursively
 	 */
-	function copydir($src, $dst) {  
-  
+	public function copydir($src, $dst)
+	{
 		// open the source directory 
-		$dir = opendir($src);  
-	  
+		$dir = opendir($src);
+
 		// Make the destination directory if not exist 
-		@mkdir($dst);  
-	  
+		if (!is_dir($dst)) {
+			mkdir($dst, 0775, true);
+		}
+
 		// Loop through the files in source directory 
-		while( $file = readdir($dir) ) {  
-	  
-			if (( $file != '.' ) && ( $file != '..' )) {  
-				if ( is_dir($src . '/' . $file) )  
-				{  
-	  
+		while (false !== ($file = readdir($dir))) {
+			if (($file != '.') && ($file != '..')) {
+				if (is_dir($src . '/' . $file)) {
 					// Recursively calling custom copy function 
 					// for sub directory  
-					$this->copydir($src . '/' . $file, $dst . '/' . $file);  
-	  
-				}  
-				else {  
-					copy($src . '/' . $file, $dst . '/' . $file);  
-				}  
-			}  
-		}  
-	  
-		closedir($dir); 
-	} 
+					$this->copydir($src . '/' . $file, $dst . '/' . $file);
+				} else {
+					$this->modx->log(xPDO::LOG_LEVEL_ERROR, "Copy from file: ".$src . '/' . $file);
+					$this->modx->log(xPDO::LOG_LEVEL_ERROR, "Copy to file: ".$dst . '/' . $file);
+					copy($src . '/' . $file, $dst . '/' . $file);
+				}
+			}
+		}
+		closedir($dir);
+	}
 }

@@ -80,7 +80,7 @@ class ExtrabuilderBuildTransportProcessor extends modObjectProcessor
 			$this->builder->createPackage($packageName, '0.0.0', 'backup');
 
 		// Register the namespace with the default core path
-		$this->builder->registerNamespace($key, false, true, "{core_path}components/$key");
+		$this->builder->registerNamespace($key, false, true, $this->core);
 
 		// Set the default transport attributes
 		$defaultElementAttr = [
@@ -232,6 +232,13 @@ class ExtrabuilderBuildTransportProcessor extends modObjectProcessor
 			mkdir($dist, 0775, true);
 		}
 
+		// For ExtraBuilder only, copy specific _build directories
+		if ($this->packageKey === 'extrabuilder') {
+			//$this->modx->log(xPDO::LOG_LEVEL_ERROR, 'Source: '.$this->core.'_build/resolvers/');
+			//$this->modx->log(xPDO::LOG_LEVEL_ERROR, 'Adding resolvers to '.$dist.'_build/resolvers/');
+			$this->modx->eb->copydir($this->core.'_build/resolvers', $dist.'_build/resolvers');
+		}
+		
 		// Copy all files except our "excludes" into the $dist folder
 		$this->modx->eb->copyCore($this->core, $dist);
 		$this->vehicle->resolve('file', [
