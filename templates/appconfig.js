@@ -343,12 +343,8 @@ var app = new Vue({
 					}
 					else {
 						if (_this.mode == 'create') {
-							console.log("Current mode is Create");
 							_this[_this.meta[_this.model].dataKey].id = response.object.id;
 							_this.navigate('update', _this.model);
-						}
-						else {
-							console.log("Current mode is not Create");
 						}
 					}
 				}
@@ -552,7 +548,6 @@ var app = new Vue({
 		this.$nextTick(function () {
 			// Setup the siteId
 			if (parent !== self) {
-				console.log(parent.window.MODx.siteId);
 				this.siteId = parent.window.MODx.siteId + '';
 			}
 			else {
