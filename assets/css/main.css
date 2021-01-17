@@ -27,6 +27,22 @@ h2,h3 {
     z-index: 11;
 }
 
+.modx-panel-desc {
+	background-color: #F0F0F0;
+    border: none;
+    border-radius: 0;
+    color: #53595F;
+    line-height: 1.5;
+	margin-bottom: 15px;
+	padding: 15px !important;
+	margin-left: -25px;
+    margin-right: -25px;
+}
+
+.modx-panel-desc p {
+	margin-bottom: 0;
+}
+
 .panel-wrapper {
     background-color: #fff;
     padding: 25px;
