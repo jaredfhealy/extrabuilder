@@ -171,7 +171,7 @@
                     </div>
 
                     <div id="form-wrapper" v-show="view=='form' && form=='updatePackage'">
-						<form style="max-width: 1000px;">
+						<form class="max-1200">
 
 							<a data-toggle="collapse" href="#package_paths" role="button" aria-expanded="false" aria-controls="package_paths">
 								Edit/Show Path Definitions
@@ -260,26 +260,26 @@
 								</div>
 							</div>
 
-						</form>
+							<button class="btn btn-primary" @click.prevent='saveModel()'>
+								Save
+							</button>
+							<button class="btn btn-default border" @click.prevent='saveModel(true)'>
+								Save &amp; Back to List
+							</button>
+							<button class="btn btn-warning border" @click.prevent="navigate('list','ebPackage')">
+								Cancel
+							</button>
+							
+							<div class="float-right">
+								<button class="btn btn-warning" onclick="$('#delete_package_modal').modal('show')" @click.prevent="safeDelete = true;">
+									Safe DELETE
+								</button>
+								<button class="btn btn-danger" onclick="$('#delete_package_modal').modal('show')" @click.prevent="safeDelete = false;">
+									DELETE EVERYTHING
+								</button>
+							</div>
 
-						<button class="btn btn-primary" @click='saveModel()'>
-							Save
-						</button>
-						<button class="btn btn-default border" @click='saveModel(true)'>
-							Save &amp; Back to List
-						</button>
-						<button class="btn btn-warning border" @click="navigate('list','ebPackage')">
-							Cancel
-						</button>
-						
-						<div class="float-right">
-							<button class="btn btn-warning" onclick="$('#delete_package_modal').modal('show')" @click="safeDelete = true;">
-								Safe DELETE
-							</button>
-							<button class="btn btn-danger" onclick="$('#delete_package_modal').modal('show')" @click="safeDelete = false;">
-								DELETE EVERYTHING
-							</button>
-						</div>
+						</form>
 					</div>
 
 					<div id="package-utilities" v-show="view=='form' && form=='packageUtils'">
@@ -374,7 +374,7 @@
                     </div>
 
                     <div class="form-mode" v-if="view == 'form'">
-                        <form style="max-width: 1000px;">
+                        <form class="max-1200">
 
                             <div class="form-row">
                                 <div class="form-group col-md-6">
@@ -408,22 +408,22 @@
                                 <label for="raw_xml">Raw XML (Manual additions for rules, etc.)</label>
 								<textarea class="form-control" id="raw_xml" 
 									v-model="object.raw_xml" rows="5"></textarea>
-                            </div>
+							</div>
+							
+							<button class="btn btn-primary" @click.prevent='saveModel()'>
+								Save
+							</button>
+							<button class="btn btn-default border" @click.prevent='saveModel(true)'>
+								Save &amp; Back to List
+							</button>
+							<button class="btn btn-warning" @click.prevent="navigate('list', model)">
+								Cancel
+							</button>
+							<button class="btn btn-danger float-right" @click.prevent="deleteRecord()">
+								DELETE
+							</button>
 
                         </form>
-
-						<button class="btn btn-primary" @click='saveModel()'>
-							Save
-						</button>
-						<button class="btn btn-default border" @click='saveModel(true)'>
-							Save &amp; Back to List
-						</button>
-						<button class="btn btn-warning" @click="navigate('list', model)">
-							Cancel
-						</button>
-						<button class="btn btn-danger float-right" @click="deleteRecord()">
-                            DELETE
-                        </button>
 
                     </div>
                 </div>
@@ -433,7 +433,7 @@
                 <div v-if="model == 'ebField'">
                     <div class="list-mode" v-if="view == 'table'">
 
-                        <table class="table table-striped">
+						<table class="table table-striped">
 
                             <thead>
                                 <tr class="table-secondary">
@@ -465,7 +465,7 @@
                     </div>
 
                     <div class="form-mode" v-if="view == 'form'">
-						<form style="max-width: 1000px;">
+						<form class="max-1200">
 							
 							<div class="form-row">
 								<div class="form-group col-md-12">
@@ -548,20 +548,20 @@
 								</div>
 							</div>
 
-                        </form>
+							<button class="btn btn-primary" @click.prevent='saveModel()'>
+								Save
+							</button>
+							<button class="btn btn-default border" @click.prevent='saveModel(true)'>
+								Save &amp; Back to List
+							</button>
+							<button class="btn btn-warning" @click.prevent="navigate('list', model)">
+								Cancel
+							</button>
+							<button class="btn btn-danger float-right" @click.prevent="deleteRecord()">
+								DELETE
+							</button>
 
-                        <button class="btn btn-primary" @click='saveModel()'>
-                            Save
-                        </button>
-                        <button class="btn btn-default border" @click='saveModel(true)'>
-                            Save &amp; Back to List
-                        </button>
-                        <button class="btn btn-warning" @click="navigate('list', model)">
-                            Cancel
-						</button>
-						<button class="btn btn-danger float-right" @click="deleteRecord()">
-                            DELETE
-                        </button>
+                        </form>
 
                     </div>
 				</div><!-- End ebField -->
@@ -602,7 +602,7 @@
                     </div>
 
                     <div class="form-mode" v-if="view == 'form'">
-						<form style="max-width: 1000px;">
+						<form class="max-1200">
 
 							<div class="form-row">
 								<div class="form-group col-md-6">
@@ -669,20 +669,20 @@
 								</div>
 							</div>
 
-                        </form>
+							<button class="btn btn-primary" @click.prevent='saveModel()'>
+								Save
+							</button>
+							<button class="btn btn-default border" @click.prevent='saveModel(true)'>
+								Save &amp; Back to List
+							</button>
+							<button class="btn btn-warning" @click.prevent="navigate('list', model)">
+								Cancel
+							</button>
+							<button class="btn btn-danger float-right" @click.prevent="deleteRecord()">
+								DELETE
+							</button>
 
-                        <button class="btn btn-primary" @click='saveModel()'>
-                            Save
-                        </button>
-                        <button class="btn btn-default border" @click='saveModel(true)'>
-                            Save &amp; Back to List
-                        </button>
-                        <button class="btn btn-warning" @click="navigate('list', model)">
-                            Cancel
-						</button>
-						<button class="btn btn-danger float-right" @click="deleteRecord()">
-                            DELETE
-                        </button>
+                        </form>
 
                     </div>
                 </div><!-- End ebRel -->

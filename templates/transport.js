@@ -34,6 +34,8 @@ var app = new Vue({
 			action: 'list',
 			dataLoaded: false,
 			items: [],
+			page: 0,
+			pagesize: 0,
 			form: 'listTransport',
 			formErrors: false,
 			resolverName: '',
@@ -237,15 +239,20 @@ var app = new Vue({
 			});
 		},
 		loadListData: function() {
+			// Define query parameters
+			var params = {
+				start: (this.page - 1) * this.pagesize,
+				limit: this.pagesize,
+				action: this.meta[this.model].getlist
+			};
+
 			// Get the transport entries
 			var _this = this;
 			$.ajax({
 				type: 'POST',
 				headers: { modAuth: this.siteId },
 				url: '/assets/components/extrabuilder/connector.php',
-				data: {
-					action: this.meta[this.model].getlist
-				},
+				data: params,
 				dataType: 'json'
 			}).always(function (response) {
 				// If we have results

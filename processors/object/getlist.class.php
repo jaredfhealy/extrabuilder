@@ -20,6 +20,12 @@ class ExtrabuilderObjectGetListProcessor extends modObjectGetListProcessor {
      * @return xPDOQuery
      */
     public function prepareQueryBeforeCount(xPDOQuery $c) {
+		// Check for a limit set for paging
+		$limit = $this->getProperty('limit');
+		if (empty($limit)) {
+			$this->setProperty('limit', 0);
+		}
+
 		// Handle any passed in query
 		$query = $this->getProperty('query');
 		if (!empty($query)) {

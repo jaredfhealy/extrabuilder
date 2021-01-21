@@ -14,8 +14,8 @@ var app = new Vue({
 			rel: {},
 			fieldOptions: {},
 			item: {},
-			pagesize: 20,
-			page: 1,
+			pagesize: 0,
+			page: 0,
 			sortfield: 'sortorder',
 			alerts: [],
 			meta: {

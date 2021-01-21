@@ -80,7 +80,7 @@ class ExtrabuilderBuildTransportProcessor extends modObjectProcessor
 			$this->builder->createPackage($packageName, '0.0.0', 'backup');
 
 		// Register the namespace with the default core path
-		$this->builder->registerNamespace($key, false, true, "{core_path}components/$key");
+		$this->builder->registerNamespace($key, false, true, "{core_path}components/$key/");
 
 		// Set the default transport attributes
 		$defaultElementAttr = [

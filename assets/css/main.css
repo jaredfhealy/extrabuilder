@@ -119,3 +119,8 @@ input.form-control:focus, input.textarea:focus {
     line-height: 1em;
     vertical-align: middle;
 }
+
+/* Form widths */
+.max-1200 {
+	max-width: 1200px;
+}

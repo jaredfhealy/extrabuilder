@@ -126,15 +126,15 @@
 				</div>
 				
 				<div class="form-wrapper" v-if="view=='form' && form=='updateTransport' || form=='createTransport'">
-					<form id="transport-form" ref="transportForm" style="max-width: 1000px;"
+					<div class="modx-panel-desc">
+						<p>
+							This transport feature is "Category" based. All Elements are packaged based on the "Main Category" selected.
+							<br/>Currently only one Category is supported. It will not work with child categories or multiple categories.
+						</p>
+					</div>
+					
+					<form id="transport-form" ref="transportForm" class="max-1200"
 					:class="{'was-validated': formErrors, 'needs-validation': !formErrors}">
-
-						<div class="modx-panel-desc">
-							<p>
-								This transport feature is "Category" based. All Elements are packaged based on the "Main Category" selected.
-								<br/>Currently only one Category is supported. It will not work with child categories or multiple categories.
-							</p>
-						</div>
 
 						<div class="form-row">
 							<div class="form-group col-md-6">
@@ -233,20 +233,20 @@
 									v-model="transport.release_index" min="0">
 							</div>
 						</div>
-					</form>
 
-					<button class="btn btn-primary" @click='saveModel()'>
-						Save
-					</button>
-					<button class="btn btn-default border" @click='saveModel(true)'>
-						Save &amp; Back to List
-					</button>
-					<button class="btn btn-warning border" @click="navigate('list','ebTransport')">
-						Cancel
-					</button>
-					<button class="btn btn-danger float-right" @click="deleteModel()">
-						DELETE
-					</button>
+						<button class="btn btn-primary" @click.prevent='saveModel()'>
+							Save
+						</button>
+						<button class="btn btn-default border" @click.prevent='saveModel(true)'>
+							Save &amp; Back to List
+						</button>
+						<button class="btn btn-warning border" @click.prevent="navigate('list','ebTransport')">
+							Cancel
+						</button>
+						<button class="btn btn-danger float-right" @click.prevent="deleteModel()">
+							DELETE
+						</button>
+					</form>
 				</div>
 
             </div> <!-- End main panel wrap -->
