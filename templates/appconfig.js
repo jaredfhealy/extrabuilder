@@ -610,8 +610,9 @@ var app = new Vue({
 			}).always(function (response) {
 				if (response.success) {
 					// Set the results
-
-					
+					$('#import_table_modal').modal('hide');
+					_this.addAlert('success', 'Tables added successfully, review the \"Object\" entries and add any Relationships or custom attributes.');
+					_this.navigate('list', 'ebObject');
 				}
 				else if (!response.success) {
 					_this.addAlert('danger', response.message || "Unknown error: 500");

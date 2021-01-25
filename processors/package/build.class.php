@@ -33,6 +33,7 @@ class ExtrabuilderBuildPackageProcessor extends modObjectProcessor
 	{
 		// Get parameters to determine actions
 		$writeSchemaOnly = $this->getProperty('write_schema') === 'true';
+		$backupElements = $this->getProperty('backup_elements') === 'true';
 		$buildSkip = $this->getProperty('build_skip') === 'true';
 		$buildDelete = $this->getProperty('build_delete') === 'true';
 		$buildDeleteAndDrop = $this->getProperty('build_delete_drop') === 'true';
