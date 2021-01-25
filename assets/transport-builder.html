@@ -302,12 +302,6 @@
                 scriptEl.text = parent.window.document.getElementById('transportjs').innerText;
 				$('body').append(scriptEl);
             }
-            else {
-                // Load the resources remotely for development
-                $.get("/extrabuilder.html", {type: 'transport'}, function(data){
-					$(data).appendTo('body');
-                });
-			}
 		});
     </script>
 </body>

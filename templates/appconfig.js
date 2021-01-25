@@ -152,6 +152,11 @@ var app = new Vue({
 			fullscreenText: {
 				title: '',
 				value: ''
+			},
+			importTable: {
+				filter: '',
+				results: [],
+				included: []
 			}
 		}
 	},
@@ -219,6 +224,21 @@ var app = new Vue({
 			var c4 = typeof this.rel.id !== 'undefined';
 			var c5 = this.mode == 'create' && this.model == 'ebRel';
 			return (c1 && c2 !== 0 && c3 && c4) || c5;
+		},
+		filteredTableResults: function () {
+			// Array to return
+			var filtered = [];
+
+			// Loop through the results
+			for (var i = 0; i < this.importTable.results.length; i++) {
+				// If it's not selected keep it
+				if (this.importTable.included.indexOf(this.importTable.results[i]) === -1) {
+					filtered.push(this.importTable.results[i]);
+				}
+			}
+
+			// Return the final list
+			return filtered;
 		}
 	},
 	methods: {
@@ -542,6 +562,61 @@ var app = new Vue({
 				this.rel.owner = 'foreign';
 				this.rel.cardinality = 'one';
 			}
+		},
+		searchTables: function() {
+			// Build the options
+			var params = {};
+			params.action = 'searchtables'
+			params.filter = this.importTable.filter;
+
+			// Make the api call
+			var _this = this;
+			$.ajax({
+				type: 'POST',
+				url: '/assets/components/extrabuilder/connector.php',
+				headers: { modAuth: this.siteId },
+				data: params,
+				dataType: 'json'
+			}).always(function (response) {
+				if (response.success) {
+					// Set the results
+					_this.importTable.results = response.object;
+
+					// If no results
+					if (response.object.length === 0) {
+						_this.addAlert('warning', 'No results found searching for table names containing: ' + _this.importTable.filter);
+					}
+				}
+				else if (!response.success) {
+					_this.addAlert('danger', response.message || "Unknown error: 500");
+				}
+			});
+		},
+		addExistingTables: function() {
+			// Build the options
+			var params = {};
+			params.action = 'package/addtables'
+			params.tables = this.importTable.included;
+			params.id = this.package.id;
+
+			// Make the api call
+			var _this = this;
+			$.ajax({
+				type: 'POST',
+				url: '/assets/components/extrabuilder/connector.php',
+				headers: { modAuth: this.siteId },
+				data: params,
+				dataType: 'json'
+			}).always(function (response) {
+				if (response.success) {
+					// Set the results
+
+					
+				}
+				else if (!response.success) {
+					_this.addAlert('danger', response.message || "Unknown error: 500");
+				}
+			});
 		}
 	},
 	mounted: function () {

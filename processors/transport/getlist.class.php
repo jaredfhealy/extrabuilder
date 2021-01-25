@@ -56,7 +56,7 @@ class ExtrabuilderTransportGetListProcessor extends modObjectGetListProcessor
 					$list[$key]['package.package_key'] = $package['package_key'];
 				}
 				else {
-					$this->modx->log(xPDO::LOG_LEVEL_ERROR, 'Unable to fine package');
+					$this->modx->log(xPDO::LOG_LEVEL_ERROR, 'Unable to find package');
 				}
 			}
 		}
