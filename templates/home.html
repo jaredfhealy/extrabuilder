@@ -12,7 +12,7 @@
 	Ext.onReady(function(){
 		// Populate the iframe contents
 		var iframe = document.getElementById('package-manager-frame');
-		iframe.src = '/assets/components/extrabuilder/package-manager.html';
+		iframe.src = '${iframe_src_path}package-manager.html';
 
 		// Get the next sibling following the appconfigjs
 		var el = document.getElementById('appconfigjs').nextElementSibling;

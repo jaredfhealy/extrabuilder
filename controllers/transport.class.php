@@ -2,7 +2,8 @@
 class ExtrabuilderTransportManagerController extends modExtraManagerController {
     public function process(array $scriptProperties = array()) {
         $html = file_get_contents(dirname(dirname(__FILE__)) . '/templates/transport.html');
-        $html .= '<script type="text/x-template" id="transportjs">'.file_get_contents(dirname(dirname(__FILE__)) . '/templates/transport.js').'</script>';
+		$html .= str_replace('${iframe_src_path}', MODX_ASSETS_PATH.'components/extrabuilder/', $html);
+		$html .= '<script type="text/x-template" id="transportjs">'.file_get_contents(dirname(dirname(__FILE__)) . '/templates/transport.js').'</script>';
         return $html;
     }
     

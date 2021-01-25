@@ -234,8 +234,6 @@ class ExtrabuilderBuildTransportProcessor extends modObjectProcessor
 
 		// For ExtraBuilder only, copy specific _build directories
 		if ($this->packageKey === 'extrabuilder') {
-			//$this->modx->log(xPDO::LOG_LEVEL_ERROR, 'Source: '.$this->core.'_build/resolvers/');
-			//$this->modx->log(xPDO::LOG_LEVEL_ERROR, 'Adding resolvers to '.$dist.'_build/resolvers/');
 			$this->modx->eb->copydir($this->core.'_build/resolvers', $dist.'_build/resolvers');
 		}
 		

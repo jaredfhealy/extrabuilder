@@ -51,7 +51,14 @@
                     @click="navigate('list', model)"
                     v-if="view == 'form'">
                 Back to {{ meta[model].label_list }}
-            </button>
+			</button>
+			
+			<button type="button" class="btn btn-md btn-secondary"
+				onclick="$('#import_table_modal').modal('show');"
+				@click="importTable.filter=''; importTable.included=[]; importTable.results=[];"
+				v-show="packageSelected">
+                Add Existing Tables to Package
+			</button>
         </div>
 
         <div class="container-fluid" style="margin-top: 26px;">
@@ -735,6 +742,104 @@
 				</div>
 			</div>
 		</div>
+
+		<div class="modal fade" id="import_table_modal" tabindex="-1">
+			<div class="modal-dialog modal-lg">
+				<div class="modal-content">
+					<div class="modal-header">
+						<h5 class="modal-title">Import/Reverse Engineer from Tables</h5>
+						<button type="button" class="close" data-dismiss="modal" aria-label="Close">
+						<span aria-hidden="true">&times;</span>
+						</button>
+					</div>
+					<div class="modal-body">
+						
+						<form>
+
+							<div class="form-group">
+								<label for="table-filter">
+									Table Filter or Prefix (Used in Contains/LIKE search for tables to include)
+								</label>
+								<input type="text" class="form-control" id="table-filter"
+									v-model="importTable.filter"
+									@keydown.enter.prevent="searchTables()"
+									placeholder="Hit the ENTER key to search">
+							</div>
+
+						</form>
+
+						<div class="row">
+
+							<div class="col-md-6">
+								<h5>Select Tables to Include</h5>
+								<table class="table table-striped">
+		
+									<thead>
+										<tr class="table-secondary">
+											<th>Table Name</th>
+											<th>Action</th>
+										</tr>
+									</thead>
+									<tbody>
+										<tr v-if="importTable.results.length === 0">
+											<td colspan="99">
+												Enter a prefix or filter to search above
+											</td>
+										</tr>
+										<tr v-for="table in filteredTableResults">
+											<td>{{ table }}</td>
+											<td>
+												<button class="btn btn-sm btn-secondary"
+													@click="importTable.included.push(table)">
+													Include &gt;&gt;
+												</button>
+											</td>
+										</tr>
+									</tbody>
+								</table>
+							</div>
+
+							<div class="col-md-6">
+								<h5>Tables to Add</h5>
+								<table class="table table-striped">
+
+									<thead>
+										<tr class="table-secondary">
+											<th>Table Name</th>
+											<th>Action</th>
+										</tr>
+									</thead>
+									<tbody>
+										<tr v-if="importTable.included.length === 0">
+											<td colspan="99">
+												Search and select tables to include
+											</td>
+										</tr>
+										<tr v-for="(table, index) in importTable.included">
+											<td>{{ table }}</td>
+											<td>
+												<button class="btn btn-sm btn-secondary"
+													@click="importTable.included.splice(index, 1)">
+													&lt;&lt; Remove
+												</button>
+											</td>
+										</tr>
+									</tbody>
+								</table>
+							</div>
+
+						</div>
+
+					</div>
+					<div class="modal-footer">
+						<button type="button" class="btn btn-primary"
+							@click.prevent="addExistingTables()">Add Selected Tables to Current Package</button>
+						<button type="button" class="btn btn-secondary" 
+							class="close" data-dismiss="modal" aria-label="Close">Close</button>
+					</div>
+				</div>
+			</div>
+		</div>
 		
 		<div class="modal fade" id="delete_package_modal" tabindex="-1">
 			<div class="modal-dialog modal-lg">
@@ -817,12 +922,6 @@
                 scriptEl.text = parent.window.document.getElementById('appconfigjs').innerText;
 				$('body').append(scriptEl);
             }
-            else {
-                // Load the resources remotely for development
-                $.get("/extrabuilder.html", function(data){
-					$(data).appendTo('body');
-                });
-			}
 		});
 	</script>
 </body>

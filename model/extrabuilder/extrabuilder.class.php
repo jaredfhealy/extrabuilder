@@ -165,8 +165,6 @@ class Extrabuilder
 					// for sub directory  
 					$this->copydir($src . '/' . $file, $dst . '/' . $file);
 				} else {
-					$this->modx->log(xPDO::LOG_LEVEL_ERROR, "Copy from file: ".$src . '/' . $file);
-					$this->modx->log(xPDO::LOG_LEVEL_ERROR, "Copy to file: ".$dst . '/' . $file);
 					copy($src . '/' . $file, $dst . '/' . $file);
 				}
 			}

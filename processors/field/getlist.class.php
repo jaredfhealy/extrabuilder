@@ -22,9 +22,7 @@ class ExtrabuilderFieldGetListProcessor extends modObjectGetListProcessor {
     public function prepareQueryBeforeCount(xPDOQuery $c) {
 		// Check for a limit set for paging
 		$limit = $this->getProperty('limit');
-		$this->modx->log(xPDO::LOG_LEVEL_ERROR, "Limit: $limit");
 		if (empty($limit)) {
-			$this->modx->log(xPDO::LOG_LEVEL_ERROR, "Limit is empty, setting to 0.");
 			$this->setProperty('limit', 0);
 		}
 
@@ -35,7 +33,7 @@ class ExtrabuilderFieldGetListProcessor extends modObjectGetListProcessor {
 			if (is_array($queryArray)) {
 				$c->where($queryArray);
 			}
-		}
+		} 
         return $c;
     }
 }

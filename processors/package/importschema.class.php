@@ -27,7 +27,6 @@ class ExtrabuilderImportSchemaProcessor extends modObjectCreateProcessor
 		$schema = '';
 		$action = 'update';
 
-		$this->modx->log(xPDO::LOG_LEVEL_ERROR, print_r($bodyArr, true));
 		$schemaFilePath = '';
 		if ($bodyArr['schema_file_path']) {
 			$schemaFilePath = realpath(MODX_CORE_PATH . 'components/' . $bodyArr['schema_file_path']);
@@ -40,7 +39,6 @@ class ExtrabuilderImportSchemaProcessor extends modObjectCreateProcessor
 			// If this is a file
 			if (is_file($schemaFilePath) && mime_content_type($schemaFilePath) === 'text/xml') {
 				// Try and read the file
-				$this->modx->log(xPDO::LOG_LEVEL_ERROR, "Parse the file.");
 				$schema = new SimpleXMLElement($schemaFilePath, 0, true);
 			}
 			else {
