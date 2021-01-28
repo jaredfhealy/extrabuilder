@@ -1,10 +1,18 @@
 <?php
 class ExtrabuilderHomeManagerController extends modExtraManagerController {
     public function process(array $scriptProperties = array()) {
-		$html = file_get_contents(dirname(dirname(__FILE__)) . '/templates/home.html');
-		$html .= str_replace('${iframe_src_path}', MODX_CORE_PATH.'components/extrabuilder/', $html);
-        $html .= '<script type="text/x-template" id="appconfigjs">'.file_get_contents(dirname(dirname(__FILE__)) . '/templates/appconfig.js').'</script>';
-        return $html;
+		// Get the template contents
+		$output = file_get_contents(dirname(dirname(__FILE__)) . '/templates/home.html');
+
+		// Add on the script template with the vuejs contents
+		$output .= '<script type="text/x-template" id="extrabuilderjs">'.file_get_contents(dirname(dirname(__FILE__)) . '/templates/package-builder.js').'</script>';
+
+		// Replace URL placeholders with URLs based on globals
+		$output = str_replace('[[+iframe_src_url]]', MODX_ASSETS_URL.'components/extrabuilder/package-builder.html', $output);
+		$output = str_replace('[[+connector_url]]', MODX_ASSETS_URL.'components/extrabuilder/connector.php', $output);
+
+		// Return the final html output
+        return $output;
     }
     
     /**

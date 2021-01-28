@@ -102,7 +102,7 @@
 				<li class="nav-item">
 					<a class="nav-link" href="#"
 						:class="{active: form=='updateObject'}"
-						v-show="objectSelected"
+						v-show="objectSelected || mode == 'create' && model == 'ebObject'"
 						@click="navigate('update', 'ebObject')">
 						{{ objectTabLabel }}
 					</a>
@@ -118,7 +118,7 @@
 				<li class="nav-item">
 					<a class="nav-link" href="#"
 						:class="{active: form=='updateField'}"
-						v-show="fieldSelected"
+						v-show="fieldSelected || mode == 'create' && model == 'ebField'"
 						@click="navigate('update', 'ebField')">
 						{{ fieldTabLabel }}
 					</a>
@@ -134,7 +134,7 @@
 				<li class="nav-item">
 					<a class="nav-link" href="#"
 						:class="{active: form=='updateRelation'}"
-						v-show="relSelected"
+						v-show="relSelected || mode == 'create' && model == 'ebRel'"
 						@click="navigate('update', 'ebRel')">
 						{{ relTabLabel }}
 					</a>
@@ -296,20 +296,20 @@
 							</button>
 							<!-- <div class="btn-group-sm" role="group" aria-label="Schema Actions"> -->
 								<button id="package_actions" type="button" class="btn btn-secondary dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-									Schema Actions
+									Build &amp; Schema Actions
 								</button>
 								<div class="dropdown-menu" aria-labelledby="package_actions">
 									<a class="dropdown-item" href="#"  @click="buildSchema('write_schema')">
-										Update Main Schema XML Only ({{package.package_key}}.mysql.schema.xml)
+										Schema: Update Main Schema XML Only ({{package.package_key}}.mysql.schema.xml)
 									</a>
 									<a class="dropdown-item" href="#"  @click="buildSchema('build_skip')">
-										Update Schema Files & Build (Skip existing, Create missing tables & Columns)
+										Build: Update Schema Files & Build (Skip existing, Create missing tables & Columns)
 									</a>
 									<a class="dropdown-item" href="#"  @click="buildSchema('build_delete')">
-										Delete Class and Schema Files > Then Regenerate
+										Build: Delete Class and Schema Files > Then Regenerate
 									</a>
-									<a class="dropdown-item" href="#"  @click="buildSchema('build_delete_drop')">
-										Rebuild All (Delete Schema Files, Drop All Tables, Recreate)
+									<a class="dropdown-item alert-danger" href="#"  @click="buildSchema('build_delete_drop')">
+										Build: Rebuild All (Delete Schema Files, Drop All Tables, Recreate)
 									</a>
 								</div>
 							<!-- </div> -->
@@ -919,7 +919,7 @@
             // Check if we're running from the manager as an iframe
             if (parent !== self) {
                 var scriptEl = document.createElement('script');
-                scriptEl.text = parent.window.document.getElementById('appconfigjs').innerText;
+                scriptEl.text = parent.window.document.getElementById('extrabuilderjs').innerText;
 				$('body').append(scriptEl);
             }
 		});

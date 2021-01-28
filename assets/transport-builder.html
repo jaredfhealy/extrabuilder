@@ -1,7 +1,7 @@
 <!doctype html>
 <html lang="en">
 <head>
-    <title>Package Manager and Custom Tables</title>
+    <title>Transport Package Builder</title>
     <meta charset="[[++modx_charset]]" />
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
@@ -72,7 +72,7 @@
         <div class="container-fluid" style="margin-top: 26px;">
 
             <h2 style="padding-left: 5px; padding-bottom: 8px;">
-               {{ title }}
+				Build a Transport Package
             </h2>
 
             <ul class="nav nav-tabs">
@@ -299,7 +299,7 @@
             // Check if we're running from the manager as an iframe
             if (parent !== self) {
                 var scriptEl = document.createElement('script');
-                scriptEl.text = parent.window.document.getElementById('transportjs').innerText;
+                scriptEl.text = parent.window.document.getElementById('extrabuilderjs').innerText;
 				$('body').append(scriptEl);
             }
 		});

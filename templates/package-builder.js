@@ -3,6 +3,7 @@ var app = new Vue({
 	data: function () {
 		return {
 			mode: 'list',
+			connectorUrl: '[[+connector_url]]',
 			view: 'table',
 			model: 'ebPackage',
 			form: '',
@@ -198,32 +199,28 @@ var app = new Vue({
 			var c2 = this.package.id !== 0;
 			var c3 = this.package.id !== '';
 			var c4 = typeof this.package.id !== 'undefined';
-			//var c5 = this.mode == 'create' && this.model == 'ebPackage';
-			return (c1 && c2 !== 0 && c3 && c4)/* || c5*/;
+			return (c1 && c2 !== 0 && c3 && c4);
 		},
 		objectSelected: function () {
 			var c1 = this.object.id !== null;
 			var c2 = this.object.id !== 0;
 			var c3 = this.object.id !== '';
 			var c4 = typeof this.object.id !== 'undefined';
-			var c5 = this.mode == 'create' && this.model == 'ebObject';
-			return (c1 && c2 !== 0 && c3 && c4) || c5;
+			return (c1 && c2 !== 0 && c3 && c4);
 		},
 		fieldSelected: function () {
 			var c1 = this.field.id !== null;
 			var c2 = this.field.id !== 0;
 			var c3 = this.field.id !== '';
 			var c4 = typeof this.field.id !== 'undefined';
-			var c5 = this.mode == 'create' && this.model == 'ebField';
-			return (c1 && c2 !== 0 && c3 && c4) || c5;
+			return (c1 && c2 !== 0 && c3 && c4);
 		},
 		relSelected: function () {
 			var c1 = this.rel.id !== null;
 			var c2 = this.rel.id !== 0;
 			var c3 = this.rel.id !== '';
 			var c4 = typeof this.rel.id !== 'undefined';
-			var c5 = this.mode == 'create' && this.model == 'ebRel';
-			return (c1 && c2 !== 0 && c3 && c4) || c5;
+			return (c1 && c2 !== 0 && c3 && c4);
 		},
 		filteredTableResults: function () {
 			// Array to return
@@ -351,7 +348,7 @@ var app = new Vue({
 			$.ajax({
 				type: 'POST',
 				headers: { modAuth: this.siteId },
-				url: '/assets/components/extrabuilder/connector.php',
+				url: this.connectorUrl,
 				data: data,
 				dataType: 'json'
 			}).always(function (response) {
@@ -387,7 +384,7 @@ var app = new Vue({
 			$.ajax({
 				type: 'POST',
 				headers: { modAuth: this.siteId },
-				url: '/assets/components/extrabuilder/connector.php',
+				url: this.connectorUrl,
 				data: data,
 				dataType: 'json'
 			})
@@ -465,7 +462,7 @@ var app = new Vue({
 			$.ajax({
 				type: 'POST',
 				headers: { modAuth: this.siteId },
-				url: '/assets/components/extrabuilder/connector.php',
+				url: this.connectorUrl,
 				data: params,
 				dataType: 'json'
 			}).always(function (response) {
@@ -488,7 +485,7 @@ var app = new Vue({
 			var _this = this;
 			$.ajax({
 				type: 'POST',
-				url: '/assets/components/extrabuilder/connector.php',
+				url: this.connectorUrl,
 				headers: { modAuth: this.siteId },
 				data: params,
 				dataType: 'json'
@@ -522,7 +519,7 @@ var app = new Vue({
 			// Make the api call
 			$.ajax({
 				type: 'POST',
-				url: '/assets/components/extrabuilder/connector.php?action=package/importschema',
+				url: this.connectorUrl + '?action=package/importschema',
 				headers: { modAuth: this.siteId },
 				data: JSON.stringify(params),
 				dataType: 'json'
@@ -573,7 +570,7 @@ var app = new Vue({
 			var _this = this;
 			$.ajax({
 				type: 'POST',
-				url: '/assets/components/extrabuilder/connector.php',
+				url: this.connectorUrl,
 				headers: { modAuth: this.siteId },
 				data: params,
 				dataType: 'json'
@@ -603,7 +600,7 @@ var app = new Vue({
 			var _this = this;
 			$.ajax({
 				type: 'POST',
-				url: '/assets/components/extrabuilder/connector.php',
+				url: this.connectorUrl,
 				headers: { modAuth: this.siteId },
 				data: params,
 				dataType: 'json'
@@ -635,7 +632,7 @@ var app = new Vue({
 			var _this = this;
 			$.ajax({
 				type: 'POST',
-				url: '/assets/components/extrabuilder/connector.php?action=getdefaults',
+				url: this.connectorUrl + '?action=getdefaults',
 				headers: { modAuth: this.siteId },
 				dataType: 'json'
 			}).always(function (response) {

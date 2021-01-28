@@ -1,3 +1,15 @@
+ExtraBuilder 1.0.4 beta
+=======================
+- Bugfix: Corrected dynamic paths to properly utilize globals MODX_ASSETS_URL, etc.
+- Cleanup of the iFrame methodology so the home files are generic/reusable
+- Refactoring of a few naming conventions for consistency
+- Install tested on different servers and as a subdirectory install
+
+ExtraBuilder 1.0.1 - 1.0.3 beta
+===============================
+- Bug fixes
+- Add ability to import existing tables
+
 ExtraBuilder 1.0.0 beta
 ======================
 - Initial release to gauge interest and get some beta testers

@@ -64,10 +64,10 @@ class ExtrabuilderBuildTransportProcessor extends modObjectProcessor
 		$this->assets = $this->modx->eb->replaceCorePaths($this->package->get('assets_path'), $key);
 
 		// Return error if the paths are not correct
-		if (!$this->core && !$this->assets) {
-			return $this->failure('Either core_path or assets_path is invalid.', [
-				'core_path' => $this->package->get('core_path'),
-				'assets_path' => $this->package->get('assets_path')
+		if (!is_dir($this->core) && !is_dir($this->assets)) {
+			return $this->failure('Either core_path or assets_path is invalid or don\'t exist. <br>You must build the package and schema in Package Builder before using Transport Builder.', [
+				'core_path' => $this->core,
+				'assets_path' => $this->assets
 			]);
 		}
 

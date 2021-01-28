@@ -12,10 +12,10 @@
 // Prod:        assets/components/<key>/
 $devFilePath = dirname(__FILE__, 5).'/config.core.php';
 $prodFilePath = dirname(__FILE__, 4).'/config.core.php';
-if (is_file($devFilePath))
-	require_once $devFilePath;
-else if(is_file($prodFilePath)) {
+if (is_file($prodFilePath))
 	require_once $prodFilePath;
+else if(is_file($devFilePath)) {
+	require_once $devFilePath;
 }
 if (defined('MODX_CORE_PATH')) {
 	require_once MODX_CORE_PATH.'config/'.MODX_CONFIG_KEY.'.inc.php';

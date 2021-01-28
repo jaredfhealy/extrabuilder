@@ -3,7 +3,7 @@ var app = new Vue({
 	data: function () {
 		return {
 			siteId: '',
-			title: 'Build a Transport Package',
+			connectorUrl: '[[+connector_url]]',
 			alerts: [],
 			transport: {},
 			categories: [],
@@ -113,7 +113,7 @@ var app = new Vue({
 			$.ajax({
 				type: 'POST',
 				headers: { modAuth: this.siteId },
-				url: '/assets/components/extrabuilder/connector.php',
+				url: this.connectorUrl,
 				data: data,
 				dataType: 'json'
 			}).always(function (response) {
@@ -124,7 +124,9 @@ var app = new Vue({
 						_this.navigate('list', _this.model);
 					}
 					else {
-						if (_this.mode == 'create') {
+						if (_this.action == 'create') {
+							console.log("Setting ID from response");
+							console.log(response);
 							_this[_this.meta[_this.model].dataKey].id = response.object.id;
 							_this.navigate('update', _this.model);
 						}
@@ -138,7 +140,7 @@ var app = new Vue({
 			$.ajax({
 				type: 'POST',
 				headers: { modAuth: this.siteId },
-				url: '/assets/components/extrabuilder/connector.php',
+				url: this.connectorUrl,
 				data: {
 					'action': this.meta[this.model].remove,
 					'id': this[this.meta[this.model].dataKey].id
@@ -186,7 +188,7 @@ var app = new Vue({
 			$.ajax({
 				type: 'POST',
 				headers: { modAuth: this.siteId },
-				url: '/assets/components/extrabuilder/connector.php',
+				url: this.connectorUrl,
 				data: {
 					action: this.meta[this.model].get,
 					id: id
@@ -206,7 +208,7 @@ var app = new Vue({
 			$.ajax({
 				type: 'POST',
 				headers: { modAuth: this.siteId },
-				url: '/assets/components/extrabuilder/connector.php',
+				url: this.connectorUrl,
 				data: {
 					action: 'package/getlist'
 				},
@@ -224,7 +226,7 @@ var app = new Vue({
 			var _this = this;
 			$.ajax({
 				type: 'POST',
-				url: '/assets/components/extrabuilder/connector.php?action=getcategories',
+				url: this.connectorUrl + '?action=getcategories',
 				headers: { modAuth: this.siteId },
 				data: {
 					query: JSON.stringify({
@@ -251,7 +253,7 @@ var app = new Vue({
 			$.ajax({
 				type: 'POST',
 				headers: { modAuth: this.siteId },
-				url: '/assets/components/extrabuilder/connector.php',
+				url: this.connectorUrl,
 				data: params,
 				dataType: 'json'
 			}).always(function (response) {
@@ -268,7 +270,7 @@ var app = new Vue({
 			var _this = this;
 			$.ajax({
 				type: 'POST',
-				url: '/assets/components/extrabuilder/connector.php?action=getdefaults',
+				url: this.connectorUrl + '?action=getdefaults',
 				headers: { modAuth: this.siteId },
 				dataType: 'json'
 			}).always(function (response) {
@@ -291,7 +293,7 @@ var app = new Vue({
 			var _this = this;
 			$.ajax({
 				type: 'POST',
-				url: '/assets/components/extrabuilder/connector.php',
+				url: this.connectorUrl,
 				headers: { modAuth: this.siteId },
 				data: data,
 				dataType: 'json'
@@ -300,7 +302,9 @@ var app = new Vue({
 					_this.addAlert('success', "Success: " + response.message);
 				}
 				else {
-					_this.addAlert('danger', "Error: " + response.message); 
+					var msg = "Error: " + response.message;
+					msg += "<br><br>" + JSON.stringify(response.object);
+					_this.addAlert('danger', msg); 
 				}
 			});
 		},
@@ -318,7 +322,7 @@ var app = new Vue({
 			var _this = this;
 			$.ajax({
 				type: 'POST',
-				url: '/assets/components/extrabuilder/connector.php',
+				url: this.connectorUrl,
 				headers: { modAuth: this.siteId },
 				data: {
 					action: 'transport/addresolver',
@@ -340,7 +344,7 @@ var app = new Vue({
 			var _this = this;
 			$.ajax({
 				type: 'POST',
-				url: '/assets/components/extrabuilder/connector.php',
+				url: this.connectorUrl,
 				headers: { modAuth: this.siteId },
 				data: {
 					action: 'transport/addtablesresolver',
@@ -362,7 +366,7 @@ var app = new Vue({
 			var _this = this;
 			$.ajax({
 				type: 'POST',
-				url: '/assets/components/extrabuilder/connector.php',
+				url: this.connectorUrl,
 				headers: { modAuth: this.siteId },
 				data: {
 					action: 'transport/addremovetablesresolver',

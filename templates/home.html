@@ -1,21 +1,21 @@
 <style>
-    iframe#package-manager-frame {
+    iframe#content-frame {
         border: none;
         width: 100%;
         height: calc(100vh - 55px);
     }
 </style>
 
-<iframe id="package-manager-frame" src=""></iframe>
+<iframe id="content-frame" src=""></iframe>
 
 <script>
 	Ext.onReady(function(){
 		// Populate the iframe contents
-		var iframe = document.getElementById('package-manager-frame');
-		iframe.src = '${iframe_src_path}package-manager.html';
+		var iframe = document.getElementById('content-frame');
+		iframe.src = '[[+iframe_src_url]]';
 
-		// Get the next sibling following the appconfigjs
-		var el = document.getElementById('appconfigjs').nextElementSibling;
+		// Remove the generated Extjs "x-panel-bwrap" div element
+		var el = document.getElementById('modx-content').lastElementChild;
 
 		// Is this a panel wrapper
 		if (el.className.indexOf('x-panel-bwrap') !== -1) {

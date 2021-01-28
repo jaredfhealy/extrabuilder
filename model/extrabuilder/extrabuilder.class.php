@@ -45,12 +45,13 @@ class Extrabuilder
 		$path = str_replace('{assets_path}', MODX_ASSETS_PATH, $path);
 		$path = str_replace('{package_key}', $packageKey, $path);
 
-		// Return the final value
+		/* Return the final value
 		if (is_dir($path)) {
 			return $path;
 		} else {
 			return false;
-		}
+		}*/
+		return $path;
 	}
 
 	/**
