@@ -8,9 +8,9 @@
  */
 class ExtrabuilderObjectCreateProcessor extends modObjectCreateProcessor
 {
-	public $classKey = 'ebObject';
+    public $classKey = 'ebObject';
     public $languageTopics = array('extrabuilder:default');
-	public $objectType = 'extrabuilder.object';
-	
+    public $objectType = 'extrabuilder.object';
+
 }
 return 'ExtrabuilderObjectCreateProcessor';

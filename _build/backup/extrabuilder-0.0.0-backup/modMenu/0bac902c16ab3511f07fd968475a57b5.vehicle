@@ -1,0 +1,16 @@
+<?php return array (
+  'preserve_keys' => true,
+  'update_object' => true,
+  'unique_key' => 'text',
+  'namespace' => 'extrabuilder',
+  'resolve' => NULL,
+  'validate' => NULL,
+  'vehicle_package' => 'transport',
+  'vehicle_class' => 'xPDOObjectVehicle',
+  'guid' => '1b8d726b3ca19a69a37a9e983c28858d',
+  'package' => 'modx',
+  'class' => 'modMenu',
+  'signature' => '0bac902c16ab3511f07fd968475a57b5',
+  'native_key' => 'Package Builder',
+  'object' => '{"text":"Package Builder","parent":"ExtraBuilder","action":"index","description":"Build a Package with Custom Tables","icon":"","menuindex":0,"params":"&loadapp=package-builder","handler":"","permissions":"","namespace":"extrabuilder"}',
+);

@@ -8,9 +8,9 @@
  */
 class ExtrabuilderFieldCreateProcessor extends modObjectCreateProcessor
 {
-	public $classKey = 'ebField';
+    public $classKey = 'ebField';
     public $languageTopics = array('extrabuilder:default');
-	public $objectType = 'extrabuilder.field';
-	
+    public $objectType = 'extrabuilder.field';
+
 }
 return 'ExtrabuilderFieldCreateProcessor';

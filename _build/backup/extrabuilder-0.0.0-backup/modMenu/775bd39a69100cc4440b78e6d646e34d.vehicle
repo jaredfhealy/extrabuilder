@@ -7,10 +7,10 @@
   'validate' => NULL,
   'vehicle_package' => 'transport',
   'vehicle_class' => 'xPDOObjectVehicle',
-  'guid' => '3be37efc9924c23fdf08fa3acce5de5a',
+  'guid' => '0ddd24deb80dd943b191095977608eec',
   'package' => 'modx',
   'class' => 'modMenu',
-  'signature' => 'ec9aff4336309dfe6ba3c4f61c60a8e0',
+  'signature' => '775bd39a69100cc4440b78e6d646e34d',
   'native_key' => 'ExtraBuilder',
   'object' => '{"text":"ExtraBuilder","parent":"components","action":"","description":"Build custom tables, packages, and transports","icon":"","menuindex":3,"params":"","handler":"","permissions":"","namespace":"extrabuilder"}',
 );

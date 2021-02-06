@@ -3,27 +3,27 @@
 /** @var array $options */
 /** @var modX $modx */
 if ($transport->xpdo) {
-	$modx =& $transport->xpdo;
+    $modx = &$transport->xpdo;
 
-	switch ($options[xPDOTransport::PACKAGE_ACTION]) {
+    switch ($options[xPDOTransport::PACKAGE_ACTION]) {
         case xPDOTransport::ACTION_INSTALL:
-		case xPDOTransport::ACTION_UPGRADE:
-			// Load classes from the schema
-			$manager = $modx->getManager();
-			$modx->addPackage('{package_key}', MODX_CORE_PATH . 'components/{package_key}/model/');
-			$objects = [];
-			$schemaFile = MODX_CORE_PATH . 'components/{package_key}/model/schema/{package_key}.mysql.schema.xml';
-			if (is_file($schemaFile)) {
-				$schema = new SimpleXMLElement($schemaFile, 0, true);
-				if (isset($schema->object)) {
-					foreach ($schema->object as $obj) {
-						$objects[] = (string)$obj['class'];
-					}
-				}
-				unset($schema);
-			}
+        case xPDOTransport::ACTION_UPGRADE:
+            // Load classes from the schema
+            $manager = $modx->getManager();
+            $modx->addPackage('{package_key}', MODX_CORE_PATH . 'components/{package_key}/model/');
+            $objects = [];
+            $schemaFile = MODX_CORE_PATH . 'components/{package_key}/model/schema/{package_key}.mysql.schema.xml';
+            if (is_file($schemaFile)) {
+                $schema = new SimpleXMLElement($schemaFile, 0, true);
+                if (isset($schema->object)) {
+                    foreach ($schema->object as $obj) {
+                        $objects[] = (string) $obj['class'];
+                    }
+                }
+                unset($schema);
+            }
             foreach ($objects as $class) {
-				// Get the table for this class
+                // Get the table for this class
                 $table = $modx->getTableName($class);
                 $sql = "SHOW TABLES LIKE '" . trim($table, '`') . "'";
                 $stmt = $modx->prepare($sql);

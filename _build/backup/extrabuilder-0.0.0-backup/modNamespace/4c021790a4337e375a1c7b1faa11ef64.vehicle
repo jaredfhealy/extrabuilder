@@ -9,10 +9,10 @@
   'validate' => NULL,
   'vehicle_package' => 'transport',
   'vehicle_class' => 'xPDOObjectVehicle',
-  'guid' => 'fe090ed9b83cebdf8fcd0bae3754872a',
+  'guid' => '04bc2c71ff6c3d4756c412eb00291a32',
   'package' => 'modx',
   'class' => 'modNamespace',
-  'signature' => '311ad01ce3e4bf902ef91212270f5b25',
+  'signature' => '4c021790a4337e375a1c7b1faa11ef64',
   'native_key' => 'extrabuilder',
   'object' => '{"name":"extrabuilder","path":"{core_path}components\\/extrabuilder\\/","assets_path":"{assets_path}components\\/extrabuilder\\/"}',
 );

@@ -1,0 +1,16 @@
+<?php return array (
+  'preserve_keys' => true,
+  'update_object' => true,
+  'unique_key' => 'text',
+  'namespace' => 'extrabuilder',
+  'resolve' => NULL,
+  'validate' => NULL,
+  'vehicle_package' => 'transport',
+  'vehicle_class' => 'xPDOObjectVehicle',
+  'guid' => 'a66f766ca011bd60da97d07b0d6c7928',
+  'package' => 'modx',
+  'class' => 'modMenu',
+  'signature' => 'b450e87a77f4fc14e131b7fb861f6b6d',
+  'native_key' => 'Transport Builder',
+  'object' => '{"text":"Transport Builder","parent":"ExtraBuilder","action":"index","description":"Build a transport package","icon":"","menuindex":1,"params":"&loadapp=transport-builder","handler":"","permissions":"","namespace":"extrabuilder"}',
+);

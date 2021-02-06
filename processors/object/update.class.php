@@ -10,6 +10,6 @@ class ExtrabuilderObjectUpdateProcessor extends modObjectUpdateProcessor
 {
     public $classKey = 'ebObject';
     public $languageTopics = array('extrabuilder:default');
-	public $objectType = 'extrabuilder.object';
+    public $objectType = 'extrabuilder.object';
 }
 return 'ExtrabuilderObjectUpdateProcessor';

@@ -10,6 +10,6 @@ class ExtrabuilderPackageUpdateProcessor extends modObjectUpdateProcessor
 {
     public $classKey = 'ebPackage';
     public $languageTopics = array('extrabuilder:default');
-	public $objectType = 'extrabuilder.package';
+    public $objectType = 'extrabuilder.package';
 }
 return 'ExtrabuilderPackageUpdateProcessor';
