@@ -20,7 +20,6 @@ class Extrabuilder
 			'modelPath' => $basePath . 'model/',
 			'processorsPath' => $basePath . 'processors/',
 			'templatesPath' => $basePath . 'templates/',
-			'chunksPath' => $basePath . 'elements/chunks/',
 			'jsUrl' => $assetsUrl . 'js/',
 			'cssUrl' => $assetsUrl . 'css/',
 			'assetsUrl' => $assetsUrl,
@@ -29,6 +28,14 @@ class Extrabuilder
 
 		// Add the package
 		$this->modx->addPackage('extrabuilder', $this->config['modelPath']);
+	}
+
+	/**
+	 * Test log for class exists
+	 */
+	public function logExists()
+	{
+		$this->modx->log(xPDO::LOG_LEVEL_ERROR, "I exiest.");
 	}
 
 	/**
@@ -45,12 +52,7 @@ class Extrabuilder
 		$path = str_replace('{assets_path}', MODX_ASSETS_PATH, $path);
 		$path = str_replace('{package_key}', $packageKey, $path);
 
-		/* Return the final value
-		if (is_dir($path)) {
-			return $path;
-		} else {
-			return false;
-		}*/
+		// Return the final path
 		return $path;
 	}
 

@@ -12,6 +12,8 @@
     <field key="sortorder" dbtype="int" precision="10" phptype="integer" null="false" default="0"/>
     <field key="core_path" dbtype="varchar" precision="191" phptype="string" null="true" default="{core_path}components/{package_key}/"/>
     <field key="assets_path" dbtype="varchar" precision="191" phptype="string" null="true" default="{assets_path}components/{package_key}/"/>
+    <field key="vuecmp" dbtype="varchar" precision="20" phptype="string" null="true" default=""/>
+    <field key="lexicon" dbtype="varchar" precision="20" phptype="string" null="true" default=""/>
     <composite alias="Objects" class="ebObject" local="id" foreign="package" cardinality="many" owner="local"/>
     <composite alias="Transports" class="ebTransport" local="id" foreign="package" cardinality="many" owner="local"/>
   </object>
@@ -37,6 +39,8 @@
     <field key="object" dbtype="int" precision="10" phptype="integer" null="false" default=""/>
     <field key="index" dbtype="varchar" precision="100" phptype="string" null="true" default=""/>
     <field key="attributes" dbtype="varchar" precision="10" phptype="string" null="true" default=""/>
+    <field key="generated" dbtype="varchar" precision="20" phptype="string" null="true" default=""/>
+    <field key="extra" dbtype="varchar" precision="191" phptype="string" null="true" default=""/>
     <aggregate alias="Object" class="ebObject" local="object" foreign="id" cardinality="one" owner="foreign"/>
   </object>
   <object class="ebRel" table="extrabuilder_rel" extends="xPDOSimpleObject">

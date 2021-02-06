@@ -110,6 +110,11 @@ class ExtrabuilderBuildPackageProcessor extends modObjectProcessor
 		if (!$this->previewOnly) {
 			// Call the build script
 			$this->buildSchema($packageKey);
+
+			// If include vuecmp is set to true
+			if ($this->object->get('vuecmp') === 'true') {
+				$this->includeVueCmp();
+			}
 		}
 
 		$separator = ''.PHP_EOL;
@@ -143,7 +148,23 @@ class ExtrabuilderBuildPackageProcessor extends modObjectProcessor
 		if (!is_dir($this->assetsPath)) {
 			mkdir($this->assetsPath, 0775, true);
 		}
-		
+
+		// If include lexicon is set to true
+		$lexiconPath = '';
+		if ($this->object->get('lexicon') === 'true') {
+			// Make sure the directory exists
+			$lexiconPath = $this->packageBasePath.'lexicon/en/';
+			if (!is_dir($lexiconPath)) {
+				mkdir($lexiconPath, 0775, true);
+			}
+
+			// If the file does not exist yet.
+			if (!is_file($lexiconPath.'default.inc.php')) {
+				// Copy the default lexicon file
+				copy(MODX_CORE_PATH.'components/extrabuilder/lexicon/en/default.inc.php', $lexiconPath.'default.inc.php');
+			}
+		}
+
 		// Begin the build script
 		$mtime = microtime();
 		$mtime = explode(" ", $mtime);
@@ -162,6 +183,9 @@ class ExtrabuilderBuildPackageProcessor extends modObjectProcessor
 			'assets' => $this->assetsPath,
 			'schema' => $this->schemaPath,
 		);
+		if ($lexiconPath) {
+			$sources['lexicon'] = $lexiconPath;
+		}
 		$this->logMessages[] = "Sources: ".print_r($sources, true);
 
 		// Get the manager and generator
@@ -206,7 +230,7 @@ class ExtrabuilderBuildPackageProcessor extends modObjectProcessor
 				}
 			}
 			
-			// If the table is just created
+			// If the table is new, create it
 			if ($newTable) {
 				$this->logMessages[] = "Creating table for class: $class";
 				if (!$manager->createObjectContainer($class)) {
@@ -216,24 +240,35 @@ class ExtrabuilderBuildPackageProcessor extends modObjectProcessor
 				// If the table exists
 				// 1. Operate with tables
 				$this->logMessages[] = 'Table exists, checking columns...';
+
+				// Fetch any matching columns in the table and convert to an array
 				$tableFields = [];
 				$c = $this->modx->prepare("SHOW COLUMNS IN {$this->modx->getTableName($class)}");
 				$c->execute();
 				while ($cl = $c->fetch(PDO::FETCH_ASSOC)) {
 					$tableFields[$cl['Field']] = $cl['Field'];
 				}
+				$this->logMessages[] = "Table Fields: ".print_r($tableFields, true);
+
+				// Loop throught the fields for this table
 				foreach ($this->modx->getFields($class) as $field => $v) {
 					if (in_array($field, $tableFields)) {
+						// The field exists, alter it
 						unset($tableFields[$field]);
 						$manager->alterField($class, $field);
 					} else {
+						// The field does not exist, add it
 						$manager->addField($class, $field);
 					}
 				}
+
+				// If there are any fields that weren't "unset" above,
+				// it means they no longer exist in the schema, remove them
 				foreach ($tableFields as $field) {
 					$manager->removeField($class, $field);
 				}
-				// 2. Operate with indexes
+
+				// 2. Get any indexes and add to an array
 				$this->logMessages[] = "Table exists, checking indexes...";
 				$indexes = [];
 				$c = $this->modx->prepare("SHOW INDEX FROM {$this->modx->getTableName($class)}");
@@ -246,19 +281,27 @@ class ExtrabuilderBuildPackageProcessor extends modObjectProcessor
 						$indexes[$name][] = $row['Column_name'];
 					}
 				}
+
+				// Loop through the index away
 				foreach ($indexes as $name => $values) {
 					sort($values);
 					$indexes[$name] = implode(':', $values);
 				}
+
+				// Get the defined indexes based on the schema
 				$map = $this->modx->getIndexMeta($class);
+
 				// Remove old indexes
 				foreach ($indexes as $key => $index) {
+					// If the index is not in the map
 					if (!isset($map[$key])) {
+						// Remove the old index
 						if ($manager->removeIndex($class, $key)) {
 							$this->logMessages[] = "Removed index \"{$key}\" of the table \"{$class}\"";
 						}
 					}
 				}
+				
 				// Add or alter existing
 				foreach ($map as $key => $index) {
 					ksort($index['columns']);
@@ -341,7 +384,18 @@ class ExtrabuilderBuildPackageProcessor extends modObjectProcessor
 						$tpl = isset($tpl) ? $tpl : $fieldTpl;
 
 						// Populate the field row
-						$xmlSchema .= $this->replaceValues($field->toArray(), $tpl);
+						$fieldXml = $this->replaceValues($field->toArray(), $tpl);
+
+						// Add on extra and generated if populated
+						if ($field->get('generated')) {
+							$fieldXml = str_replace('/>', " generated=\"{$field->get('generated')}\"/>", $fieldXml);
+						}
+						if ($field->get('extra')) {
+							$fieldXml = str_replace('/>', " generated=\"{$field->get('extra')}\"/>", $fieldXml);
+						}
+
+						// Add to the xml
+						$xmlSchema .= $fieldXml;
 
 						// If an index value is set
 						if ($field->get('index')) {
@@ -383,6 +437,58 @@ class ExtrabuilderBuildPackageProcessor extends modObjectProcessor
 	}
 
 	/**
+	 * Include Vue.js components and starting files
+	 * to use the Vue CMP and iFrame methodology
+	 */
+	public function includeVueCmp()
+	{
+		// Asset Target directories and files
+		$cssPath = $this->assetsPath . 'css/';
+		$jsPath = $this->assetsPath . 'js/';
+		$connectorFilePath = $this->assetsPath . 'connector.php';
+
+		// Only generate these if they don't exist already
+		// If the css, js directories don't exist
+		if (!is_dir($cssPath) && !is_dir($jsPath) && !is_file($connectorFilePath)) {
+			// Define the source directories and files
+			$sourceCssPath = MODX_CORE_PATH . 'components/extrabuilder/_build/cmpexample/assets/css/';
+			$sourceJsPath = MODX_CORE_PATH . 'components/extrabuilder/_build/cmpexample/assets/js/';
+			$sourceConnectorFilePath = MODX_CORE_PATH . 'components/extrabuilder/_build/cmpexample/assets/connector.php';
+
+			// Copy the directories
+			$this->modx->extrabuilder->copydir($sourceCssPath, $this->assetsPath);
+			$this->modx->extrabuilder->copydir($sourceJsPath, $this->assetsPath);
+
+			// Copy the connector
+			copy($sourceConnectorFilePath, $connectorFilePath);
+		}
+
+		// Core files and directories
+		$controllerPath = $this->packageBasePath . 'controllers/';
+		$templatePath = $this->packageBasePath . 'templates/';
+
+		// Only create if they don't exist yet
+		if (!is_dir($controllerPath) && !is_dir($templatePath)) {
+			mkdir($controllerPath, 0775);
+			mkdir($templatePath, 0775);
+
+			// Template sources
+			$indexControllerPath = MODX_CORE_PATH . 'components/extrabuilder/_build/cmpexample/controllers/index.class.php.tpl';
+			$indexHtmlFilePath = MODX_CORE_PATH . 'components/extrabuilder/_build/cmpexample/templates/index.html';
+
+			// Get the template contents
+			$indexController = file_get_contents($indexControllerPath);
+			$indexController = str_replace('[[+package_class]]', ucfirst($this->object->get('package_key')), $indexController);
+
+			// Write the controller file
+			file_put_contents($controllerPath.'index.class.php', $indexController);
+
+			// Copy the index.html file
+			copy($indexHtmlFilePath, $templatePath.'index.html');
+		}
+	}
+
+	/**
 	 * Delete generated schema files
 	 * 
 	 * Directory and contents:
@@ -418,7 +524,27 @@ class ExtrabuilderBuildPackageProcessor extends modObjectProcessor
 	 */
 	public function dropModelTables()
 	{
-
+		// Get the manager
+		$manager = $this->modx->getManager();
+		
+		// Get the related object entries and loop through
+		$objectEntries = $this->object->getMany('Objects');
+		$dropErrors = [];
+		if ($objectEntries) {
+			foreach ($objectEntries as $entry) {
+				$class = $entry->get('class');
+				if ($class) {
+					// Get the xpdo manager and drop the table
+					if (!$manager->removeObjectContainer($class)) {
+						// Add to the error list
+						$dropErrors[] = $class;
+					}
+				}
+			}
+		}
+		else {
+			$this->failure('Unable to determine tables to drop. Please remove manually.');
+		}
 	}
 
 	/**

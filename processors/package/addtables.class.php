@@ -72,6 +72,8 @@ class ExtrabuilderAddTablesProcessor extends modObjectProcessor
 		// Get the manager and generator
 		$manager = $this->modx->getManager();
 		$generator = $manager->getGenerator();
+
+		// Get parameters
 		
 		// Loop through the tables
 		foreach ($tables as $tableIndex => $table) {
@@ -87,7 +89,7 @@ class ExtrabuilderAddTablesProcessor extends modObjectProcessor
 				$object = $this->modx->newObject('ebObject');
 				$object->set('class', $class);
 				$object->set('table_name', $tableNoPrefix);
-				$object->set('extends', 'xPDOSimpleObject');
+				$object->set('extends', 'xPDOObject');
 				$object->set('sortorder', $tableIndex);
 				$object->set('package', $this->object->get('id'));
 			}
@@ -105,7 +107,7 @@ class ExtrabuilderAddTablesProcessor extends modObjectProcessor
                         $Type= '';
                         $Null= '';
                         $Key= '';
-                        $Default= '';
+						$Default= '';
 						
 						// Extract and overwrite
 						extract($field, EXTR_OVERWRITE);
@@ -126,6 +128,20 @@ class ExtrabuilderAddTablesProcessor extends modObjectProcessor
 						$PhpType= $manager->xpdo->driver->getPhpType($dbType);
 						$Null = (($Null === 'NO') ? 'false' : 'true');
 						$Key= $this->getIndex($Key);
+
+						// Handle the existence of an auto_increment field
+						if (!empty($Extra)) {
+                            if ($Extra === 'auto_increment') {
+                                if ($object->get('extends') === 'xPDOObject' && $Field === 'id') {
+									$object->set('extends', 'xPDOSimpleObject');
+                                    continue;
+                                } else {
+									$object->set('generated', 'native');
+                                }
+                            } else {
+								$object->set('extra', strtolower($Extra));
+                            }
+                        }
 						
 						// Create a new child field object or update existing
 						$updateField = true;

@@ -60,8 +60,8 @@ class ExtrabuilderBuildTransportProcessor extends modObjectProcessor
 		}
 
 		// Calculate the core and assets path values
-		$this->core = $this->modx->eb->replaceCorePaths($this->package->get('core_path'), $key);
-		$this->assets = $this->modx->eb->replaceCorePaths($this->package->get('assets_path'), $key);
+		$this->core = $this->modx->extrabuilder->replaceCorePaths($this->package->get('core_path'), $key);
+		$this->assets = $this->modx->extrabuilder->replaceCorePaths($this->package->get('assets_path'), $key);
 
 		// Return error if the paths are not correct
 		if (!is_dir($this->core) && !is_dir($this->assets)) {
@@ -114,7 +114,7 @@ class ExtrabuilderBuildTransportProcessor extends modObjectProcessor
 			'category' => $this->object->get('category')
 		]);
 		
-		// Store all elements into the _build/elements/ directory
+		// Store all elements into the _build/backup/ directory
 		// so that it can be picked up by version control
 		$elementsDir = $this->core."_build/backup/";
 
@@ -164,13 +164,13 @@ class ExtrabuilderBuildTransportProcessor extends modObjectProcessor
 		if ($this->builder->pack()) {
 			// If not backupOnly
 			if (!$backupOnly) {
-				$this->modx->eb->rrmdir("{$this->core}_dist/");
+				$this->modx->extrabuilder->rrmdir("{$this->core}_dist/");
 			}
 			else {
 				// Copy the packages file to the _build/elements directory
 				if (is_dir(MODX_CORE_PATH."packages/{$key}-0.0.0-backup/")) {
-					$this->modx->eb->rrmdir("{$this->core}_build/backup/{$key}-0.0.0-backup/");
-					$this->modx->eb->copydir(MODX_CORE_PATH."packages/{$key}-0.0.0-backup/", "{$this->core}_build/backup/{$key}-0.0.0-backup/");
+					$this->modx->extrabuilder->rrmdir("{$this->core}_build/backup/{$key}-0.0.0-backup/");
+					$this->modx->extrabuilder->copydir(MODX_CORE_PATH."packages/{$key}-0.0.0-backup/", "{$this->core}_build/backup/{$key}-0.0.0-backup/");
 					copy(MODX_CORE_PATH."packages/{$key}-0.0.0-backup.transport.zip", "{$this->core}_build/backup/{$key}-0.0.0-backup.transport.zip");
 				}
 			}
@@ -228,17 +228,18 @@ class ExtrabuilderBuildTransportProcessor extends modObjectProcessor
 		}
 		else {
 			// Clear the directory and rebuild it empty
-			$this->modx->eb->rrmdir($dist);
+			$this->modx->extrabuilder->rrmdir($dist);
 			mkdir($dist, 0775, true);
 		}
 
 		// For ExtraBuilder only, copy specific _build directories
 		if ($this->packageKey === 'extrabuilder') {
-			$this->modx->eb->copydir($this->core.'_build/resolvers', $dist.'_build/resolvers');
+			$this->modx->extrabuilder->copydir($this->core.'_build/resolvers', $dist.'_build/resolvers');
+			$this->modx->extrabuilder->copydir($this->core.'_build/cmpexample', $dist.'_build/cmpexample');
 		}
 		
 		// Copy all files except our "excludes" into the $dist folder
-		$this->modx->eb->copyCore($this->core, $dist);
+		$this->modx->extrabuilder->copyCore($this->core, $dist);
 		$this->vehicle->resolve('file', [
 			'source' => $dist,
 			'target' => "return MODX_CORE_PATH . 'components/';",

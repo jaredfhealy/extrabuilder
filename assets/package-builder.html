@@ -56,7 +56,7 @@
 			<button type="button" class="btn btn-md btn-secondary"
 				onclick="$('#import_table_modal').modal('show');"
 				@click="importTable.filter=''; importTable.included=[]; importTable.results=[];"
-				v-show="packageSelected">
+				v-show="packageSelected && !objectSelected">
                 Add Existing Tables to Package
 			</button>
         </div>
@@ -267,23 +267,54 @@
 								</div>
 							</div>
 
-							<button class="btn btn-primary" @click.prevent='saveModel()'>
-								Save
-							</button>
-							<button class="btn btn-default border" @click.prevent='saveModel(true)'>
-								Save &amp; Back to List
-							</button>
-							<button class="btn btn-warning border" @click.prevent="navigate('list','ebPackage')">
-								Cancel
-							</button>
-							
-							<div class="float-right">
-								<button class="btn btn-warning" onclick="$('#delete_package_modal').modal('show')" @click.prevent="safeDelete = true;">
-									Safe DELETE
+							<br/><h5>Additional Options</h5>
+							<hr/>
+
+							<div class="form-row">
+								<div class="form-group col-md-6">
+									<div class="form-check">
+										<input type="checkbox" class="form-check-input" id="vuecmp"
+											v-model="package.vuecmp">
+										<label class="form-check-label" for="vuecmp">Include Vue.js CMP Templates</label>
+										<small class="form-text text-muted">
+											When building, this option will create the directories, and stub files to implement a Vue.js based CMP.
+											This includes the connector, js and css files, as well as the controller, and templates.
+										</small>
+									</div>
+								</div>
+								<div class="form-group col-md-6">
+									<div class="form-check">
+										<div class="form-check">
+											<input type="checkbox" class="form-check-input" id="lexicon"
+												v-model="package.lexicon">
+											<label class="form-check-label" for="lexicon">Include Lexicon Stub (en)</label>
+											<small class="form-text text-muted">
+												When building, this option will create the lexicon and 'en' directories, as well as the default.inc.php file.
+											</small>
+										</div>
+									</div>
+								</div>
+							</div>
+
+							<div class="form-buttons">
+								<button class="btn btn-primary" @click.prevent='saveModel()'>
+									Save
 								</button>
-								<button class="btn btn-danger" onclick="$('#delete_package_modal').modal('show')" @click.prevent="safeDelete = false;">
-									DELETE EVERYTHING
+								<button class="btn btn-default border" @click.prevent='saveModel(true)'>
+									Save &amp; Back to List
 								</button>
+								<button class="btn btn-warning border" @click.prevent="navigate('list','ebPackage')">
+									Cancel
+								</button>
+								
+								<div class="float-right">
+									<button class="btn btn-warning" onclick="$('#delete_package_modal').modal('show')" @click.prevent="safeDelete = true;">
+										Safe DELETE
+									</button>
+									<button class="btn btn-danger" onclick="$('#delete_package_modal').modal('show')" @click.prevent="safeDelete = false;">
+										DELETE EVERYTHING
+									</button>
+								</div>
 							</div>
 
 						</form>
@@ -545,6 +576,22 @@
 										<option value="FULLTEXT">FULLTEXT</option>
 									</select>
                                 </div>
+							</div>
+
+							<div class="form-row">
+								<div class="form-group col-md-6">
+									<label for="generated">Generated</label>
+									<input type="text" class="form-control" id="generated"
+											v-model="field.generated">
+									<small class="text-muted">
+										Value set to "native" if this is an auto_increment field but not "id".
+									</small>
+								</div>
+								<div class="form-group col-md-6">
+									<label for="extra">Extra (MySQL "Extra": See MySQL Docs)</label>
+									<input type="text" class="form-control" id="extra"
+											v-model="field.extra">
+								</div>
 							</div>
 
 							<div class="form-row">
@@ -919,7 +966,7 @@
             // Check if we're running from the manager as an iframe
             if (parent !== self) {
                 var scriptEl = document.createElement('script');
-                scriptEl.text = parent.window.document.getElementById('extrabuilderjs').innerText;
+                scriptEl.text = parent.window.document.getElementById('appjs').innerText;
 				$('body').append(scriptEl);
             }
 		});

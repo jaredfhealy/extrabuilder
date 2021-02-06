@@ -20,6 +20,8 @@ $xpdo_meta_map['ebField']= array (
     'object' => 0,
     'index' => '',
     'attributes' => '',
+    'generated' => '',
+    'extra' => '',
   ),
   'fieldMeta' => 
   array (
@@ -99,6 +101,22 @@ $xpdo_meta_map['ebField']= array (
     array (
       'dbtype' => 'varchar',
       'precision' => '10',
+      'phptype' => 'string',
+      'null' => true,
+      'default' => '',
+    ),
+    'generated' => 
+    array (
+      'dbtype' => 'varchar',
+      'precision' => '20',
+      'phptype' => 'string',
+      'null' => true,
+      'default' => '',
+    ),
+    'extra' => 
+    array (
+      'dbtype' => 'varchar',
+      'precision' => '191',
       'phptype' => 'string',
       'null' => true,
       'default' => '',

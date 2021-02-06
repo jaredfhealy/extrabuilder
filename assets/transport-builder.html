@@ -299,7 +299,7 @@
             // Check if we're running from the manager as an iframe
             if (parent !== self) {
                 var scriptEl = document.createElement('script');
-                scriptEl.text = parent.window.document.getElementById('extrabuilderjs').innerText;
+                scriptEl.text = parent.window.document.getElementById('appjs').innerText;
 				$('body').append(scriptEl);
             }
 		});

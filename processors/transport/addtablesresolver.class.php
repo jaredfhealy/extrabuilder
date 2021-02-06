@@ -31,7 +31,7 @@ class ExtrabuilderAddTablesResolverTransportProcessor extends modObjectProcessor
 		}
 		
 		// Copy the _build/resolvers/_example.php to the destination
-		$resolversDir = $this->modx->eb->replaceCorePaths($this->package->get('core_path'), $this->package->get('package_key'));
+		$resolversDir = $this->modx->extrabuilder->replaceCorePaths($this->package->get('core_path'), $this->package->get('package_key'));
 		$resolversDir = $resolversDir.'_build/resolvers/';
 
 		// Check if the directory exists

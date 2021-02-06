@@ -21,6 +21,8 @@ $xpdo_meta_map['ebPackage']= array (
     'sortorder' => 0,
     'core_path' => '{core_path}components/{package_key}/',
     'assets_path' => '{assets_path}components/{package_key}/',
+    'vuecmp' => '',
+    'lexicon' => '',
   ),
   'fieldMeta' => 
   array (
@@ -111,6 +113,22 @@ $xpdo_meta_map['ebPackage']= array (
       'phptype' => 'string',
       'null' => true,
       'default' => '{assets_path}components/{package_key}/',
+    ),
+    'vuecmp' => 
+    array (
+      'dbtype' => 'varchar',
+      'precision' => '20',
+      'phptype' => 'string',
+      'null' => true,
+      'default' => '',
+    ),
+    'lexicon' => 
+    array (
+      'dbtype' => 'varchar',
+      'precision' => '20',
+      'phptype' => 'string',
+      'null' => true,
+      'default' => '',
     ),
   ),
   'composites' => 
