@@ -11,16 +11,22 @@ $packageKey = basename(dirname(__FILE__, 2)) === 'components' ? basename(dirname
 // Determine where we're at. Asset path possibilities
 // Development: core/components/<key>/assets
 // Prod:        assets/components/<key>/
-$devFilePath = dirname(__FILE__, 5) . '/config.core.php';
-$prodFilePath = dirname(__FILE__, 4) . '/config.core.php';
-if (is_file($prodFilePath)) {
-    require_once $prodFilePath;
-} else if (is_file($devFilePath)) {
-    require_once $devFilePath;
+$rootPath = dirname(__FILE__, 4);
+$rootConfig = $rootPath.'/config.core.php';
+
+// In a prod install, this will be a valid file
+if (is_file($rootConfig)) {
+    require_once $rootConfig;
 }
+else if (basename($rootPath) == 'core') {
+	// If we're in a dev install, set the core path manually
+	define('MODX_CORE_PATH', $rootPath."/");
+}
+
+// If we now have a core path defined
 if (defined('MODX_CORE_PATH')) {
-    require_once MODX_CORE_PATH . 'config/' . MODX_CONFIG_KEY . '.inc.php';
-    require_once MODX_CONNECTORS_PATH . 'index.php';
+	require_once MODX_CORE_PATH . 'config/config.inc.php';
+	require_once MODX_CONNECTORS_PATH . 'index.php';
 
     $corePath = $modx->getOption("{$packageKey}.core_path", null, $modx->getOption('core_path') . "components/{$packageKey}/");
     require_once $corePath . "model/{$packageKey}/{$packageKey}.class.php";

@@ -231,9 +231,14 @@ class ExtrabuilderBuildPackageProcessor extends modObjectProcessor
             // If the table is new, create it
             if ($newTable) {
                 $this->logMessages[] = "Creating table for class: $class";
-                if (!$manager->createObjectContainer($class)) {
-                    $this->logMessages[] = "Failed to create table.";
-                }
+				try {
+					if (!$manager->createObjectContainer($class)) {
+						$this->logMessages[] = "Failed to create table.";
+					}
+				} catch (\Throwable $th) {
+					$this->logMessages[] = "FATAL ERROR: ".$th->getMessage();
+				}
+                
             } else {
                 // If the table exists
                 // 1. Operate with tables
@@ -346,16 +351,28 @@ class ExtrabuilderBuildPackageProcessor extends modObjectProcessor
      */
     public function generateSchema($package)
     {
-        // Templates
+        // XML Templates
         $packageTpl = '<model package="{package_key}" baseClass="{base_class}" platform="{platform}" defaultEngine="{default_engine}" phpdoc-package="{phpdoc_package}" phpdoc-subpackage="{phpdoc_subpackage}" version="1.1">';
         $objectTpl = '<object class="{class}" table="{table_name}" extends="{extends}">';
-        $fieldTpl = '<field key="{column_name}" dbtype="{dbtype}" precision="{precision}" phptype="{phptype}" null="{allownull}" default="{default}"/>';
-        $textTpl = '<field key="{column_name}" dbtype="{dbtype}" phptype="{phptype}" null="{allownull}" default="{default}"/>';
-        $datetimeTpl = '<field key="{column_name}" dbtype="{dbtype}" phptype="{phptype}" null="{allownull}"/>';
+        
         $indexTpl = '<index alias="{column_name}" name="{column_name}" primary="false" unique="false" type="{index}">
 					<column key="{column_name}" length="" collation="A" null="false"/>
 					</index>';
         $relTpl = '<{relation_type} alias="{alias}" class="{class}" local="{local}" foreign="{foreign}" cardinality="{cardinality}" owner="{owner}"/>';
+
+		// Define field types
+		$fieldTplArr = [
+			'default' => '<field key="{column_name}" dbtype="{dbtype}" precision="{precision}" phptype="{phptype}" null="{allownull}" default="{default}"/>',
+			'datetime' => '<field key="{column_name}" dbtype="{dbtype}" phptype="{phptype}" null="{allownull}"/>',
+			'text' => '<field key="{column_name}" dbtype="{dbtype}" phptype="{phptype}" null="{allownull}" default="{default}"/>'
+		];
+		$fieldTplArr = array_merge(
+			$fieldTplArr,
+			array_fill_keys([
+				'tinytext', 'mediumtext', 'longtext', 'blob', 'tinyblob', 'mediumblob', 'longblob'
+			], $fieldTplArr['text'])
+		);
+		$this->logMessages[] = "Field template array: ".print_r($fieldTplArr, true);
 
         // Start the schema
         $this->logMessages[] = "Generating schema...";
@@ -375,11 +392,11 @@ class ExtrabuilderBuildPackageProcessor extends modObjectProcessor
                 $fields = $object->getMany('Fields');
                 $rels = $object->getMany('Rels');
                 if ($fields) {
+					$this->logMessages[] = $object->get('table_name').": Looping through fields: " . count($fields);
                     foreach ($fields as $field) {
-                        // Attempt dynamic template or fall back on fieldTpl
-                        $dbtype = $field->get('dbtype');
-                        $tpl = ${$dbtype . 'Tpl'};
-                        $tpl = isset($tpl) ? $tpl : $fieldTpl;
+                        // Attempt dynamic template or fall back on default
+                        $dbtype = strtolower($field->get('dbtype'));
+                        $tpl = array_key_exists($dbtype,$fieldTplArr) ? $fieldTplArr[$dbtype] : $fieldTplArr['default'];
 
                         // Populate the field row
                         $fieldXml = $this->replaceValues($field->toArray(), $tpl);
