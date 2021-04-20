@@ -1,3 +1,14 @@
+ExtraBuilder 1.1.1pl
+=====================
+- Bugfix: Corrected issue with Modx non-standard directory installs
+- Bugfix: Corrected an issue with XML template output for MySQL Text fields
+
+ExtraBuilder 1.0.5 beta
+=======================
+- Bugfix: Corrected import from existing tables
+- Refactored Controller/Template functionality with Vue.js
+- Added utility to include Vue.js CMP functionality
+
 ExtraBuilder 1.0.4 beta
 =======================
 - Bugfix: Corrected dynamic paths to properly utilize globals MODX_ASSETS_URL, etc.
