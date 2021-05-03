@@ -260,14 +260,14 @@ class ExtrabuilderBuildTransportProcessor extends modObjectProcessor
             $resolverPath .= 'uninstall/';
         }
         if (!is_dir($resolverPath)) {
-            if (!mkdir($resolverPath, 0755, true)) {
+            if (!mkdir($resolverPath, 0775, true)) {
 				$this->modx->log(xPDO::LOG_LEVEL_ERROR, "Unable to create directory: $resolverTemplatePath");
 				return "Unable to create directory: $resolverPath";
 			}
         }
         if (!is_dir($resolverTemplatePath)) {
             // Create the directory
-            if (!mkdir($resolverTemplatePath, 0755, true)) {
+            if (!mkdir($resolverTemplatePath, 0775, true)) {
 				return "Unable to create directory: $resolverTemplatePath";
 			}
         }
