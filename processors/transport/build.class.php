@@ -120,7 +120,9 @@ class ExtrabuilderBuildTransportProcessor extends modObjectProcessor
 
         // Setup the _build directory
         if (!is_dir($elementsDir)) {
-            mkdir($elementsDir, 0775, true);
+            if (!mkdir($elementsDir, 0775, true)) {
+				return $this->failure("Check permissions; unable to create directory: $elementsDir");
+			}
         }
 
         // If there are child categories
@@ -146,7 +148,10 @@ class ExtrabuilderBuildTransportProcessor extends modObjectProcessor
 			}
 
             // Add file resolvers to the category vehicle
-            $this->addFileResolvers();
+			if (($fileResolveResult = $this->addFileResolvers()) !== true) {
+				return $this->failure($fileResolveResult);
+			}
+            
 
             // Add resolvers from the build directory
             // Files in the root /resolvers directory are assumed to be install actions
@@ -181,7 +186,7 @@ class ExtrabuilderBuildTransportProcessor extends modObjectProcessor
             // Return success
             return $this->success('Transport built to packages directory');
         } else {
-            // Return success
+            // Return failure
             return $this->failure('Encountered error while packaging transport.');
         }
     }
@@ -226,11 +231,15 @@ class ExtrabuilderBuildTransportProcessor extends modObjectProcessor
         // from there. The _dist folder should be added to your .gitignore file.
         $dist = $this->core . "_dist/{$this->packageKey}/";
         if (!is_dir($dist)) {
-            mkdir($dist, 0775, true);
+            if (!mkdir($dist, 0775, true)) {
+				return "Check permissions; unable to create directory: $dist";
+			}
         } else {
             // Clear the directory and rebuild it empty
             $this->modx->extrabuilder->rrmdir($dist);
-            mkdir($dist, 0775, true);
+            if (!mkdir($dist, 0775, true)) {
+				return "Check permissions; unable to create directory: $dist";
+			}
         }
 
         // For ExtraBuilder only, copy specific _build directories
@@ -245,6 +254,9 @@ class ExtrabuilderBuildTransportProcessor extends modObjectProcessor
             'source' => $dist,
             'target' => "return MODX_CORE_PATH . 'components/';",
         ]);
+
+		// Default return
+		return true;
     }
 
     /**
@@ -261,14 +273,13 @@ class ExtrabuilderBuildTransportProcessor extends modObjectProcessor
         }
         if (!is_dir($resolverPath)) {
             if (!mkdir($resolverPath, 0775, true)) {
-				$this->modx->log(xPDO::LOG_LEVEL_ERROR, "Unable to create directory: $resolverTemplatePath");
-				return "Unable to create directory: $resolverPath";
+				return "Check permissions; unable to create directory: $resolverPath";
 			}
         }
         if (!is_dir($resolverTemplatePath)) {
             // Create the directory
             if (!mkdir($resolverTemplatePath, 0775, true)) {
-				return "Unable to create directory: $resolverTemplatePath";
+				return "Check permissions; unable to create directory: $resolverTemplatePath";
 			}
         }
 

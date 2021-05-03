@@ -1,6 +1,10 @@
 # MODX Package & Custom Table Builder UI
 ExtraBuilder adds the ability to create tables directly in the MODX Manager interface. This can be useful to rapidly prototype custom tables, skipping some of the learning curve of setting up a schema XML file and the supporting directory structure and files. New users can simply create new Model (Package), Objects (tables), and associated Fields and Relationships all from within a standard UI.
 
+## Full Documenation
+[See the full docs for further usage details](https://gearvy.com/docs/extrabuilder/)
+
+
 ## Functionality Added
 Below are the key additions to MODX when you install:
 

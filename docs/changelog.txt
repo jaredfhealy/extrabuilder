@@ -1,3 +1,7 @@
+ExtraBuilder 1.1.2pl
+=====================
+- Better error handling during "Build Transport Package" process
+
 ExtraBuilder 1.1.1pl
 =====================
 - Bugfix: Corrected issue with Modx non-standard directory installs
