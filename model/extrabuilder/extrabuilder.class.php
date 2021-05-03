@@ -132,7 +132,8 @@ class Extrabuilder
 				$this->startsWith($file, '_'),
 				$this->startsWith($file, '.'),
 				$file === '.',
-				$file === '..'
+				$file === '..',
+				$file === 'workspace.code-workspace'
 			];
 
 			// If none of the checks in the array resulted in true
