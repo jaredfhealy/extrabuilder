@@ -141,14 +141,18 @@ class ExtrabuilderBuildTransportProcessor extends modObjectProcessor
         // Add file and build resolvers if this is NOT a backupOnly
         if (!$backupOnly) {
             // Add Uninstall resolvers: These execute before file resolvers remove all files
-            $this->addBuildResolvers('uninstall');
+			if (($buildResolverResult = $this->addBuildResolvers('uninstall')) !== true) {
+				return $this->failure($buildResolverResult);
+			}
 
             // Add file resolvers to the category vehicle
             $this->addFileResolvers();
 
             // Add resolvers from the build directory
             // Files in the root /resolvers directory are assumed to be install actions
-            $this->addBuildResolvers('install');
+            if (($buildResolverResult = $this->addBuildResolvers('install')) !== true) {
+				return $this->failure($buildResolverResult);
+			}
         }
 
         // Add the category vehicle
@@ -256,11 +260,16 @@ class ExtrabuilderBuildTransportProcessor extends modObjectProcessor
             $resolverPath .= 'uninstall/';
         }
         if (!is_dir($resolverPath)) {
-            mkdir($resolverPath, 0755, true);
+            if (!mkdir($resolverPath, 0755, true)) {
+				$this->modx->log(xPDO::LOG_LEVEL_ERROR, "Unable to create directory: $resolverTemplatePath");
+				return "Unable to create directory: $resolverPath";
+			}
         }
         if (!is_dir($resolverTemplatePath)) {
             // Create the directory
-            mkdir($resolverTemplatePath, 0755, true);
+            if (!mkdir($resolverTemplatePath, 0755, true)) {
+				return "Unable to create directory: $resolverTemplatePath";
+			}
         }
 
         // Loop through the resolver templates
@@ -301,6 +310,9 @@ class ExtrabuilderBuildTransportProcessor extends modObjectProcessor
                 $this->modx->log(modX::LOG_LEVEL_INFO, 'Added resolver ' . preg_replace('#\.php$#', '', $resolver));
             }
         }
+
+		// Default return
+		return true;
     }
 
     public function addAllElements()
