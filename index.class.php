@@ -54,11 +54,19 @@ class ExtraBuilderIndexManagerController extends modExtraManagerController
      */
     public function process(array $scriptProperties = [])
     {
+		// Check for the loadapp parameter
+        $loadApp = isset($_GET['loadapp']) ? $_GET['loadapp'] : '';
+		$map = [
+			'package-builder' => 'PackageBuilder',
+			'transport-builder' => 'TransportBuilder'
+		];
+		
 		// Define placeholders to be used for smarty replacement
 		$placeholders = [
 			"jsPrefix" => "EB",
 			"config" => $this->eb->config,
-			"model"	=> $this->eb->model
+			"model"	=> $this->eb->model,
+			"loadApp" => $map[$loadApp]
 		];
 
 		// Merge request properties into placeholders

@@ -49,6 +49,7 @@ class Build extends Processor
 			return $this->failure('Service Class is not defined. Validate connector.php is correct.');
 		}
 		else {
+			// Store a reference to our service class that was loaded in 'connector.php'
 			$this->eb =& $this->modx->eb;
 		}
 		
@@ -211,7 +212,7 @@ class Build extends Processor
             // If the file does not exist yet.
             if (!is_file($lexiconPath . 'default.inc.php')) {
                 // Copy the default lexicon file
-                copy(MODX_CORE_PATH . 'components/extrabuilder/lexicon/en/default.inc.php', $lexiconPath . 'default.inc.php');
+                copy(MODX_CORE_PATH . 'components/ExtraBuilder/lexicon/en/default.inc.php', $lexiconPath . 'default.inc.php');
             }
         }
 
@@ -246,13 +247,26 @@ class Build extends Processor
 			$parseOptions['regenerate'] = 2;
 		}
 
-        // Parse the schema using v3 options
-        $generator->parseSchema(
-			$this->schemaFilePath, 
-			$this->sourcePath, 
-			$parseOptions
-		);
-        $this->logMessages[] = "Schema processing complete, model files generated";
+		// If this is v3
+		if ($this->isV3) {
+			// Parse the schema using v3 options
+			if ($generator->parseSchema(
+				$this->schemaFilePath, 
+				$this->sourcePath, 
+				$parseOptions
+			)) {
+				$this->logMessages[] = "Schema processing complete, model files generated";
+			}
+			else {
+				$this->failure("Unable to write model files");
+				$this->logMessages[] = "Unable to write model files";
+			}
+		}
+		else {
+			// Parse v2
+			$generator->parseSchema($this->schemaFilePath, $this->sourcePath);
+		}
+			
 
 		// Check for a bootstrap.php file for this new extra
 		if (!is_file($this->packageBasePath.'bootstrap.php')) {
@@ -273,7 +287,7 @@ class Build extends Processor
 
 		// Loop through the tables
         foreach ($objects as $object) {
-			// Convert class for MODX 3
+			// Convert class for MODX 3 if needed
 			$className = $this->packageKey.'\\'.$object->get('class');
 			$this->logMessages[] = "Checking if class exists: $className";
             
@@ -369,7 +383,7 @@ class Build extends Processor
                     }
                 }
 
-                // Loop through the index away
+                // Loop through the index array
                 foreach ($indexes as $name => $values) {
                     sort($values);
                     $indexes[$name] = implode(':', $values);
@@ -389,7 +403,7 @@ class Build extends Processor
                     }
                 }
 
-                // Add or alter existing
+                // Add or alter existing indexes
                 foreach ($map as $key => $index) {
                     ksort($index['columns']);
                     $index = implode(':', array_keys($index['columns']));

@@ -21,8 +21,14 @@ class Create extends CreateProcessor {
 	 */
     public function initialize()
     {
-		// Store a reference to our service class that was loaded in 'connector.php'
-		$this->eb =& $this->modx->eb;
+		// Return error if we don't have our service class
+		if (!$this->modx->eb) {
+			return $this->failure('Service Class is not defined. Validate connector.php is correct.');
+		}
+		else {
+			// Store a reference to our service class that was loaded in 'connector.php'
+			$this->eb =& $this->modx->eb;
+		}
 
 		// Check for a passed in class
 		$className = $this->getProperty('classKey');

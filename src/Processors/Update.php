@@ -57,20 +57,19 @@ class Update extends UpdateProcessor {
         }
 
 		// If we don't have a classname yet, the update wasn't inline
-		if (!$className) {
+		if (!$this->className) {
 			// Check for a passed in class
-			$className = $this->getProperty('classKey');
-			if (!$className) {
+			$this->className = $this->getProperty('classKey');
+			if (!$this->className) {
 				$this->failure("Unable to determine the correct class to query.");
 				return;
 			}
 			else {
 				// Set our class variable
-				$this->classKey = $this->eb->model[$className]['class'];
+				$this->classKey = $this->eb->model[$this->className]['class'];
 
 				// Set object type
-				$this->objectType .= $className;
-				$this->className = $className;
+				$this->objectType .= $this->className;
 				$this->unsetProperty('classKey');
 			}
 		}

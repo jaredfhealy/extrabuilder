@@ -193,7 +193,7 @@ EB.model['{$gridClass}'].window.reltype = {
 	valueField: 'value'
 }
 
-// Create, register, extend
+// Create, register, extend the combo box
 EB.constructExtendRegister(
 	{$namespace}.combo, 
 	'reltype', 

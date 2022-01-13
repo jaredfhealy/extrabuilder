@@ -1,3 +1,5 @@
+{* Output the correct template for the application 
+{include file="{$loadApp}/home.tpl"}*}
 <script>
 // Global object to use with configuration placeholders
 window.{$jsPrefix} = window.{$jsPrefix} || {};
@@ -45,19 +47,35 @@ Ext.onReady(function() {
 
 	// Load panels and widgets
 	{foreach $model as $gridClass => $classDetail}
-	
-		{include file='class.base.tpl'}
-		
-		{if $gridClass == 'ebPackage'}
 
-			// Define and register the main panel
-			{include file='home.panel.tpl'}
+		{* If loadApp is not TransportBuilder, include all classes except transport *}
+		{if $loadApp === 'PackageBuilder' && $gridClass !== 'ebTransport'}
+
+			// PackageBuilder: Include class grids and forms
+			{include file='class.base.tpl'}
+
+			{if $gridClass == 'ebPackage'}
+
+				// Define and register the main {$loadApp} home panel
+				{include file="{$loadApp}/home.panel.tpl"}
+			{/if}
+		{/if}
+
+		{* If loadApp IS TransportBuilder, ONLY include transport *}
+		{if $loadApp === 'TransportBuilder' && $gridClass === 'ebTransport'}
+
+			// TransportBuilder: Include class grids and forms
+			{include file='class.base.tpl'}
+
+			{include file="{$loadApp}/home.panel.tpl"}
 		{/if}
 
 	{/foreach}
 
-	// Load the import schema window before registration so it can override buttons on ebPackage
-	{include file='ebPackage/window.schema.import.tpl'}
+	{if $loadApp === 'PackageBuilder'}
+		// Load the import schema window before registration so it can override buttons on ebPackage
+		{include file='ebPackage/window.schema.import.tpl'}
+	{/if}
 
 	// Run extOnReady functions
 	for (const extOnReady of EB.load.extOnReady) {
@@ -80,8 +98,10 @@ Ext.onReady(function() {
 			ebPanel.add(EB.panel.tabs[i]);
 		}
 
-		// Include modal windows
-		{include file="ebPackage/window.schema.preview.tpl"}
+		{if $loadApp === 'PackageBuilder'}
+			// Include modal windows for PackageBuilder
+			{include file="ebPackage/window.schema.preview.tpl"}
+		{/if}
 
 	}, 500);
 
@@ -113,10 +133,20 @@ Ext.onReady(function() {
 });
 </script>
 
-{* Include component specific css *}
+{* Include global css *}
 {include file='css/css.tpl'}
 
 {* Load class specifc css *}
 {foreach $model as $gridClass => $classDetail}
-{include file='css/class.specific.css.tpl'}
+
+	{if $loadApp === 'PackageBuilder' && $gridClass !== 'ebTransport'}
+
+		{include file='css/class.specific.css.tpl'}
+	{/if}
+
+	{if $loadApp === 'TransportBuilder' && $gridClass === 'ebTransport'}
+
+		{include file='css/class.specific.css.tpl'}
+	{/if}
+
 {/foreach}

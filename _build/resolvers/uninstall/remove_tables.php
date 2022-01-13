@@ -7,22 +7,26 @@ if ($transport->xpdo) {
 
 	switch ($options[xPDOTransport::PACKAGE_ACTION]) {
 		case xPDOTransport::ACTION_UNINSTALL:
-			// Get the package and manager
-			$modx->addPackage('{package_key}', MODX_CORE_PATH . 'components/{package_key}/model/');
+			// Store the core path
+			$corePath = MODX_CORE_PATH . 'components/{package_key}/';
+
+            // Check for the bootstrap file and include it
+			if (file_exists($corePath.'bootstrap.php')) {
+				require $corePath.'bootstrap.php';
+			}
+
+			// Get the manager
 			$manager = $modx->getManager();
 
-			// Classes array is dynamically populated on Transport build
-			$classJson = '{classes_array}';
+			// Classes array is dynamically replaced on Transport build
+			$classes = $classesPlaceholder;
 			
 			// Only proceed if the json has been replaced
-			if (!(strlen($classJson) === 15 && strpos($classJson, 'classes_array') !== false)) {
-				$classes = json_decode($classJson, true);
-				foreach ($classes as $class) {
-					$manager->removeObjectContainer($class);
-				}
+			foreach ($classes as $index => $class) {
+				$manager->removeObjectContainer($class);
 			}
 			
-            break;
+		break;
     }
 }
 

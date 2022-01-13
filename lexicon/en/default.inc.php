@@ -9,6 +9,7 @@ $_lang[$ns] = $ns;
 $_lang["$nsl.home_title"] = $ns.": Build applications on MODx";
 $_lang["$nsl.home_tab_title"] = "Packages";
 $_lang["$nsl.home_tab_desc"] = "Create new packages to define your data model including objects (custom tables), fields, and relationships.";
+$_lang["$nsl.transport_home_title"] = $ns.": Package Your Application with Transport";
 
 // Schema import
 $_lang["$nsl.import_button"] = "Import Schema";
@@ -125,5 +126,34 @@ $_lang["$nsl.ebrel.owner"] = "Owner";
 $_lang["$nsl.ebrel.sortorder"] = "Sort Order";
 
 
-// Transports
+// Transports: General
 $_lang["$nsl.ebtransport.tab_title"] = "Transport";
+$_lang["$nsl.ebtransport.html_desc"] = "<p style='margin-top: 15px;'><span style='font-weight: bold;'>Define Your Transport</span>: Use Transport to create a deployable package that can be moved between MODX instances or published to the Extras Directory.</p>";
+$_lang["$nsl.ebtransport.category_desc"] = "<span style='font-weight:bold;'>NOTE:</span> If you do not already have a main Category for this package, go create one first.<br/>
+This feature does NOT currently support nested categories.";
+
+// Transports: Field Labels
+$_lang["$nsl.ebtransport.package"] = "Pick a Defined Namespace (Package)";
+$_lang["$nsl.ebtransport.package_short"] = "Namespace (Package)";
+$_lang["$nsl.ebtransport.category"] = "Select a Main Category";
+$_lang["$nsl.ebtransport.category_short"] = "Category";
+$_lang["$nsl.ebtransport.version_section_label"] = "Version and Release";
+$_lang["$nsl.ebtransport.major_desc"] = "(1.*.*)";
+$_lang["$nsl.ebtransport.major_short"] = "Major";
+$_lang["$nsl.ebtransport.minor_desc"] = "(*.1.*)";
+$_lang["$nsl.ebtransport.minor_short"] = "Minor";
+$_lang["$nsl.ebtransport.patch_desc"] = "(*.*.1)";
+$_lang["$nsl.ebtransport.patch_short"] = "Patch";
+$_lang["$nsl.ebtransport.release_desc"] = "(alpha, beta, rc, pl, dev)";
+$_lang["$nsl.ebtransport.release_short"] = "Release";
+$_lang["$nsl.ebtransport.release_index"] = "Release Index";
+$_lang["$nsl.ebtransport.release_index_short"] = "Release Index";
+
+// Transport: Context menu items
+$_lang["$nsl.ebtransport.build_transport"] = "Build the Transport Package";
+$_lang["$nsl.ebtransport.add_resolver_menu"] = "Create New Resolver (Run a srcript on Install/Update/Uninstall)";
+$_lang["$nsl.ebtransport.add_resolver_title"] = "Add a Resolver";
+$_lang["$nsl.ebtransport.add_resolver_prompt"] = "Filename (Excluding '.php')";
+$_lang["$nsl.ebtransport.add_tables_resolver_menu"] = "Add \"Create Tables\" Resolver (Creates/Updates Tables on Install/Update)";
+$_lang["$nsl.ebtransport.add_remove_tables_resolver_menu"] = "Add \"Remove Tables\" Resolver (Drop Tables on Uninstall)";
+$_lang["$nsl.ebtransport.backup_elements"] = "Backup All Elements (Create a backup in your _build/ for source control)";

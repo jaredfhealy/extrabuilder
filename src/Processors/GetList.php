@@ -2,14 +2,17 @@
 
 namespace ExtraBuilder\Processors;
 use ExtraBuilder\Extrabuilder;
-use \MODX\Revolution\Processors\Model\GetListProcessor;
+use MODX\Revolution\Processors\Model\GetListProcessor;
+use MODX\Revolution\Model\modCateogry;
 use xPDO\Om\xPDOQuery;
+use xPDO;
 
 class GetList extends GetListProcessor {
     public $classKey;
     public $languageTopics = ['ExtraBuilder:default'];
     public $defaultSortField = 'id';
     public $objectType = 'extrabuilder.';
+	public $isEbClass = true;
 
 	/** @var ExtraBuilder\ExtraBuilder $eb */
 	public $eb;
@@ -34,11 +37,21 @@ class GetList extends GetListProcessor {
 			return $this->failure("Unable to determine the correct class to query.");
 		}
 		else {
-			// Set our class variable
-			$this->classKey = $this->eb->model[$className]['class'];
-
-			// Set object type
-			$this->objectType .= $className;
+			if (strpos($className, '\\') === false) {
+				// Set our class variable
+				$this->classKey = $this->eb->model[$className]['class'];
+				
+				// Set object type
+				$this->objectType .= $className;
+			}
+			else {
+				// Generic query against classes not owned by EB
+				$this->classKey = $className;
+				$this->isEbClass = false;
+				$this->objectType .= "general";
+			}
+			
+			// Set the className public variable
 			$this->className = $className;
 		}
 
@@ -53,32 +66,44 @@ class GetList extends GetListProcessor {
     {
         // Start a new query condition
 		$qc = [];
+		$searchFields = [];
 		
 		// If class is not ebPackage
-		if ($this->className !== 'ebPackage') {
-			// Check for parentId
-			$parentId = $this->getProperty('parentId') ?: 0;
-			
-			// Get the parent field storing the id
-			$parentField = $this->eb->model[$this->className]['parentField'];
+		if ($this->isEbClass === true) {
+			if (!empty($this->eb->model[$this->className]['parentField'])) {
+				// Check for parentId
+				$parentId = $this->getProperty('parentId') ?: 0;
+				
+				// Get the parent field storing the id
+				$parentField = $this->eb->model[$this->className]['parentField'];
 
-			// Add parent to the query
-			$qc[$parentField.':='] = $parentId;
+				// Add parent to the query
+				$qc[$parentField.':='] = $parentId;
+			}
 		}
 		
 		// If we have a search
         $search = $this->getProperty('search');
+		$search = $this->getProperty('type') === 'combo' ? $this->getProperty('query') : $search;
         if (!empty($search)) {
-			// Dynamically build our criteria
-			$keyTemplate = "OR:%s:LIKE";
-			$qc = ['id:=' => "'".$search."'"];
+			// Handle the category query
+			if (!$this->isEbClass && $this->className == 'MODX\\Revolution\\modCategory') {
+				// Only return top level categories
+				$qc['parent:='] = 0;
+				$searchFields[] = 'category';
+			}
+			else {
+				// Dynamically build our criteria
+				$keyTemplate = "OR:%s:LIKE";
+				$qc = ['id:=' => "'".$search."'"];
 
-			// Loop through the fields for this class
-			$fields = $this->eb->model[$this->className]['searchFields'];
-			foreach ($fields as $field) {
-				// If this is not the ID field, add it to the search
-				if ($field !== 'id')
-					$qc[sprintf($keyTemplate, $field)] = '%'.$search.'%';
+				// Loop through the fields for this class
+				$fields = count($searchFields) > 0 ? $searchFields : $this->eb->model[$this->className]['searchFields'];
+				foreach ($fields as $field) {
+					// If this is not the ID field, add it to the search
+					if ($field !== 'id')
+						$qc[sprintf($keyTemplate, $field)] = '%'.$search.'%';
+				}
 			}
         }
 

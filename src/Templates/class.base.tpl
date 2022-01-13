@@ -20,7 +20,24 @@ EB.model['{$gridClass}'].grid.config = {
 	remoteSort: true,
 	storeId: "{$namespace|lower}-store-{$gridClass|lower}",
 	columns: [],
-	menuItems: [],
+	menuItems: [
+		{
+			text: _("{$namespace|lower}.update_window_title"),
+			handler:  {
+				xtype: '{$namespace|lower}-window-update-{$gridClass|lower}',
+				blankValues: false
+			}
+		},'-','-',
+		{
+			text: _("{$namespace|lower}.delete_record_menu"),
+			handler: function() {
+				var grid = Ext.getCmp("{$namespace|lower}-grid-{$gridClass|lower}");
+				if (grid) {
+					grid.deleteRecord();
+				}
+			}
+		}
+	],
 	tbar: [
 		{
 			text: _("{$namespace|lower}.create_button"),
@@ -79,28 +96,7 @@ EB.model['{$gridClass}'].grid.overrides = {
 
     // Define our context menu
     getMenu: function(_this) {
-		// If menu items is empty
-		if (_this.menuItems.length === 0) {
-			// Add the update window link
-			_this.menuItems.push({
-				text: _("{$namespace|lower}.update_window_title"),
-				handler:  {
-					xtype: '{$namespace|lower}-window-update-{$gridClass|lower}',
-					blankValues: false
-				}
-			});
-
-			// Add a divider
-			_this.menuItems.push('-');
-
-			// Add the delete record option
-			_this.menuItems.push({
-				text: _("{$namespace|lower}.delete_record_menu"),
-				handler: this.deleteRecord
-			});
-		}
-
-        // Register the context menu
+		// Register the context menu
 		_this.addContextMenuItem(_this.menuItems);
     },
 
@@ -140,7 +136,7 @@ EB.panel.tabs.push({
 	id: '{$namespace|lower}-grid-{$gridClass|lower}-tab',
 	classKey: '{$gridClass}',
     defaults: { autoHeight: true },
-	{if $gridClass !== 'ebPackage'}tabCls: 'x-hide-display',{/if}
+	{if $gridClass !== 'ebPackage' && $gridClass !== 'ebTransport'}tabCls: 'x-hide-display',{/if}
     items: [
         {
             html: '<p>'+_('{$namespace|lower}.general_edit_msg')+'</p>',
@@ -204,7 +200,7 @@ EB.model['{$gridClass}'].window.update = {
  * Use our wrapper function to simplify loading and 
  * extending of each component.
  */
-EB.load.{if $gridClass == 'ebPackage'}extOnReady{else}asyncAfterReady{/if}.push(function () {
+EB.load.{if $gridClass == 'ebPackage' || $gridClass == 'ebTransport'}extOnReady{else}asyncAfterReady{/if}.push(function () {
 	// Grid
 	EB.constructExtendRegister(
 		{$namespace}.grid, 
