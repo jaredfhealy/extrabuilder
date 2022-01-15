@@ -337,7 +337,7 @@ class Build extends Processor
         // For ExtraBuilder only, copy specific _build directories
         if ($this->packageKey === 'ExtraBuilder') {
             $this->eb->copydir($this->core . '_build/resolvers', $dist . '_build/resolvers');
-            $this->eb->copydir($this->core . '_build/cmpexample', $dist . '_build/cmpexample');
+			$this->eb->copydir($this->core . '_build/templates', $dist . '_build/templates');
         }
 
         // Copy all files except our "excludes" into the $dist folder

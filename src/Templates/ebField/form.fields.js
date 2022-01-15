@@ -1,7 +1,4 @@
-Ext.apply(EB.model['{$gridClass}'].window.create, {
-	
-	// Title to override the missing message
-	title: _("{$namespace|lower}.create_window_title"),
+EB.model['{$gridClass}'].window.config =  {
 
 	// Override the anchor since this is a larger form
 	width: '800',
@@ -36,7 +33,7 @@ Ext.apply(EB.model['{$gridClass}'].window.create, {
 			}
 		},
 		{
-			xtype: '{$namespace|lower}-combo-quickselect',
+			xtype: '{$gridClass|lower}-combo-quickselect',
 			fieldLabel: _("{$namespace|lower}.{$gridClass|lower}.quick_select"),
 			name: 'quick_select',
 			id: '{$gridClass|lower}-quick_select',
@@ -130,7 +127,7 @@ Ext.apply(EB.model['{$gridClass}'].window.create, {
 						anchor: '90%'
 					},
 					{
-						xtype: 'textfield',
+						xtype: '{$gridClass|lower}-combo-indexselect',
 						fieldLabel: _("{$namespace|lower}.{$gridClass|lower}.index"),
 						name: 'index',
 						id: '{$gridClass|lower}-index',
@@ -173,7 +170,7 @@ Ext.apply(EB.model['{$gridClass}'].window.create, {
 		}
 	]
 
-});
+};
 
 // Quick select dropdown
 EB.model['{$gridClass}'].window.quickSelectConfig = {
@@ -284,7 +281,46 @@ EB.model['{$gridClass}'].window.quickSelectConfig = {
 EB.constructExtendRegister(
 	{$namespace}.combo, 
 	'quickSelect', 
-	'{$namespace|lower}-combo-quickselect', 
+	'{$gridClass|lower}-combo-quickselect', 
 	EB.model['{$gridClass}'].window.quickSelectConfig,
 	MODx.combo.ComboBox
 );
+
+// Define the relationship type drop down
+EB.model['{$gridClass}'].window.indexSelectConfig = {
+
+	store: new Ext.data.ArrayStore({
+		idIndex: 0,
+		fields: ['value', 'display'],
+		data: [
+			[
+				'',
+				'-- Select --'
+			],
+			[
+				'BTREE',
+				'BTREE'
+			],
+			[
+				'FULLTEXT',
+				'FULLTEXT'
+			]
+		]
+	}),
+	mode: 'local',
+	displayField: 'display',
+	valueField: 'value',
+	allowNull: true
+}
+
+// Create, register, extend the combo box
+EB.constructExtendRegister(
+	{$namespace}.combo, 
+	'reltype', 
+	'{$gridClass|lower}-combo-indexselect', 
+	EB.model['{$gridClass}'].window.indexSelectConfig,
+	MODx.combo.ComboBox
+);
+
+Ext.apply(EB.model['{$gridClass}'].window.create, EB.model['{$gridClass}'].window.config);
+Ext.apply(EB.model['{$gridClass}'].window.update, EB.model['{$gridClass}'].window.config);

@@ -78,7 +78,7 @@ $_lang["$nsl.ebobject.html_desc"] = "<p style='margin-top: 15px;'><span style='f
 An Object is a representation of a database table. The objects are accessed using the Class Name. For MODx 3, that is the fully namespaced class (ex: ExtraBuilder\\Model\\ebObject).</p>";
 
 // Objects: Field Labels
-$_lang["$nsl.ebobject.class"] = "Class Name (This will be appended to your Package value)";
+$_lang["$nsl.ebobject.class"] = "Class Name";
 $_lang["$nsl.ebobject.class_short"] = "Class Name";
 $_lang["$nsl.ebobject.table_name"] = "Table Name";
 $_lang["$nsl.ebobject.extends"] = "Extends Object (Default xPDOSimpleObject)";

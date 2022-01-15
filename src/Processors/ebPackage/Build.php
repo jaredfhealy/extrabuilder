@@ -288,7 +288,7 @@ class Build extends Processor
 		// Loop through the tables
         foreach ($objects as $object) {
 			// Convert class for MODX 3 if needed
-			$className = $this->packageKey.'\\'.$object->get('class');
+			$className = $this->packageKey .$object->get('class');
 			$this->logMessages[] = "Checking if class exists: $className";
             
 			// Check if the class exists yet as an autoloadable class

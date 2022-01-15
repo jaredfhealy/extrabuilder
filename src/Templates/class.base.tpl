@@ -23,9 +23,11 @@ EB.model['{$gridClass}'].grid.config = {
 	menuItems: [
 		{
 			text: _("{$namespace|lower}.update_window_title"),
-			handler:  {
-				xtype: '{$namespace|lower}-window-update-{$gridClass|lower}',
-				blankValues: false
+			handler:  function (btn, e) {
+				var grid = Ext.getCmp("{$namespace|lower}-grid-{$gridClass|lower}");
+				if (grid) {
+					grid.openWindow('update', '{$gridClass}', '{$namespace|lower}-window-update-{$gridClass|lower}', btn, e);
+				}
 			}
 		},'-','-',
 		{
@@ -42,9 +44,11 @@ EB.model['{$gridClass}'].grid.config = {
 		{
 			text: _("{$namespace|lower}.create_button"),
 			cls: 'primary-button',
-			handler: {
-				xtype: '{$namespace|lower}-window-create-{$gridClass|lower}',
-				blankValues: true
+			handler: function (btn, e) {
+				var grid = Ext.getCmp("{$namespace|lower}-grid-{$gridClass|lower}");
+				if (grid) {
+					grid.openWindow('create', '{$gridClass}', '{$namespace|lower}-window-create-{$gridClass|lower}', btn, e);
+				}
 			}
 		},
 		'->',
@@ -124,6 +128,39 @@ EB.model['{$gridClass}'].grid.overrides = {
             }
         });
     },
+
+	// Open an update or create window
+	openWindow: function (action, classKey, xtypeString, btn, e) {
+		// Define the record data to show
+		console.log(arguments);
+		var record = {};
+		if (this.menu.id && action == 'update') {
+			var record = this.menu.record;
+			record.classKey = classKey;
+		}
+
+		// Use the MODx object to load the window
+		window.ebModal = MODx.load({ 
+			xtype: xtypeString,
+			listeners: {
+                success: { 
+					fn:function() { 
+						this.refresh(); 
+					},
+					scope:this 
+				}
+            }
+		});
+		
+		// Clear the form if creating
+		if (action === 'update' && this.menu.id) {
+			window.ebModal.fp.getForm().reset();
+			window.ebModal.fp.getForm().setValues(record);
+		}
+
+		// Show the window
+		window.ebModal.show(e.target);
+	}
 };
 
 {* Include our column overrides that are class specific *}
@@ -152,9 +189,9 @@ EB.panel.tabs.push({
 });
 
 EB.model['{$gridClass}'].window.create = {
-	title: _("{$namespace|lower}.window_missing_fields"),
+	title: _("{$namespace|lower}.create_window_title"),
 	id: '{$namespace|lower}-window-create-{$gridClass|lower}',
-	classKey: '{$gridClass}',
+	//classKey: '{$gridClass}',
 	url: {$namespace}.config.connectorUrl,
 	y: 130,
 	modal: true,
@@ -170,12 +207,13 @@ EB.model['{$gridClass}'].window.create = {
 		}
 	],
 	stateful: false,
+	closeAction: 'close'
 };
 
 EB.model['{$gridClass}'].window.update = {
-	title: _("{$namespace|lower}.window_missing_fields"),
+	title: _("{$namespace|lower}.update_window_title"),
 	id: '{$namespace|lower}-window-update-{$gridClass|lower}',
-	classKey: '{$gridClass}',
+	//classKey: '{$gridClass}',
 	url: {$namespace}.config.connectorUrl,
 	y: 130,
 	modal: true,
@@ -191,6 +229,7 @@ EB.model['{$gridClass}'].window.update = {
 		}
 	],
 	stateful: false,
+	closeAction: 'close'
 };
 
 {* Include our create/update window fields that apply to both windows *}

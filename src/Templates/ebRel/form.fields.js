@@ -1,8 +1,5 @@
 // Define the shared window config
-EB.window.config = {
-	
-	// Title to override the missing message
-	title: _("{$namespace|lower}.create_window_title"),
+EB.model['{$gridClass}'].window.config = {
 
 	// This is a wider form, override default 600 width
 	width: 800,
@@ -63,7 +60,7 @@ EB.window.config = {
                 },
                 items: [
 					{
-						xtype: '{$namespace|lower}-combo-reltype',
+						xtype: '{$gridClass|lower}-combo-reltype',
 						fieldLabel: _("{$namespace|lower}.{$gridClass|lower}.relation_type"),
 						name: 'relation_type',
 						hiddenName: 'relation_type',
@@ -197,11 +194,11 @@ EB.model['{$gridClass}'].window.reltype = {
 EB.constructExtendRegister(
 	{$namespace}.combo, 
 	'reltype', 
-	'{$namespace|lower}-combo-reltype', 
+	'{$gridClass|lower}-combo-reltype', 
 	EB.model['{$gridClass}'].window.reltype,
 	MODx.combo.ComboBox
 );
 
 // Apply the config to both window types
-Ext.apply(EB.model['{$gridClass}'].window.create, EB.window.config);
-Ext.apply(EB.model['{$gridClass}'].window.update, EB.window.config);
+Ext.apply(EB.model['{$gridClass}'].window.create, EB.model['{$gridClass}'].window.config);
+Ext.apply(EB.model['{$gridClass}'].window.update, EB.model['{$gridClass}'].window.config);
