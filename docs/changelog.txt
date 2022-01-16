@@ -1,8 +1,17 @@
-ExtraBuilder 1.1.2pl
+ExtraBuilder 2.0.0 alpha
+========================
+- Complete rebuild for MODX 3
+- Complete UI rebuild using ExtJS instead of Vue
+- Leverages the new /src/Model directory structure
+- Utilizes namespaces and bootstrap.php
+- Centralized processor for all classes
+- Removes the feature to create a Vue based Manager Page
+
+ExtraBuilder 1.1.2 pl
 =====================
 - Better error handling during "Build Transport Package" process
 
-ExtraBuilder 1.1.1pl
+ExtraBuilder 1.1.1 pl
 =====================
 - Bugfix: Corrected issue with Modx non-standard directory installs
 - Bugfix: Corrected an issue with XML template output for MySQL Text fields

@@ -1,8 +1,14 @@
 <?php
+
+use MODX\Revolution\modX;
+use xPDO\xPDO;
+
 /**
- * Connector
+ * ExtraBuilder Connector
  *
- * @var modX $modx
+ * @var MODX\Revolution\modX $modx
+ * 
+ * @package ExtraBuilder
  */
 
 // Define package name and rootDir
@@ -11,35 +17,56 @@ $packageKey = basename(dirname(__FILE__, 2)) === 'components' ? basename(dirname
 // Determine where we're at. Asset path possibilities
 // Development: core/components/<key>/assets
 // Prod:        assets/components/<key>/
-$rootPath = dirname(__FILE__, 4);
-$rootConfig = $rootPath.'/config.core.php';
+$rootConfig = is_file(dirname(__FILE__, 4).'/config.core.php') ? dirname(__FILE__, 4).'/config.core.php' : dirname(__FILE__, 5).'/config.core.php';
+$corePath = dirname($rootConfig);
 
-// In a prod install, this will be a valid file
 if (is_file($rootConfig)) {
-    require_once $rootConfig;
-}
-else if (basename($rootPath) == 'core') {
-	// If we're in a dev install, set the core path manually
-	define('MODX_CORE_PATH', $rootPath."/");
+    // Include our config file
+    require_once($rootConfig);
+
+    // Get the full config
+    require_once(MODX_CORE_PATH.MODX_CONFIG_KEY.'/config.inc.php');
+
+	// Set the connector include constant
+	define('MODX_CONNECTOR_INCLUDED', true);
+
+    // Bring in the connector index
+    require_once(MODX_CONNECTORS_PATH . 'index.php');
+
 }
 
 // If we now have a core path defined
 if (defined('MODX_CORE_PATH')) {
-	require_once MODX_CORE_PATH . 'config/config.inc.php';
-	require_once MODX_CONNECTORS_PATH . 'index.php';
+	// Dynamic classname based on packageKey
+    $service = $modx->services->has($packageKey) ? $modx->services->get($packageKey) : "";
+	if ($service) {
+		$serviceKey = $service->config['serviceKey'];
+		$modx->$serviceKey =& $service;
+	}
+    $modx->lexicon->load("${packageKey}:default");
 
-    $corePath = $modx->getOption("{$packageKey}.core_path", null, $modx->getOption('core_path') . "components/{$packageKey}/");
-    require_once $corePath . "model/{$packageKey}/{$packageKey}.class.php";
-
-    // Dynamic classname based on packageKey
-    $className = ucfirst($packageKey);
-    $modx->$packageKey = new $className($modx);
-    $modx->lexicon->load('{$packageKey}:default');
+	if (!$modx->$serviceKey) {
+		header("Content-Type: application/json; charset=UTF-8");
+		header($_SERVER['SERVER_PROTOCOL'] . ' 404 Not Found');
+		echo json_encode([
+			'success' => false,
+			'code' => 404,
+			'message' => "Unable to load class: $packageKey"
+		]);
+		die();
+	}
 
     /* handle request */
-    $path = $modx->getOption('processorsPath', $modx->$packageKey->config, $corePath . 'processors/');
-    $modx->request->handleRequest(array(
-        'processors_path' => $path,
-        'location' => '',
-    ));
+    $path = $modx->getOption('processorsPath', $modx->$serviceKey->config, $corePath . 'processors/');
+    $modx->request->handleRequest(['processors_path' => $path]);
+}
+else {
+	header("Content-Type: application/json; charset=UTF-8");
+	header($_SERVER['SERVER_PROTOCOL'] . ' 404 Not Found');
+	echo json_encode([
+		'success' => false,
+		'code' => 404,
+		'message' => "Unable to load MODX"
+	]);
+	die();
 }

@@ -2,7 +2,7 @@ Full Documentation: https://gearvy.com/extrabuilder
 
 Manage Packages and Tables
 --------------------------
-This Extra allows you to build tables, packages and transport them to other instances. Or even publish to the MODX Extras directory for the community to utilize.
+This Extra allows you to build custom tables, and packages. You can then create a transport package to move that functionality between MODX instance, or publish to the MODX Extras directory for the community to utilize.
 
 Features Include
 --------------------------

@@ -1,0 +1,15 @@
+<?php return array (
+  'preserve_keys' => true,
+  'update_object' => true,
+  'unique_key' => 'text',
+  'namespace' => 'ExtraBuilder',
+  'resolve' => NULL,
+  'validate' => NULL,
+  'vehicle_class' => 'xPDO\\Transport\\xPDOObjectVehicle',
+  'guid' => 'dcd0a1191c51f57ab411538e2d96a978',
+  'package' => '',
+  'class' => 'MODX\\Revolution\\modMenu',
+  'signature' => 'be7f30b5363bc7f0bd952781f9208770',
+  'native_key' => 'ExtraBuilder',
+  'object' => '{"text":"ExtraBuilder","parent":"components","action":"","description":"Build custom tables, packages, and transports","icon":"","menuindex":3,"params":"","handler":"","permissions":"","namespace":"extrabuilder"}',
+);
