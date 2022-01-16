@@ -132,7 +132,6 @@ EB.model['{$gridClass}'].grid.overrides = {
 	// Open an update or create window
 	openWindow: function (action, classKey, xtypeString, btn, e) {
 		// Define the record data to show
-		console.log(arguments);
 		var record = {};
 		if (this.menu.id && action == 'update') {
 			var record = this.menu.record;
@@ -140,7 +139,7 @@ EB.model['{$gridClass}'].grid.overrides = {
 		}
 
 		// Use the MODx object to load the window
-		window.ebModal = MODx.load({ 
+		var ebModal = MODx.load({ 
 			xtype: xtypeString,
 			listeners: {
                 success: { 
@@ -154,12 +153,12 @@ EB.model['{$gridClass}'].grid.overrides = {
 		
 		// Clear the form if creating
 		if (action === 'update' && this.menu.id) {
-			window.ebModal.fp.getForm().reset();
-			window.ebModal.fp.getForm().setValues(record);
+			ebModal.fp.getForm().reset();
+			ebModal.fp.getForm().setValues(record);
 		}
 
 		// Show the window
-		window.ebModal.show(e.target);
+		ebModal.show(e.target).center();
 	}
 };
 

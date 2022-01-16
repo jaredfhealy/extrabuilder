@@ -19,9 +19,6 @@ try {
             return new {$namespace}($modx);
         });
     }
-    else {
-        $modx->log(xPDO::LOG_LEVEL_ERROR, "Class {$namespace}\\{$namespace} does not exist.");
-    }
 }
 catch (\Exception $e) {
     $modx->log(xPDO::LOG_LEVEL_ERROR, $e->getMessage());

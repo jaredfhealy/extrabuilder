@@ -4,7 +4,6 @@ EB.window.schema.importConfig = {
 	title: _("{$namespace|lower}.schema_import"),
 	id: '{$namespace|lower}-schema_import',
 	url: {$namespace}.config.connectorUrl,
-	y: 130,
 	width: '90%',
 	boxMaxWidth: 1200,
 	baseParams: {
@@ -36,6 +35,7 @@ EB.window.schema.importConfig = {
 	],
 	modal: true,
 	stateful: false,
+	closeAction: 'close'
 };
 
 EB.constructExtendRegister(
@@ -52,9 +52,11 @@ var createBtn = packageTbar.shift();
 var importBtn = {
 	text: _("{$namespace|lower}.import_button"),
 	cls: '',
-	handler: {
-		xtype: '{$namespace|lower}-window-importschema',
-		blankValues: true
+	handler: function(btn, e) {
+		var grid = Ext.getCmp("{$namespace|lower}-grid-ebpackage");
+		if (grid) {
+			grid.openWindow('import', 'ebPackage', '{$namespace|lower}-window-importschema', btn, e);
+		}
 	}
 };
 

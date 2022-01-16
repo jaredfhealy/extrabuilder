@@ -53,17 +53,17 @@ class ImportSchema extends Processor {
 
 		// If we have a schema file path, try that first
         if ($schemaFilePath) {
-            $schemaFilePath = realpath(MODX_CORE_PATH . 'components/' . $schemaFilePath);
-            if (!$schemaFilePath) {
-                return $this->failure('Path Invalid: ' . MODX_CORE_PATH . 'components/' . $schemaFilePath);
+            $realSchemaPath = realpath(MODX_BASE_PATH . $schemaFilePath);
+            if (!$realSchemaPath) {
+                return $this->failure('Path Invalid: ' . MODX_BASE_PATH . $schemaFilePath);
             }
         }
 
-        if (!empty($schemaFilePath)) {
+        if (!empty($realSchemaPath)) {
             // If this is a file
-            if (is_file($schemaFilePath) && mime_content_type($schemaFilePath) === 'text/xml') {
+            if (is_file($realSchemaPath) && mime_content_type($realSchemaPath) === 'text/xml') {
                 // Try and read the file
-                $schema = new SimpleXMLElement($schemaFilePath, 0, true);
+                $schema = new SimpleXMLElement($realSchemaPath, 0, true);
             } else {
                 return $this->failure('Incorrect file type: ' . MODX_CORE_PATH . 'components/' . $bodyArr['schema_file_path']);
             }

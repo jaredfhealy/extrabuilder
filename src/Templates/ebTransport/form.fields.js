@@ -3,7 +3,7 @@ EB.model['{$gridClass}'].window.config = {
 
 	// This is a wider form, override default 600 width
 	width: '90%',
-	maxBoxWidth: 1200,
+	boxMaxWidth: 1200,
 
 	// Fields to apply to our form
 	fields: [

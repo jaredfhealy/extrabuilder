@@ -169,16 +169,38 @@ class Build extends Processor
      */
     public function buildSchema()
     {
-        // Make the assets directory if it doesn't exist
+        /**
+		 * Make the assets directories if it doesn't exist
+		 * 
+		 * ExtraBuilder uses a 'symlink' pointing:
+		 *  from: {root_path}assets/components/MyComponent/
+		 *  to: {core_path}MyComponent/assets/
+		 * 
+		 * This allows you to have one directory within the
+		 * core components directory for all the files and
+		 * resources needed for your Extra. This also effectively
+		 * makes part of your core directory web accessible.
+		 * 
+		 * When you build the transport package, the assests
+		 * will be installed to the standard assets directory.
+		 */
+
+		// First check for an assets directory in core
+		if (!is_dir($this->packageBasePath.'assets/')) {
+			mkdir($this->packageBasePath.'assets/', 0775, true);
+		}
         if (!is_dir($this->assetsPath)) {
-            mkdir($this->assetsPath, 0775, true);
+			// Remove the slash from assetsPath to use as our symlink name
+			$linkName = substr($this->assetsPath, 0, -1);
+			$this->logMessages[] = "Creating symlink from: ".$linkName.", to: ".$this->packageBasePath.'assets/';
+            $this->logMessages[] = "Symlink created: ".(symlink($this->packageBasePath.'assets/', $linkName) == true ? 'True' : 'False');
         }
 
 		// Set the sources array for logging
         $sources = array(
             'root' => MODX_BASE_PATH,
             'core' => $this->packageBasePath,
-            'model' => $this->sourcePath.'/Model/',
+            'model' => $this->modelPath,
             'assets' => $this->assetsPath,
             'schema' => $this->schemaPath,
         );
@@ -201,7 +223,7 @@ class Build extends Processor
 
         // If include lexicon is set to true
         $lexiconPath = '';
-        if ($this->object->get('lexicon') === 'true') {
+        if ($this->object->get('lexicon') === '1') {
             // Make sure the directory exists
             $lexiconPath = $this->packageBasePath . 'lexicon/en/';
             if (!is_dir($lexiconPath)) {
@@ -210,9 +232,27 @@ class Build extends Processor
 			$sources['lexicon'] = $lexiconPath;
 
             // If the file does not exist yet.
-            if (!is_file($lexiconPath . 'default.inc.php')) {
+			$lexiconFilePath = $lexiconPath . 'default.inc.php';
+            if (!is_file($lexiconFilePath)) {
+				$this->logMessages[] = "Adding default lexicon at: $lexiconFilePath";
                 // Copy the default lexicon file
-                copy(MODX_CORE_PATH . 'components/ExtraBuilder/lexicon/en/default.inc.php', $lexiconPath . 'default.inc.php');
+				$lexiconSrcPath = $this->eb->config['corePath'].'_build/templates/lexicon/default.inc.tpl';
+				$lexiconContent = file_get_contents($lexiconSrcPath);
+				if ($lexiconContent !== false) {
+					// Replace values
+					$lexiconContent = str_replace('{$namespace}', $this->buildNamespace, $lexiconContent);
+
+					// Write the destination file
+					if (file_put_contents($lexiconFilePath, $lexiconContent) !== false) {
+						$this->logMessages[] = "Created default lexicon successfully....";
+					}
+					else {
+						$this->logMessages[] = "Failed to create default lexicon";
+					}
+				}
+				else {
+					$this->logMessages[] = "Unable to get lexicon source template from: $lexiconSrcPath";
+				}
             }
         }
 
@@ -230,7 +270,7 @@ class Build extends Processor
 			"compile" => 0,
 			"update" => 0,
 			"regenerate" => 0,
-			"namespacePrefix" => $this->buildNamespace
+			"namespacePrefix" => $this->buildNamespace.'\\'
 		];
 
 		/** 
@@ -247,24 +287,17 @@ class Build extends Processor
 			$parseOptions['regenerate'] = 2;
 		}
 
-		// If this is v3
-		if ($this->isV3) {
-			// Parse the schema using v3 options
-			if ($generator->parseSchema(
-				$this->schemaFilePath, 
-				$this->sourcePath, 
-				$parseOptions
-			)) {
-				$this->logMessages[] = "Schema processing complete, model files generated";
-			}
-			else {
-				$this->failure("Unable to write model files");
-				$this->logMessages[] = "Unable to write model files";
-			}
+		// Parse the schema using v3 options
+		if ($generator->parseSchema(
+			$this->schemaFilePath, 
+			$this->sourcePath, 
+			$parseOptions
+		)) {
+			$this->logMessages[] = "Schema processing complete, model files generated";
 		}
 		else {
-			// Parse v2
-			$generator->parseSchema($this->schemaFilePath, $this->sourcePath);
+			$this->failure("Unable to write model files");
+			$this->logMessages[] = "Unable to write model files";
 		}
 			
 
@@ -275,8 +308,14 @@ class Build extends Processor
 			$contents = str_replace('{$namespace}', $this->buildNamespace, $contents);
 			file_put_contents($this->packageBasePath.'bootstrap.php', $contents);
 
-			// Return here with a message to re-run
-			return $this->failure($this->packageBasePath.'bootstrap.php: generated on first run.<br/><br/>Please run the build again.');
+			// Set variables needed by the bootstrap file
+			$modx =& $this->modx;
+			
+			// Set namespace as an array so it can be accessed in bootstrap.php
+			$namespace = $namespace->toArray();
+
+			// Include the newly generated bootstrap file to register our classes
+			@include $this->packageBasePath.'bootstrap.php';
 		}
 
 		// Get the child object records
@@ -303,7 +342,7 @@ class Build extends Processor
 			$this->logMessages[] = "Checking class: $className for table: " . $this->modx->getTableName($className);
 
 			// Handle tables
-        	// Code from: https://github.com/bezumkin/modExtra/blob/master/_build/resolvers/tables.php
+        	// Code modified from: https://github.com/bezumkin/modExtra/blob/master/_build/resolvers/tables.php
 			$table = $this->modx->getTableName($className);
             $newTable = true;
             if ($table) {
@@ -433,7 +472,7 @@ class Build extends Processor
     public function generateSchema()
     {
         // XML Templates
-        $packageTpl = '<model package="{package_key}" baseClass="{base_class}" platform="{platform}" defaultEngine="{default_engine}" phpdoc-package="{phpdoc_package}" phpdoc-subpackage="{phpdoc_subpackage}" version="1.1">';
+        $packageTpl = '<model package="{package_key}" baseClass="{base_class}" platform="{platform}" defaultEngine="{default_engine}" phpdoc-package="{phpdoc_package}" phpdoc-subpackage="{phpdoc_subpackage}" version="{version}">';
         $objectTpl = '<object class="{class}" table="{table_name}" extends="{extends}">';
         
         $indexTpl = '<index alias="{column_name}" name="{column_name}" primary="false" unique="false" type="{index}">
@@ -511,7 +550,7 @@ class Build extends Processor
                 if ($rawXml = $object->get('raw_xml')) {
                     $xmlSchema .= $rawXml;
                 }
-
+ 
                 // Close the object
                 $xmlSchema .= '</object>';
             }
@@ -528,7 +567,6 @@ class Build extends Processor
         $xmlFormatted = $xmlDocument->saveXML();
 
         // Return the final XML
-        //$xmlFormatted = $schemaStart.PHP_EOL.$xmlFormatted;
         return $xmlFormatted;
     }
 
