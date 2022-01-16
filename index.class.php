@@ -2,7 +2,6 @@
 
 use MODX\Revolution\modExtraManagerController;
 use xPDO\xPDO;
-use ExtraBuilder\ExtraBuilder;
 
 /**
  * Base controller for showing ExtraBuilder
@@ -11,23 +10,20 @@ use ExtraBuilder\ExtraBuilder;
 class ExtraBuilderIndexManagerController extends modExtraManagerController
 {
 
-	/** @var ExtraBuilder $eb */
+	/** @var ExtraBuilder\ExtraBuilder $eb */
     public $eb;
 
 	/**
-	 * To utilize dynamic replacement in our JS files, we'll load the
-	 * content from the files and add it in script tags to the html head
-	 * or to the body depending on execution order needed.
+	 * This version relies on smarty replacement heavily to avoid using
+	 * static script files. Scripts are included through smarty templates
+	 * within <script> tags.
 	 * 
-	 * Normally the functions are used to add javascript or HTML to the head.
-	 * Each expects a file path and registers a script tag pointed at that file.
-	 *  - $this->addJavascript()
-	 *  - $this->addLastJavascript()
-	 *  - $this->addHtml()
+	 * Use smarty replacement by setting placholder values in the process() 
+	 * function. All placeholder variables will be available in the template.
+	 * Placeholders are defined for our model within our main class file.
 	 * 
-	 * Use smarty replacement by calling fetchTemplate after returning a
-	 * placholder array from the process() function. All placeholder
-	 * variables will be available in your emplate.
+	 * The template returned can then include other template files, loop
+	 * through placeholder arrays, etc. as needed.
 	 * 
 	 */
     public function initialize()
@@ -123,24 +119,4 @@ class ExtraBuilderIndexManagerController extends modExtraManagerController
     {
         return ['ExtraBuilder:default'];
     }
-
-	/**
-	 * Get grid for packages
-	 * 
-	 * @param string $modelClass The class for this grid
-	 */
-	private function getGrid($modelClass)
-	{
-		// Set column placeholders
-		$this->setPlaceholder('gridClass', $modelClass);
-		$this->setPlaceholder('gridClassLower', strtolower($modelClass));
-		$this->setPlaceholder('fieldsArray', $this->eb->getGridData($modelClass, 'fieldsArray'));
-		$this->setPlaceholder('columns', $this->eb->getGridData($modelClass, 'json'));
-		$this->setPlaceholder('rowActionHeader', $this->eb->model[$modelClass]['rowActionHeader']);
-		$this->setPlaceholder('rowActionDescription', $this->eb->model[$modelClass]['rowActionDescription']);
-		$this->setPlaceholder('tbarCreateText', $this->eb->model[$modelClass]['tbarCreateText']);
-
-		// Return the rendered content
-		return PHP_EOL.PHP_EOL.$this->fetchTemplate("basicGrid.js");
-	}
 }
