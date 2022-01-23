@@ -1,5 +1,6 @@
 <?php
 
+//v3 only: removed on v2 install
 namespace ExtraBuilder;
 
 use ExtraBuilder\Model\ebPackage;
@@ -9,9 +10,10 @@ use ExtraBuilder\Model\ebRel;
 use ExtraBuilder\Model\ebTransport;
 use MODX\Revolution\modX;
 use xPDO;
+//v3 only
 
 /**
- * MODX 3.x ExtraBuilder class
+ * ExtraBuilder main service class
  *
  * Main script file for utilities and functions.
  *
@@ -47,6 +49,13 @@ class ExtraBuilder
 	/** @var boolean If this is MODX 3 */
 	public $isV3 = false;
 
+	/**
+	 * Major version number of MODX
+	 * 
+	 * @var int $version
+	 */
+	public $version;
+
     public function __construct(modX &$modx, $config = [])
     {
         /** The MODX object. */
@@ -54,8 +63,8 @@ class ExtraBuilder
 
         // Get our core and asset paths
         // These properties are set if we're developing outside of "core"
-        $basePath = $this->modx->getOption('extrabuilder.core_path', $config, $this->modx->getOption('core_path') . 'components/ExtraBuilder/');
-        $assetsUrl = $this->modx->getOption('extrabuilder.assets_url', $config, $this->modx->getOption('assets_url') . 'components/ExtraBuilder/');
+        $basePath = $this->modx->getOption('extrabuilder.core_path', $config, $this->modx->getOption('core_path') . 'components/extrabuilder/');
+        $assetsUrl = $this->modx->getOption('extrabuilder.assets_url', $config, $this->modx->getOption('assets_url') . 'components/extrabuilder/');
         $assetsPath = $this->modx->getOption('extrabuilder.assets_path', $config, $this->modx->getOption('assets_path'));
 
         // As part of 3.x structure, we'll store all Processors, Elements, Templates, etc in our 'src/' directory
@@ -65,7 +74,7 @@ class ExtraBuilder
         $this->config = array_merge([
             // Set our core and asset paths
             'corePath' => $basePath,
-            'assetsPath' => $assetsPath . 'ExtraBuilder/',
+            'assetsPath' => $assetsPath . 'extrabuilder/',
             'assetsUrl' => $assetsUrl,
 
             // Set our asset and public paths
@@ -74,13 +83,15 @@ class ExtraBuilder
 
             // Add our srce and model paths
             'srcPath' => $srcPath,
-            'modelPath' => $srcPath . 'Model/',
+            'modelPath3' => $srcPath . 'Model/',
+			'modelPath2' => $basePath . 'v2/model/',
 
             // Set our controllors(connectors), processor, and template paths
             'connectorUrl' => $assetsUrl . 'connector.php',
             'connector_url' => $assetsUrl . 'connector.php',
-            'processorsPath' => $srcPath . 'Processors/',
-            'templatesPath' => $srcPath . 'Templates/',
+            'processorsPath3' => $srcPath . 'Processors/',
+			'processorsPath2' => $basePath . 'v2/processors/',
+            'templatesPath' => $basePath . 'templates/',
 
 			// Build paths
 			'buildPath' => $basePath . '_build/',
@@ -89,16 +100,26 @@ class ExtraBuilder
 			// Define a lexicon key
 			'lexiconKey' => 'extrabuilder',
 
+			// PHP Namespace for classes
+			'phpNamespace' => 'ExtraBuilder', 
+
 			// Define a service key to access modx->serviceKey
 			'serviceKey' => 'eb'
         ], $config);
 
-		// Populate the data model
-		$this->populateModel();
-
 		// Set our v3 check
 		$v = $this->modx->getVersionData();
+		$this->version = $v['version'];
 		$this->isV3 = $v['version'] >= 3;
+
+		// For v2, call add package
+		if (!$this->isV3) {
+			// Also call add package since there is no bootstrap feature
+			$result = $this->modx->addPackage("extrabuilder.v2.model", MODX_CORE_PATH.'components/');
+		}
+
+		// Populate the data model
+		$this->populateModel();
     }
 
     /**
@@ -131,7 +152,7 @@ class ExtraBuilder
 		$className = ebPackage::class;
 		
 		// Return the model
-		return array_merge([
+		$model = [
 			'class' => $className,
 			'parentClass' => "",
 			'childClass' => 'ebObject',
@@ -141,7 +162,18 @@ class ExtraBuilder
 			'searchFields' => ['display', 'package_key', 'version'],
 			'rowActionDescription' => "Manage Objects",
 			'tabDisplayField' => 'package_key'
-		], $this->cmpDefault);
+		];
+
+		// Set the version default for packages
+		if ($this->isV3) {
+			$model['fieldDefaults']['version'] = '3.0';
+		}
+		else {
+			$model['fieldDefaults']['version'] = '1.1';
+		}
+
+		// Return the merged array
+		return array_merge($model, $this->cmpDefault);
 	}
 
 	/**

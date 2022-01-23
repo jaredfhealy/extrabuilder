@@ -23,11 +23,11 @@ class ebPackage extends \ExtraBuilder\Model\ebPackage
             'platform' => 'mysql',
             'default_engine' => 'InnoDB',
             'phpdoc_package' => '',
-            'phpdoc_subpackage' => 'model',
-            'version' => '3.0',
+            'phpdoc_subpackage' => '',
+            'version' => '',
             'sortorder' => 0,
-            'core_path' => '{core_path}components/{package_key}/',
-            'assets_path' => '{assets_path}components/{package_key}/',
+            'core_path' => '',
+            'assets_path' => '',
             'vuecmp' => '',
             'lexicon' => '',
         ),
@@ -87,7 +87,7 @@ class ebPackage extends \ExtraBuilder\Model\ebPackage
                 'precision' => '100',
                 'phptype' => 'string',
                 'null' => false,
-                'default' => 'model',
+                'default' => '',
             ),
             'version' => 
             array (
@@ -95,7 +95,7 @@ class ebPackage extends \ExtraBuilder\Model\ebPackage
                 'precision' => '100',
                 'phptype' => 'string',
                 'null' => false,
-                'default' => '3.0',
+                'default' => '',
             ),
             'sortorder' => 
             array (
@@ -111,7 +111,7 @@ class ebPackage extends \ExtraBuilder\Model\ebPackage
                 'precision' => '191',
                 'phptype' => 'string',
                 'null' => true,
-                'default' => '{core_path}components/{package_key}/',
+                'default' => '',
             ),
             'assets_path' => 
             array (
@@ -119,7 +119,7 @@ class ebPackage extends \ExtraBuilder\Model\ebPackage
                 'precision' => '191',
                 'phptype' => 'string',
                 'null' => true,
-                'default' => '{assets_path}components/{package_key}/',
+                'default' => '',
             ),
             'vuecmp' => 
             array (

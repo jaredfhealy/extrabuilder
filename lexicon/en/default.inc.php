@@ -6,6 +6,11 @@ $nsl = strtolower($ns);
 $_lang["extrabuilder"] = $ns;
 $_lang[$ns] = $ns;
 
+// Menu
+$_lang["$nsl.menu.package"] = "Package Builder";
+$_lang["$nsl.menu.transport"] = "Transport Builder";
+
+// Home
 $_lang["$nsl.home_title"] = $ns.": Build applications on MODx";
 $_lang["$nsl.home_tab_title"] = "Packages";
 $_lang["$nsl.home_tab_desc"] = "Create new packages to define your data model including objects (custom tables), fields, and relationships.";
@@ -58,6 +63,7 @@ $_lang["$nsl.ebpackage.display"] = "Display Value (Not used by Modx)";
 $_lang["$nsl.ebpackage.display_short"] = "Display Value";
 $_lang["$nsl.ebpackage.package_key"] = "Package Key (Caps are allowed, ex: ExtraBuilder)";
 $_lang["$nsl.ebpackage.package_key_short"] = "Package Key";
+$_lang["$nsl.ebpackage.package_desc"] = "In MODX3 this ";
 $_lang["$nsl.ebpackage.base_class"] = "Base Class";
 $_lang["$nsl.ebpackage.platform"] = "DB Platform";
 $_lang["$nsl.ebpackage.default_engine"] = "Default Engine";

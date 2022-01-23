@@ -8,20 +8,24 @@ if ($transport->xpdo) {
     switch ($options[xPDOTransport::PACKAGE_ACTION]) {
         case xPDOTransport::ACTION_INSTALL:
         case xPDOTransport::ACTION_UPGRADE:
-            $corePath = MODX_CORE_PATH . 'components/{package_key}/';
+			$packageKey = '{package_key}';
+			$keyLower = strtolower($packageKey);
+            $corePath = MODX_CORE_PATH . "components/$keyLower/";
             $eb; /* Service class */
             $isV3 = $modx->getVersionData()['version'] >= 3;
             if (!$isV3) {
-                $modx->log(xPDO::LOG_LEVEL_ERROR, "This version of ExtraBuilder is compatible with MODX 3.0 and higher only.");
+                $modx->addPackage("$keyLower.v2.model", MODX_CORE_PATH.'components/');
             }
             else {
                 // Check for the bootstrap file and include it
                 if (file_exists($corePath.'bootstrap.php')) {
 					// For v3, the bootstrap file needs a namespace object, which doesn't exist yet
 					// Create an object so it can reference it
-					$namespace = $object->toArray();
-					$namespace['path'] = $corePath;
-					$namespace['assets_path'] = MODX_ASSETS_PATH . 'components/{package_key}/';
+					$namespace = [
+						'name' => $keyLower,
+						'path' => $corePath,
+						'assets_path' => MODX_ASSETS_PATH . "components/$keyLower/"
+					];
 					require $corePath.'bootstrap.php';
                 }
 				else {
@@ -32,9 +36,7 @@ if ($transport->xpdo) {
             $manager = $modx->getManager();
             $objects = [];
 			$classPrefix = "";
-            $namespace = "{package_key}";
-			$nsLower = strtolower($namespace);
-            $schemaFile = MODX_CORE_PATH . "components/{package_key}/schema/{$nsLower}.mysql.schema.xml";
+            $schemaFile = MODX_CORE_PATH . "components/{$keyLower}/schema/{$keyLower}.mysql.schema.xml";
             if (is_file($schemaFile)) {
                 $schema = new SimpleXMLElement($schemaFile, 0, true);
                 if (isset($schema->object)) {
@@ -43,7 +45,7 @@ if ($transport->xpdo) {
                     }
                 }
 
-				// Store the classPrefix
+				// Store the package value
 				$classPrefix = $schema[0]['package'];
                 unset($schema);
             }

@@ -19,9 +19,6 @@ try {
             return new ExtraBuilder($modx);
         });
     }
-    else {
-        $modx->log(xPDO::LOG_LEVEL_ERROR, "Class ExtraBuilder\\ExtraBuilder does not exist.".print_r($loader->getPrefixesPsr4(), true));
-    }
 }
 catch (\Exception $e) {
     $modx->log(xPDO::LOG_LEVEL_ERROR, $e->getMessage());
