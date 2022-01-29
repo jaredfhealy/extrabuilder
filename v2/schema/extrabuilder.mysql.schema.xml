@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<model package="extrabuilder.v2.model" baseClass="xPDOObject" platform="mysql" defaultEngine="InnoDB" version="3.0">
+
+  <object class="ebPackage" table="extrabuilder_packages" extends="xPDOSimpleObject">
+    <field key="display" dbtype="varchar" precision="100" phptype="string" null="false" default="" />
+    <field key="package_key" dbtype="varchar" precision="100" phptype="string" null="false" default=""/>
+    <field key="base_class" dbtype="varchar" precision="100" phptype="string" null="false" default="xPDOObject"/>
+    <field key="platform" dbtype="varchar" precision="100" phptype="string" null="true" default="mysql"/>
+    <field key="default_engine" dbtype="varchar" precision="100" phptype="string" null="false" default="InnoDB"/>
+    <field key="phpdoc_package" dbtype="varchar" precision="100" phptype="string" null="false" default=""/>
+    <field key="phpdoc_subpackage" dbtype="varchar" precision="100" phptype="string" null="false" default=""/>
+    <field key="version" dbtype="varchar" precision="100" phptype="string" null="false" default="3.0"/>
+    <field key="sortorder" dbtype="int" precision="10" phptype="integer" null="false" default="0"/>
+    <field key="core_path" dbtype="varchar" precision="191" phptype="string" null="true" default=""/>
+    <field key="assets_path" dbtype="varchar" precision="191" phptype="string" null="true" default=""/>
+    <field key="vuecmp" dbtype="varchar" precision="20" phptype="string" null="true" default=""/>
+    <field key="lexicon" dbtype="varchar" precision="20" phptype="string" null="true" default=""/>
+    
+	<composite alias="Objects" class="ebObject" local="id" foreign="package" cardinality="many" owner="local"/>
+    <composite alias="Transports" class="ebTransport" local="id" foreign="package" cardinality="many" owner="local"/>
+  </object>
+
+  <object class="ebObject" table="extrabuilder_objects" extends="xPDOSimpleObject">
+    <field key="class" dbtype="varchar" precision="100" phptype="string" null="false" default=""/>
+    <field key="table_name" dbtype="varchar" precision="100" phptype="string" null="false" default=""/>
+    <field key="extends" dbtype="varchar" precision="100" phptype="string" null="false" default="xPDOSimpleObject"/>
+    <field key="package" dbtype="int" precision="10" phptype="integer" null="false" default=""/>
+    <field key="sortorder" dbtype="int" precision="10" phptype="integer" null="false" default="0"/>
+    <field key="raw_xml" dbtype="text" phptype="string" null="true" default=""/>
+
+    <composite alias="Fields" class="ebField" local="id" foreign="object" cardinality="many" owner="local"/>
+    <composite alias="Rels" class="ebRel" local="id" foreign="object" cardinality="many" owner="local"/>
+    <aggregate alias="Package" class="ebPackage" local="package" foreign="id" cardinality="one" owner="foreign"/>
+  </object>
+
+  <object class="ebField" table="extrabuilder_fields" extends="xPDOSimpleObject">
+    <field key="column_name" dbtype="varchar" precision="100" phptype="string" null="false" default=""/>
+    <field key="dbtype" dbtype="varchar" precision="100" phptype="string" null="false" default=""/>
+    <field key="precision" dbtype="int" precision="10" phptype="integer" null="false" default=""/>
+    <field key="phptype" dbtype="varchar" precision="100" phptype="string" null="false" default=""/>
+    <field key="allownull" dbtype="varchar" precision="100" phptype="string" null="false" default=""/>
+    <field key="default" dbtype="varchar" precision="100" phptype="string" null="true" default=""/>
+    <field key="sortorder" dbtype="int" precision="10" phptype="integer" null="false" default="0"/>
+    <field key="object" dbtype="int" precision="10" phptype="integer" null="false" default=""/>
+    <field key="index" dbtype="varchar" precision="100" phptype="string" null="true" default=""/>
+    <field key="attributes" dbtype="varchar" precision="10" phptype="string" null="true" default=""/>
+    <field key="generated" dbtype="varchar" precision="20" phptype="string" null="true" default=""/>
+    <field key="extra" dbtype="varchar" precision="191" phptype="string" null="true" default=""/>
+
+    <aggregate alias="Object" class="ebObject" local="object" foreign="id" cardinality="one" owner="foreign"/>
+  </object>
+
+  <object class="ebRel" table="extrabuilder_rel" extends="xPDOSimpleObject">
+    <field key="alias" dbtype="varchar" precision="20" phptype="string" null="false" default=""/>
+    <field key="class" dbtype="varchar" precision="50" phptype="string" null="false" default=""/>
+    <field key="local" dbtype="varchar" precision="50" phptype="string" null="false" default=""/>
+    <field key="foreign" dbtype="varchar" precision="50" phptype="string" null="false" default=""/>
+    <field key="cardinality" dbtype="varchar" precision="20" phptype="string" null="false" default=""/>
+    <field key="owner" dbtype="varchar" precision="20" phptype="string" null="false" default=""/>
+    <field key="object" dbtype="int" precision="10" phptype="integer" null="false" default=""/>
+    <field key="relation_type" dbtype="varchar" precision="20" phptype="string" null="false" default=""/>
+    <field key="sortorder" dbtype="int" precision="10" phptype="integer" null="false" default="0"/>
+
+    <aggregate alias="Object" class="ebObject" local="object" foreign="id" cardinality="one" owner="foreign"/>
+  </object>
+
+  <object class="ebTransport" table="extrabuilder_transport" extends="xPDOSimpleObject">
+    <field key="category" dbtype="varchar" precision="50" phptype="string" null="false" default=""/>
+    <field key="attributes" dbtype="text" phptype="json" null="true" default=""/>
+    <field key="package" dbtype="int" precision="10" phptype="integer" null="false" default=""/>
+    <field key="major" dbtype="int" precision="10" phptype="integer" null="false" default=""/>
+    <field key="release" dbtype="varchar" precision="20" phptype="string" null="false" default=""/>
+    <field key="release_index" dbtype="int" precision="10" phptype="integer" null="false" default=""/>
+    <field key="minor" dbtype="int" precision="10" phptype="integer" null="false" default=""/>
+    <field key="patch" dbtype="int" precision="10" phptype="integer" null="false" default=""/>
+    <field key="sortorder" dbtype="int" precision="10" phptype="integer" null="false" default="0"/>
+
+    <aggregate alias="Package" class="ebPackage" local="package" foreign="id" cardinality="one" owner="foreign"/>
+  </object>
+</model>

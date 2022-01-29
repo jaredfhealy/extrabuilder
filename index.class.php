@@ -1,13 +1,15 @@
 <?php
 
+//v3 only
 use MODX\Revolution\modExtraManagerController;
 use xPDO\xPDO;
+//v3 only
 
 /**
  * Base controller for showing ExtraBuilder
  * 
  */
-class ExtraBuilderIndexManagerController extends modExtraManagerController
+class ExtrabuilderIndexManagerController extends modExtraManagerController
 {
 
 	/** @var ExtraBuilder\ExtraBuilder $eb */
@@ -28,10 +30,33 @@ class ExtraBuilderIndexManagerController extends modExtraManagerController
 	 */
     public function initialize()
     {
-        // Get our service class
-		$this->eb = $this->modx->services->has('ExtraBuilder') ? $this->modx->services->get('ExtraBuilder') : "";
-		if (!$this->eb) {
-			return $this->failure("Unable to load ExtraBuilder Service Class.");
+        // Check the version
+		$isV3 = $this->modx->getVersionData()['version'] >= 3;
+
+		// Define package name and rootDir
+		$packageKey = 'ExtraBuilder';
+		$keyLower = strtolower($packageKey);	
+
+		// Dynamic classname based on packageKey
+		if (!$isV3) {
+			// Include our main class
+			@include_once MODX_CORE_PATH . "components/{$keyLower}/src/{$packageKey}.php";
+			$service = new $packageKey($this->modx);
+		}
+		else {
+			$service = $this->modx->services->has($packageKey) ? $this->modx->services->get($packageKey) : "";
+		}
+		
+		// Add the service to MODX
+		if ($service) {
+			$serviceKey = $service->config['serviceKey'] ?: $packageKey;
+			$this->$serviceKey =& $service;
+			$this->modx->$serviceKey =& $service;
+		}
+
+		// Return an error if we don't have our service class
+		if (!$this->$serviceKey) {
+			return $this->failure("Unable to load Service Class for: $packageKey");
 		}
 
 		// Return true or parent::initialize() which also just returns true
@@ -62,7 +87,11 @@ class ExtraBuilderIndexManagerController extends modExtraManagerController
 			"jsPrefix" => "EB",
 			"config" => $this->eb->config,
 			"model"	=> $this->eb->model,
-			"loadApp" => $map[$loadApp]
+			"loadApp" => $map[$loadApp],
+			"isV3" => $this->eb->isV3,
+			"version" => $this->eb->version,
+			"phpNamespace" => $this->eb->config['phpNamespace'],
+			"cmpNamespace" => $this->config['namespace']
 		];
 
 		// Merge request properties into placeholders
@@ -117,6 +146,6 @@ class ExtraBuilderIndexManagerController extends modExtraManagerController
      */
     public function getLanguageTopics()
     {
-        return ['ExtraBuilder:default'];
+        return [$this->eb->config['lexiconKey'].':default'];
     }
 }

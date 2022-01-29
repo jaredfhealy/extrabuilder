@@ -32,7 +32,7 @@ class ebRel extends \ExtraBuilder\Model\ebRel
             'alias' => 
             array (
                 'dbtype' => 'varchar',
-                'precision' => '20',
+                'precision' => '191',
                 'phptype' => 'string',
                 'null' => false,
                 'default' => '',
@@ -40,7 +40,7 @@ class ebRel extends \ExtraBuilder\Model\ebRel
             'class' => 
             array (
                 'dbtype' => 'varchar',
-                'precision' => '50',
+                'precision' => '191',
                 'phptype' => 'string',
                 'null' => false,
                 'default' => '',

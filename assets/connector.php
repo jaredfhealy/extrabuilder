@@ -12,7 +12,8 @@ use xPDO\xPDO;
  */
 
 // Define package name and rootDir
-$packageKey = basename(dirname(__FILE__, 2)) === 'components' ? basename(dirname(__FILE__)) : basename(dirname(__FILE__, 2));
+$packageKey = 'ExtraBuilder';
+$keyLower = strtolower($packageKey);
 
 // Determine where we're at. Asset path possibilities
 // Development: core/components/<key>/assets
@@ -32,18 +33,29 @@ if (is_file($rootConfig)) {
 
     // Bring in the connector index
     require_once(MODX_CONNECTORS_PATH . 'index.php');
-
 }
 
 // If we now have a core path defined
 if (defined('MODX_CORE_PATH')) {
+	// Check the version
+	$version = $modx->getVersionData()['version'];
+	$isV3 = $version >= 3;
+
 	// Dynamic classname based on packageKey
-    $service = $modx->services->has($packageKey) ? $modx->services->get($packageKey) : "";
+	if (!$isV3) {
+		// Include our main class
+		@include_once MODX_CORE_PATH . "components/{$keyLower}/src/{$packageKey}.php";
+		$service = new $packageKey($modx);
+	}
+	else {
+		$service = $modx->services->has($packageKey) ? $modx->services->get($packageKey) : "";
+	}
+    
+	// Add the service to MODX
 	if ($service) {
-		$serviceKey = $service->config['serviceKey'];
+		$serviceKey = $service->config['serviceKey'] ?: $packageKey;
 		$modx->$serviceKey =& $service;
 	}
-    $modx->lexicon->load("${packageKey}:default");
 
 	if (!$modx->$serviceKey) {
 		header("Content-Type: application/json; charset=UTF-8");
@@ -56,8 +68,11 @@ if (defined('MODX_CORE_PATH')) {
 		die();
 	}
 
+	// Load the default lexicon
+    $modx->lexicon->load($modx->eb->config['lexiconKey'].":default");
+
     /* handle request */
-    $path = $modx->getOption('processorsPath', $modx->$serviceKey->config, $corePath . 'processors/');
+    $path = $modx->getOption('processorsPath'.$version, $modx->$serviceKey->config, $corePath . 'processors/');
     $modx->request->handleRequest(['processors_path' => $path]);
 }
 else {

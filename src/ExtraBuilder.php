@@ -1,5 +1,6 @@
 <?php
 
+//v3 only
 namespace ExtraBuilder;
 
 use ExtraBuilder\Model\ebPackage;
@@ -9,9 +10,10 @@ use ExtraBuilder\Model\ebRel;
 use ExtraBuilder\Model\ebTransport;
 use MODX\Revolution\modX;
 use xPDO;
+//v3 only
 
 /**
- * MODX 3.x ExtraBuilder class
+ * ExtraBuilder main service class
  *
  * Main script file for utilities and functions.
  *
@@ -47,6 +49,13 @@ class ExtraBuilder
 	/** @var boolean If this is MODX 3 */
 	public $isV3 = false;
 
+	/**
+	 * Major version number of MODX
+	 * 
+	 * @var int $version
+	 */
+	public $version;
+
     public function __construct(modX &$modx, $config = [])
     {
         /** The MODX object. */
@@ -54,8 +63,8 @@ class ExtraBuilder
 
         // Get our core and asset paths
         // These properties are set if we're developing outside of "core"
-        $basePath = $this->modx->getOption('extrabuilder.core_path', $config, $this->modx->getOption('core_path') . 'components/ExtraBuilder/');
-        $assetsUrl = $this->modx->getOption('extrabuilder.assets_url', $config, $this->modx->getOption('assets_url') . 'components/ExtraBuilder/');
+        $basePath = $this->modx->getOption('extrabuilder.core_path', $config, $this->modx->getOption('core_path') . 'components/extrabuilder/');
+        $assetsUrl = $this->modx->getOption('extrabuilder.assets_url', $config, $this->modx->getOption('assets_url') . 'components/extrabuilder/');
         $assetsPath = $this->modx->getOption('extrabuilder.assets_path', $config, $this->modx->getOption('assets_path'));
 
         // As part of 3.x structure, we'll store all Processors, Elements, Templates, etc in our 'src/' directory
@@ -65,7 +74,7 @@ class ExtraBuilder
         $this->config = array_merge([
             // Set our core and asset paths
             'corePath' => $basePath,
-            'assetsPath' => $assetsPath . 'ExtraBuilder/',
+            'assetsPath' => $assetsPath . 'extrabuilder/',
             'assetsUrl' => $assetsUrl,
 
             // Set our asset and public paths
@@ -74,13 +83,15 @@ class ExtraBuilder
 
             // Add our srce and model paths
             'srcPath' => $srcPath,
-            'modelPath' => $srcPath . 'Model/',
+            'modelPath3' => $srcPath . 'Model/',
+			'modelPath2' => $basePath . 'v2/model/',
 
             // Set our controllors(connectors), processor, and template paths
             'connectorUrl' => $assetsUrl . 'connector.php',
             'connector_url' => $assetsUrl . 'connector.php',
-            'processorsPath' => $srcPath . 'Processors/',
-            'templatesPath' => $srcPath . 'Templates/',
+            'processorsPath3' => $srcPath . 'Processors/',
+			'processorsPath2' => $basePath . 'v2/processors/',
+            'templatesPath' => $basePath . 'templates/',
 
 			// Build paths
 			'buildPath' => $basePath . '_build/',
@@ -89,16 +100,31 @@ class ExtraBuilder
 			// Define a lexicon key
 			'lexiconKey' => 'extrabuilder',
 
-			// Define a service key to access modx->serviceKey
-			'serviceKey' => 'eb'
-        ], $config);
+			// PHP Namespace for classes
+			'phpNamespace' => 'ExtraBuilder', 
 
-		// Populate the data model
-		$this->populateModel();
+			// Define a service key to access modx->serviceKey
+			'serviceKey' => 'eb',
+
+			// Default install to false
+			'install' => false
+        ], $config);
 
 		// Set our v3 check
 		$v = $this->modx->getVersionData();
+		$this->version = $v['version'];
 		$this->isV3 = $v['version'] >= 3;
+
+		// For v2, if this is not the initial install, call add package
+		if (!$this->isV3 && $this->config['install'] === false) {
+			// Call add package since there is no bootstrap feature in v2
+			$result = $this->modx->addPackage("extrabuilder.v2.model", MODX_CORE_PATH.'components/');
+		}
+		
+		if ($this->config['install'] === false) {
+			// Populate the data model if this is not during installation
+			$this->populateModel();
+		}
     }
 
     /**
@@ -131,9 +157,10 @@ class ExtraBuilder
 		$className = ebPackage::class;
 		
 		// Return the model
-		return array_merge([
+		$model = [
 			'class' => $className,
 			'parentClass' => "",
+			'parentField' => "",
 			'childClass' => 'ebObject',
 			'fieldDefaults' => $this->modx->getFields($className),
 			'fieldMeta' => $this->modx->getFieldMeta($className),
@@ -141,7 +168,18 @@ class ExtraBuilder
 			'searchFields' => ['display', 'package_key', 'version'],
 			'rowActionDescription' => "Manage Objects",
 			'tabDisplayField' => 'package_key'
-		], $this->cmpDefault);
+		];
+
+		// Set the version default for packages
+		if ($this->isV3) {
+			$model['fieldDefaults']['version'] = '3.0';
+		}
+		else {
+			$model['fieldDefaults']['version'] = '1.1';
+		}
+
+		// Return the merged array
+		return array_merge($model, $this->cmpDefault);
 	}
 
 	/**
@@ -159,12 +197,12 @@ class ExtraBuilder
 		return array_merge([
 			'class' => $className,
 			'parentClass' => "ebPackage",
-			'parentField' => 'package',
+			'parentField' => 'Package',
 			'childClass' => 'ebField',
 			'fieldDefaults' => $this->modx->getFields($className),
 			'fieldMeta' => $this->modx->getFieldMeta($className),
 			'gridfields' => ['id', 'class', 'table_name', 'sortorder'],
-			'searchFields' => ['class', 'table_name'],
+			'searchFields' => ['class', 'table_name', 'raw_xml'],
 			'rowActionDescription' => "Manage Fields",
 			'tabDisplayField' => 'class'
 		], $this->cmpDefault);
@@ -185,12 +223,12 @@ class ExtraBuilder
 		return array_merge([
 			'class' => $className,
 			'parentClass' => "ebObject",
-			'parentField' => 'object',
+			'parentField' => 'Object',
 			'childClass' => '',
 			'fieldDefaults' => $this->modx->getFields($className),
 			'fieldMeta' => $this->modx->getFieldMeta($className),
-			'gridfields' => ['id', 'column_name', 'dbtype', 'phptype', 'default', 'sortorder'],
-			'searchFields' => ['column_name', 'dbtype', 'phptype', 'default'],
+			'gridfields' => ['id', 'column_name', 'dbtype', 'phptype', 'index', 'default', 'sortorder'],
+			'searchFields' => ['column_name', 'dbtype', 'phptype', 'index', 'default'],
 			'rowActionDescription' => "Manage Rels",
 			'tabDisplayField' => 'column_name'
 		], $this->cmpDefault);
@@ -211,12 +249,12 @@ class ExtraBuilder
 		return array_merge([
 			'class' => $className,
 			'parentClass' => "ebObject",
-			'parentField' => 'object',
+			'parentField' => 'Object',
 			'childClass' => '',
 			'fieldDefaults' => $this->modx->getFields($className),
 			'fieldMeta' => $this->modx->getFieldMeta($className),
-			'gridfields' => ['id', 'column_name', 'dbtype', 'phptype', 'default', 'sortorder'],
-			'searchFields' => ['column_name', 'dbtype', 'phptype', 'default'],
+			'gridfields' => ['id', 'alias', 'class', 'local', 'foreign', 'cardinality', 'owner', 'sortorder'],
+			'searchFields' => ['alias', 'class', 'cardinality', 'local', 'foreign', 'owner'],
 			'rowActionDescription' => "Manage Rels",
 			'tabDisplayField' => 'column_name'
 		], $this->cmpDefault);
@@ -299,6 +337,80 @@ class ExtraBuilder
 	}
 
 	/**
+	 * Get config paths for this package
+	 * 
+	 * Calculates the paths based on standard or override
+	 * if specified.
+	 * 
+	 * @param object $package The package object
+	 * @return array Config array of paths
+	 */
+	public function getPackageConfig($package)
+	{
+		// Default paths
+		$packageConfig = [
+			'corePath' => '{core_path}components/{cmp_namespace}/',
+			'sourcePath' => '{core_path}components/{cmp_namespace}/src/',
+			'modelPath2' => '{core_path}components/{cmp_namespace}/v2/model/',
+			'modelPath3' => '{core_path}components/{cmp_namespace}/src/Model/',
+			'publicAssetsPath' => '{assets_path}components/{cmp_namespace}/',
+			'coreAssetsPath' => '{core_path}components/{cmp_namespace}/assets/',
+			'schemaPath2' => '{core_path}components/{cmp_namespace}/v2/schema/',
+			'schemaPath3' => '{core_path}components/{cmp_namespace}/schema/',
+			'schemaFileName' => '{cmp_namespace}.mysql.schema.xml',
+			'schemaFilePath' => '',
+			'classPrefix' => '',
+			'cmpNamespace' => '',
+			'phpNamespace' => '',
+		];
+
+        // Get package key and paths
+        $packageKey = $package->get('package_key');
+
+		// Set the core and assets paths if different
+        if ($corePath = $package->get('core_path')) {
+			$packageConfig['corePath'] = $corePath;
+		}
+        if ($assetsPath = $package->get('assets_path')) {
+			$packageConfig['publicAssetsPath'] = $assetsPath;
+		}
+
+		// Set the build namespace for v3
+		if ($this->isV3) {
+			// Package key should be the PHP Namespace MyComp\Model
+			$packageConfig['classPrefix'] = rtrim($packageKey, '\\') . '\\';
+			$packageConfig['phpNamespace'] = explode('\\', $packageKey)[0];
+
+			// Set the component (modx) namespace
+			$packageConfig['cmpNamespace'] = strtolower($packageConfig['phpNamespace']);
+		}
+		else {
+			$packageConfig['phpNamespace'] = explode('.', $packageKey)[0];
+			$packageConfig['cmpNamespace'] = strtolower($packageConfig['phpNamespace']);
+		}
+
+		// Map replacement keys for all paths
+		$mapKeys = [
+			'core_path' => MODX_CORE_PATH,
+			'base_path' => MODX_BASE_PATH,
+			'assets_path' => MODX_ASSETS_PATH,
+			'package_key' => $packageKey,
+			'cmp_namespace' => $packageConfig['cmpNamespace'],
+			'php_namespace' => $packageConfig['phpNamespace']
+		];
+
+		// Loop through the packageConfig and replace values for each
+		foreach ($packageConfig as $key => $tpl) {
+			$packageConfig[$key] = $this->replaceValues($mapKeys, $tpl);
+		}
+		$packageConfig['schemaFilePath'] = $packageConfig['schemaPath'.$this->version] . $packageConfig['schemaFileName'];
+
+		// Return the final config
+		$this->logDebug(print_r($packageConfig, true));
+		return $packageConfig;
+	}
+
+	/**
 	 * Utility function to replace placeholders in a URL path
 	 * with any global values.
 	 * @param string $path Path with placeholders {core_path}
@@ -334,30 +446,6 @@ class ExtraBuilder
 	}
 
 	/**
-	 * Delete directory recursively
-	 * 
-	 */
-	public function rrmdir($src)
-	{
-		$dir = opendir($src);
-		if ($dir) {
-			while (false !== ($file = readdir($dir))) {
-				if (($file != '.') && ($file != '..')) {
-					$full = $src . '/' . $file;
-					if (is_dir($full)) {
-						$this->rrmdir($full);
-					} else {
-						unlink($full);
-					}
-				}
-			}
-
-			closedir($dir);
-			rmdir($src);
-		}
-	}
-
-	/**
 	 * Utility funciton to check startswith
 	 * @param string $haystack The String to check against
 	 * @param string $needle The value to check for
@@ -371,69 +459,85 @@ class ExtraBuilder
 	}
 
 	/**
-	 * Recursive copy function used during the build
-	 * process to copy all core folders/files into
-	 * the _dist/<package_key> directory
+	 * Replace namespaces and designated v3 only blocks
+	 * 
+	 * Replace necessary namespaces so that processors will run
+	 * on v2.
 	 */
-	public function copyCore($src, $dst)
+	public function replaceOnV2Install($dir)
 	{
-		// Open the source directory
-		$dir = opendir($src);
+		// Iterate recursively through directory
+		$dir_iterator = new RecursiveDirectoryIterator($dir);
+		$iterator = new RecursiveIteratorIterator($dir_iterator, RecursiveIteratorIterator::SELF_FIRST);
 
-		// Make the destination directory if not exist 
-		if (!is_dir($dst)) {
-			mkdir($dst, 0775, true);
-		}
-
-		// Loop through
-		while (false !== ($file = readdir($dir))) {
-			$exclude = [
-				$file === 'assets',
-				$this->startsWith($file, '_'),
-				$this->startsWith($file, '.'),
-				$file === '.',
-				$file === '..',
-				$file === 'workspace.code-workspace'
-			];
-
-			// If none of the checks in the array resulted in true
-			if (!in_array(true, $exclude)) {
-				if (is_dir($src . '/' . $file)) {
-					$this->copyCore($src . '/' . $file, $dst . '/' . $file);
-				} else {
-					copy($src . '/' . $file, $dst . '/' . $file);
-				}
+		foreach ($iterator as $file) {
+			if ($file->isFile()) {
+				$this->replaceClassesForV2($file->getPathName());
 			}
 		}
-		closedir($dir);
 	}
 
 	/**
-	 * Copy directory recursively
+	 * Replace namespaces back to v2 compatible
+	 *
+	 * @param string $contents
+	 * @return string Modified contents
 	 */
-	public function copydir($src, $dst)
+	public function replaceClassesForV2($filePath)
 	{
-		// open the source directory 
-		$dir = opendir($src);
-
-		// Make the destination directory if not exist 
-		if (!is_dir($dst)) {
-			mkdir($dst, 0775, true);
+		// If the file is invalid
+		if (!is_file($filePath)) {
+			$this->modx->log(xPDO::LOG_LEVEL_INFO, "replaceOnV2Install: $dir");
+			$this->logError("File is invalid: $file");
+			return;
 		}
 
-		// Loop through the files in source directory 
-		while (false !== ($file = readdir($dir))) {
-			if (($file != '.') && ($file != '..')) {
-				if (is_dir($src . '/' . $file)) {
-					// Recursively calling custom copy function 
-					// for sub directory  
-					$this->copydir($src . '/' . $file, $dst . '/' . $file);
-				} else {
-					copy($src . '/' . $file, $dst . '/' . $file);
-				}
+		// Get the file contents
+		$contents = file_get_contents($filePath);
+		
+		// Map new namespaced classes to the old classes
+		$nsMap = [
+			'MODX\\Revolution\\Processors\\Processor' => 'modProcessor',
+			'MODX\\Revolution\\Processors\\ModelProcessor' => 'modObjectProcessor',
+			'MODX\\Revolution\\Processors\\DriverSpecificProcessor' => 'modDriverSpecificProcessor',
+			'MODX\\Revolution\\Processors\\Model\\CreateProcessor' => 'modObjectCreateProcessor',
+			'MODX\\Revolution\\Processors\\Model\\DuplicateProcessor' => 'modObjectDuplicateProcessor',
+			'MODX\\Revolution\\Processors\\Model\\ExportProcessor' => 'modObjectExportProcessor',
+			'MODX\\Revolution\\Processors\\Model\\GetListProcessor' => 'modObjectGetListProcessor',
+			'MODX\\Revolution\\Processors\\Model\\GetProcessor' => 'modObjectGetProcessor',
+			'MODX\\Revolution\\Processors\\Model\\RemoveProcessor' => 'modObjectRemoveProcessor',
+			'MODX\\Revolution\\Processors\\Model\\SoftRemoveProcessor' => 'modObjectSoftRemoveProcessor',
+			'MODX\\Revolution\\Processors\\Model\\UpdateProcessor' => 'modObjectUpdateProcessor',
+			'MODX\\Revolution\\Model\\' => '',
+			'MODX\\Revolution\\' => '',
+			'xPDO\\Transport\\' => '',
+			'xPDO\\Om\\' => '',
+			'ExtraBuilder\\Model\\' => '',
+		];
+		
+		// Loop through the nsMap
+		foreach ($nsMap as $new => $old) {
+			// Replace namespaces in 'use' statements
+			$contents = str_replace($new, $old, $contents);
+
+			// Replace class extends
+			if (strpos($new, 'Processors') !== false) {
+				$classParts = explode('\\', $new);
+				$newShort = end($classParts);
+				$contents = str_replace("extends $newShort", "extends $old", $contents);
 			}
 		}
-		closedir($dir);
+
+		// Also replace any blocks wrapped in //v3 only
+		$key = '//v3 only';
+		$start = strpos($contents, $key);
+		if ($start !== false) {
+			$end = strpos($contents, $key, $start + strlen($key));
+			$contents = substr_replace($contents, '', $start, $end - $start + strlen($key));
+		}
+
+		// Write the file contents back
+		file_put_contents($filePath, $contents);
 	}
 
 	/**

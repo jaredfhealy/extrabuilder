@@ -15,24 +15,37 @@ use Exception;
  */
 class Build extends Processor
 {
-    public $object;
-	public $languageTopics = array('ExtraBuilder:default');
+    /** 
+	 * Current ebPackage object
+	 * 
+	 * @var ExtraBuilder\Model\ebPackage $package
+	 */
+	public $package;
+	public $languageTopics = array('extrabuilder:default');
     public $logMessages = [];
-	public $buildNamespace = "";
+
+	/** @var string $packageKey Schema package attribute value */
 	public $packageKey = "";
+
+	/**
+	 * 3.0 Specific options for parsing the schema
+	 *
+	 * @var array $schemaOptions
+	 */
 	public $schemaOptions = [];
 
-    // Define the needed paths/directories
-    public $packageBasePath = "";
-    public $schemaPath = "";
-    public $classPath = "";
-	public $modelPath = "";
-    public $assetsPath = "";
-    public $schemaFilePath = "";
+	/**
+	 * Config for the current package being built
+	 * 
+	 * @var array $packageConfig
+	 */
+	public $packageConfig = [];
 
-    /**
-     * @var boolean $previewOnly Deafult to preview only
-     */
+    /** 
+	 * Deafult to preview only
+	 * 
+	 *  @var boolean $previewOnly 
+	 */
     public $previewOnly = true;
 
 	/** @var ExtraBuilder\ExtraBuilder $eb */
@@ -55,71 +68,46 @@ class Build extends Processor
 		
 		// Get parameters to determine actions
         $this->schemaOptions['writeSchemaOnly'] = $writeSchemaOnly = $this->getProperty('write_schema') === 'true';
-        $this->schemaOptions['backupElements'] = $backupElements = $this->getProperty('backup_elements') === 'true';
         $this->schemaOptions['buildSkip'] = $buildSkip = $this->getProperty('build_skip') === 'true';
         $this->schemaOptions['buildDelete'] = $buildDelete = $this->getProperty('build_delete') === 'true';
         $this->schemaOptions['buildDeleteAndDrop'] = $buildDeleteAndDrop = $this->getProperty('build_delete_drop') === 'true';
 
         // Get the object using the passed in primary id
-        $packageId = $this->getProperty('id', false);
-        $package = $this->modx->getObject($this->eb->getClass('ebPackage'), $packageId);
-        if (!$package) {
+		$this->package = $this->modx->getObject($this->eb->getClass('ebPackage'), $this->getProperty('id', 0));
+        if (!$this->package) {
             // Return here
             return $this->failure("Unable to retrieve package with supplied ID: $packageId");
         } else {
-            $this->logMessages[] = "Found package by id $packageId. Name: " . $package->get('display') . ", Key: " . $package->get('package_key');
+            $this->logMessages[] = "Found package by id $packageId. Name: " . $this->package->get('display') . ", Package: " . $this->package->get('package_key');
         }
 
-		// Store a reference to the package object
-		$this->object =& $package;
+		// Get the configuration for this package
+        $this->packageConfig = $this->eb->getPackageConfig($this->package);
+		if ($this->packageConfig === false) {
+			return $this->failure("Failed to get package configuration paths.");
+		}
 
-        // Get package key and paths
-        $this->packageKey = $packageKey = $package->get('package_key');
-        $corePath = $package->get('core_path') ? $package->get('core_path') : '{core_path}components/{package_key}/';
-        $assetsPath = $package->get('assets_path') ? $package->get('assets_path') : '{assets_path}components/{package_key}/';
-
-		// Set the build namespace for v3
-		$this->buildNamespace = explode('\\', $packageKey)[0];
-        
-		// Replace values
-        $corePath = str_replace('{core_path}', MODX_CORE_PATH, $corePath);
-        $corePath = str_replace('{base_path}', MODX_BASE_PATH, $corePath);
-        $corePath = str_replace('{package_key}', $this->buildNamespace, $corePath);
-        $assetsPath = str_replace('{assets_path}', MODX_ASSETS_PATH, $assetsPath);
-        $assetsPath = str_replace('{base_path}', MODX_BASE_PATH, $assetsPath);
-        $assetsPath = str_replace('{package_key}', $this->buildNamespace, $assetsPath);
-
-        // Setup the paths
-		// {base_path}/core/components/{package_key}/
-        $this->packageBasePath = $corePath;
-		// {base_path}/core/components/{package_key}/schema/
-        $this->schemaPath = $corePath . "schema/";
-		// {base_path}/core/components/{package_key}/schema/{package_key}.mysql.schema.xml
-        $this->schemaFilePath = $this->schemaPath . strtolower($this->buildNamespace) . '.mysql.schema.xml';
-		// {base_path}/core/components/{package_key}/src/
-        $this->sourcePath = $corePath . "src/";
-		// {base_path}/core/components/{package_key}/src/
-        $this->modelPath = $this->sourcePath . "Model/";
-		// {assets_path}/components/{package_key}
-        $this->assetsPath = $assetsPath;
+		// Get the cacheManager for working with files
+		$this->cacheManager = $this->modx->getCacheManager();
 
         // Set preview to false
         if ($buildSkip || $buildDelete || $buildDeleteAndDrop) {
             $this->previewOnly = false;
         }
 
-        // Handle deletion
-        if ($buildDelete) {
+        // Handle schema deletion
+        if (($buildDelete || $buildDeleteAndDrop) && !$this->eb->isV3) {
             // Delete the schema files
-            //$this->previewOnly = false;
-            //$this->deleteSchemaFiles($package);
-			//$this->rrmdir($this->modelPath);
-			//return $this->failure("Pausing here");
+			$this->cacheManager->deleteTree($this->packageConfig['modelPath'.$this->eb->version] . 'mysql/', [
+				'deleteTop' => true, 
+				'skipDirs' => false, 
+				'extensions' => ''
+			]);
         }
+
+		// If delete and drop was selected
         if ($buildDeleteAndDrop) {
-            // Delete the schema files and drop the tables
-            //$this->deleteSchemaFiles($package);
-			//$this->rrmdir($this->modelPath);
+			// Drop all tables
             $this->dropModelTables();
         }
 
@@ -128,15 +116,16 @@ class Build extends Processor
 
         if ($writeSchemaOnly || !$this->previewOnly) {
             // Make sure at least the schema directory exists
-            if (!is_dir($this->schemaPath)) {
-                mkdir($this->schemaPath, 0775, true);
-            }
+			$schemaPathKey = 'schemaPath'.$this->eb->version;
+			$schemaDir = $this->packageConfig[$schemaPathKey];
+			$this->cacheManager->writeTree($schemaDir);
+
             // Create the schema file
-            if (file_put_contents($this->schemaFilePath, $schema)) {
+            if (file_put_contents($this->packageConfig['schemaFilePath'], $schema)) {
                 // Written successfully
                 $this->logMessages[] = "XML Schema written successfully...";
             } else {
-                return $this->failure('Unable to write schema file: ' . $this->schemaFilePath, []);
+                return $this->failure('Unable to write schema file: ' . $this->packageConfig['schemaFilePath'], []);
             }
         }
 
@@ -144,18 +133,13 @@ class Build extends Processor
         if (!$this->previewOnly) {
             // Call the build script
             $this->buildSchema();
-
-            // If include vuecmp is set to true
-            if ($this->object->get('vuecmp') === 'true') {
-                $this->includeVueCmp();
-            }
         }
 
         $separator = '' . PHP_EOL;
         return $this->success('', [
             'schema' => $schema,
-            'core_path' => $corePath,
-            'assets_path' => $assetsPath,
+            'core_path' => $this->packageConfig['corePath'],
+            'assets_path' => $this->packageConfig['coreAssetsPath'],
             'messages' => implode($separator, $this->logMessages),
         ]);
     }
@@ -186,50 +170,42 @@ class Build extends Processor
 		 */
 
 		// First check for an assets directory in core
-		if (!is_dir($this->packageBasePath.'assets/')) {
-			mkdir($this->packageBasePath.'assets/', 0775, true);
-		}
-        if (!is_dir($this->assetsPath)) {
-			// Remove the slash from assetsPath to use as our symlink name
-			$linkName = substr($this->assetsPath, 0, -1);
-			$this->logMessages[] = "Creating symlink from: ".$linkName.", to: ".$this->packageBasePath.'assets/';
-            $this->logMessages[] = "Symlink created: ".(symlink($this->packageBasePath.'assets/', $linkName) == true ? 'True' : 'False');
+		$this->cacheManager->writeTree($this->packageConfig['coreAssetsPath']);
+        if (!is_dir($this->packageConfig['publicAssetsPath'])) {
+			// Remove the slash from publicAssetsPath to use as our symlink name
+			$linkName = substr($this->packageConfig['publicAssetsPath'], 0, -1);
+			$this->logMessages[] = "Creating symlink from: ".$linkName.", to: ".$this->packageConfig['coreAssetsPath'];
+            $this->logMessages[] = "Symlink created: ".(symlink($this->packageConfig['coreAssetsPath'], $linkName) == true ? 'True' : 'False');
         }
 
-		// Set the sources array for logging
-        $sources = array(
-            'root' => MODX_BASE_PATH,
-            'core' => $this->packageBasePath,
-            'model' => $this->modelPath,
-            'assets' => $this->assetsPath,
-            'schema' => $this->schemaPath,
-        );
-
 		// Create the namespace first in v3 since it plays a key role
-		$this->logMessages[] = "Creating Namespace...";
-        $namespace = $this->modx->getObject('modNamespace', ['name' => $this->buildNamespace]);
-        if (!$namespace) {
-            $namespace = $this->modx->newObject('modNamespace', [
-                'path' => "{core_path}components/{$this->buildNamespace}/",
-                'assets_path' => "{assets_path}components/{$this->buildNamespace}/",
+		$this->logMessages[] = "Creating Namespace: {$this->packageConfig['cmpNamespace']}";
+        $namespaceObj = $this->modx->getObject($this->eb->getClass('modNamespace'), ['name' => $this->packageConfig['cmpNamespace']]);
+        if (!$namespaceObj) {
+			// Generate a new namespace
+			$namespaceObj = $this->modx->newObject($this->eb->getClass('modNamespace'), [ 
+                'path' => "{core_path}components/{$this->packageConfig['cmpNamespace']}/",
+                'assets_path' => "{assets_path}components/{$this->packageConfig['cmpNamespace']}/",
             ]);
-            $namespace->set('name', $this->buildNamespace);
-            if ($namespace->save()) {
-                $this->logMessages[] = "Namespace created successfully {$this->buildNamespace}...";
+			$namespaceObj->set('name', $this->packageConfig['cmpNamespace']);
+
+			// Save the new namespace
+            if ($namespaceObj->save()) {
+                $this->logMessages[] = "Namespace created successfully {$this->packageConfig['cmpNamespace']}...";
             }
         } else {
-            $this->logMessages[] = "Namespace, {$this->buildNamespace}, already exists. Use the manager to update.";
+            $this->logMessages[] = "Namespace, {$this->packageConfig['cmpNamespace']}, already exists. Use the manager to update.";
         }
 
         // If include lexicon is set to true
         $lexiconPath = '';
-        if ($this->object->get('lexicon') === '1') {
+        if ($this->package->get('lexicon') === '1') {
             // Make sure the directory exists
-            $lexiconPath = $this->packageBasePath . 'lexicon/en/';
+            $lexiconPath = $this->packageConfig['corePath'] . 'lexicon/en/';
             if (!is_dir($lexiconPath)) {
                 mkdir($lexiconPath, 0775, true);
             }
-			$sources['lexicon'] = $lexiconPath;
+			$this->packageConfig['lexiconPath'] = $lexiconPath;
 
             // If the file does not exist yet.
 			$lexiconFilePath = $lexiconPath . 'default.inc.php';
@@ -240,7 +216,7 @@ class Build extends Processor
 				$lexiconContent = file_get_contents($lexiconSrcPath);
 				if ($lexiconContent !== false) {
 					// Replace values
-					$lexiconContent = str_replace('{$namespace}', $this->buildNamespace, $lexiconContent);
+					$lexiconContent = str_replace('{$namespace}', $this->packageConfig['phpNamespace'], $lexiconContent);
 
 					// Write the destination file
 					if (file_put_contents($lexiconFilePath, $lexiconContent) !== false) {
@@ -257,7 +233,7 @@ class Build extends Processor
         }
 
 		// Log out all the calculated paths
-		$this->logMessages[] = "Sources: " . print_r($sources, true);
+		$this->logMessages[] = "Sources: " . print_r($this->packageConfig, true);
         // Load the transport package class
         //$this->modx->loadClass('transport.modPackageBuilder', '', false, true);
 
@@ -265,61 +241,93 @@ class Build extends Processor
         $manager = $this->modx->getManager();
         $generator = $manager->getGenerator();
 
-		// Set options for parse
-		$parseOptions = [
-			"compile" => 0,
-			"update" => 0,
-			"regenerate" => 0,
-			"namespacePrefix" => $this->buildNamespace.'\\'
-		];
+		// If this is v3
+		$parseSchema = false;
+		if ($this->eb->isV3 === true) {
+			// Set options for parse
+			$parseOptions = [
+				"compile" => 0,
+				"update" => 0,
+				"regenerate" => 0,
+				"namespacePrefix" => $this->packageConfig['phpNamespace'].'\\'
+			];
 
-		/** 
-		 * Override update and regenerate as needed. Descriptions from 
-		 * xPDOGenerator->outputClasses()
-		 * 
-		 * $update     Indicates if existing class files should be updated; 0=no,
-		 *             1=update platform classes, 2=update all classes.
-		 * $regenerate Indicates if existing class files should be regenerated;
-		 *             0=no, 1=regenerate platform classes, 2=regenerate all classes.
-		 */
-		if ($this->schemaOptions['buildDelete'] === true || $this->schemaOptions['buildDeleteAndDrop'] === true) {
-			$parseOptions['update'] = 2;
-			$parseOptions['regenerate'] = 2;
+			/** 
+			 * Override update and regenerate as needed. Descriptions from 
+			 * xPDOGenerator->outputClasses()
+			 * 
+			 * $update     Indicates if existing class files should be updated; 0=no,
+			 *             1=update platform classes, 2=update all classes.
+			 * $regenerate Indicates if existing class files should be regenerated;
+			 *             0=no, 1=regenerate platform classes, 2=regenerate all classes.
+			 */
+			if ($this->schemaOptions['buildDelete'] === true || $this->schemaOptions['buildDeleteAndDrop'] === true) {
+				$parseOptions['update'] = 2;
+				$parseOptions['regenerate'] = 2;
+			}
+
+			// Parse the schema using v3 options
+			$parseSchema = $generator->parseSchema(
+				$this->packageConfig['schemaFilePath'], 
+				$this->packageConfig['sourcePath'],
+				$parseOptions
+			);
 		}
-
-		// Parse the schema using v3 options
-		if ($generator->parseSchema(
-			$this->schemaFilePath, 
-			$this->sourcePath, 
-			$parseOptions
-		)) {
+		else {
+			// Check the schema format
+			if (is_file($this->packageConfig['schemaFilePath'])) {
+				$schemaContents = file_get_contents($this->packageConfig['schemaFilePath']);
+				if (strpos('.v2.model') === false) {
+					return $this->failure("To prepare for MODX 3.0 compatibility, set your package key format to: <mycomponent>.v2.model");
+				}
+			}
+			$parseSchema = $generator->parseSchema(
+				$this->packageConfig['schemaFilePath'], 
+				MODX_CORE_PATH.'components/'
+			);
+		}
+		
+		// Check the result
+		if ($parseSchema) {
 			$this->logMessages[] = "Schema processing complete, model files generated";
 		}
 		else {
 			$this->failure("Unable to write model files");
 			$this->logMessages[] = "Unable to write model files";
-		}
-			
+		}	
 
 		// Check for a bootstrap.php file for this new extra
-		if (!is_file($this->packageBasePath.'bootstrap.php')) {
+		if (!is_file($this->packageConfig['corePath'].'bootstrap.php') && $this->eb->isV3) {
 			// Generate the file and return
 			$contents = file_get_contents($this->eb->config['corePath'].'_build/templates/bootstrap.tpl');
-			$contents = str_replace('{$namespace}', $this->buildNamespace, $contents);
-			file_put_contents($this->packageBasePath.'bootstrap.php', $contents);
+			$contents = str_replace('{$namespace}', $this->packageConfig['phpNamespace'], $contents);
+			file_put_contents($this->packageConfig['corePath'].'bootstrap.php', $contents);
 
 			// Set variables needed by the bootstrap file
 			$modx =& $this->modx;
-			
-			// Set namespace as an array so it can be accessed in bootstrap.php
-			$namespace = $namespace->toArray();
+
+			// If namespace is not defined
+			if (!isset($namespace) || !isset($namespace['path']) || strpos($namespace['path'], '{core_path}') !== false) {
+				// Set namespace as an array so it can be accessed in bootstrap.php on first build
+				$namespace = [
+					'name' => $this->packageConfig['cmpNamespace'],
+					'path' => $this->packageConfig['corePath'],
+					'assets_path' => $this->packageConfig['publicAssetsPath']
+				];
+			}
 
 			// Include the newly generated bootstrap file to register our classes
-			@include $this->packageBasePath.'bootstrap.php';
+			@include $this->packageConfig['corePath'].'bootstrap.php';
+		}
+		else if (!$this->eb->isV3) {
+			// In v2 use add package, expecting packageKey format: <mycomponent>.v2.model
+			if (!$this->modx->addPackage($this->package->get('package_key'), MODX_CORE_PATH.'components/')) {
+				return $this->failure("Unable to add the package and class files: ".$this->package->get('package_key'));
+			}
 		}
 
 		// Get the child object records
-		$objects = $this->object->getMany('Objects');
+		$objects = $this->package->getMany('Objects');
 		if (!$objects) {
 			return $this->failure('Unable to retrieve related objects/tables.');
 		}
@@ -327,15 +335,18 @@ class Build extends Processor
 		// Loop through the tables
         foreach ($objects as $object) {
 			// Convert class for MODX 3 if needed
-			$className = $this->packageKey .$object->get('class');
-			$this->logMessages[] = "Checking if class exists: $className";
-            
-			// Check if the class exists yet as an autoloadable class
-			if (!class_exists($className)) {
-				// Class should have been registered by bootstrap
-				$this->logMessages[] = "Class: $className not found in loader:";
-				$this->logMessages[] = print_r($loader->getPrefixesPsr4(), true);
-				return $this->failure("Error, Validate 'bootstrap.php':  Class still does not exist after autoloader registration: $className");
+			$className = $object->get('class');
+			if ($this->eb->isV3) {
+				$className = $this->packageConfig['classPrefix'].$className;
+				$this->logMessages[] = "Checking if class exists: $className";
+
+				// Check if the class exists yet as an autoloadable class
+				if (!class_exists($className)) {
+					// Class should have been registered by bootstrap
+					$this->logMessages[] = "Class: $className not found in loader:";
+					$this->logMessages[] = print_r($this->modx::getLoader()->getPrefixesPsr4(), true);
+					return $this->failure("Error, Validate 'bootstrap.php':  Class still does not exist after autoloader registration: $className");
+				}
 			}
 
 			// Proceed if we have classes
@@ -380,7 +391,7 @@ class Build extends Processor
 				{
                     $tableFields[$cl['Field']] = $cl['Field'];
                 }
-                $this->logMessages[] = "Table Fields: " . print_r($tableFields, true);
+                $this->logMessages[] = "Altering table fields: " . print_r($tableFields, true);
 
                 // Loop through the fields defined in the MODX class file
                 foreach ($this->modx->getFields($className) as $field => $v) 
@@ -472,10 +483,10 @@ class Build extends Processor
     public function generateSchema()
     {
         // XML Templates
-        $packageTpl = '<model package="{package_key}" baseClass="{base_class}" platform="{platform}" defaultEngine="{default_engine}" phpdoc-package="{phpdoc_package}" phpdoc-subpackage="{phpdoc_subpackage}" version="{version}">';
+        $packageTpl = '<model package="{package_key}" baseClass="{base_class}" platform="{platform}" defaultEngine="{default_engine}" phpdoc-package="{phpdoc_package}" version="{version}">';
         $objectTpl = '<object class="{class}" table="{table_name}" extends="{extends}">';
         
-        $indexTpl = '<index alias="{column_name}" name="{column_name}" primary="false" unique="false" type="{index}">
+        $indexTpl = '<index alias="{column_name}" name="{column_name}" {index_attributes} type="{index}">
 					<column key="{column_name}" length="" collation="A" null="false"/>
 					</index>';
         $relTpl = '<{relation_type} alias="{alias}" class="{class}" local="{local}" foreign="{foreign}" cardinality="{cardinality}" owner="{owner}"/>';
@@ -499,27 +510,28 @@ class Build extends Processor
         $xmlSchema = '<?xml version="1.0" encoding="UTF-8"?>';
 
         // Replace package details
-        $xmlSchema .= $this->replaceValues($this->object->toArray(), $packageTpl);
+        $xmlSchema .= $this->eb->replaceValues($this->package->toArray(), $packageTpl);
 
         // Add Objects
-        $objects = $this->object->getMany('Objects');
+        $objects = $this->package->getMany('Objects');
         if ($objects) {
             foreach ($objects as $object) {
                 // Start an object entry
-                $xmlSchema .= $this->replaceValues($object->toArray(), $objectTpl);
+                $xmlSchema .= $this->eb->replaceValues($object->toArray(), $objectTpl);
 
                 // Get the child fields and relationships
                 $fields = $object->getMany('Fields');
                 $rels = $object->getMany('Rels');
                 if ($fields) {
-					$this->logMessages[] = $object->get('table_name').": Looping through fields: " . count($fields);
+					$this->logMessages[] = $object->get('class').'|'.$object->get('table_name').": Looping through fields: " . count($fields);
+					$indexBlock = "";
                     foreach ($fields as $field) {
                         // Attempt dynamic template or fall back on default
                         $dbtype = strtolower($field->get('dbtype'));
                         $tpl = array_key_exists($dbtype,$fieldTplArr) ? $fieldTplArr[$dbtype] : $fieldTplArr['default'];
 
                         // Populate the field row
-                        $fieldXml = $this->replaceValues($field->toArray(), $tpl);
+                        $fieldXml = $this->eb->replaceValues($field->toArray(), $tpl);
 
                         // Add on extra and generated if populated
                         if ($field->get('generated')) {
@@ -534,15 +546,24 @@ class Build extends Processor
 
                         // If an index value is set
                         if ($field->get('index')) {
-                            // Populate the index row
-                            $xmlSchema .= $this->replaceValues($field->toArray(), $indexTpl);
+                            // Populate the index row, override BTREE2 and BTREE3 to just BTREE
+							$fieldArray = $field->toArray();
+							if (strpos($fieldArray['index'], 'BTREE') !== false) {
+								$fieldArray['index'] = 'BTREE';
+							}
+                            $indexBlock .= $this->eb->replaceValues($fieldArray, $indexTpl);
                         }
                     }
+
+					// If we have indexes, add those
+					if ($indexBlock) {
+						$xmlSchema .= $indexBlock;
+					}
                 }
                 if ($rels) {
                     foreach ($rels as $rel) {
                         // Populate the field row
-                        $xmlSchema .= $this->replaceValues($rel->toArray(), $relTpl);
+                        $xmlSchema .= $this->eb->replaceValues($rel->toArray(), $relTpl);
                     }
                 }
 
@@ -571,88 +592,6 @@ class Build extends Processor
     }
 
     /**
-     * Include Vue.js components and starting files
-     * to use the Vue CMP and iFrame methodology
-     */
-    public function includeVueCmp()
-    {
-        // Asset Target directories and files
-        $cssPath = $this->assetsPath . 'css/';
-        $jsPath = $this->assetsPath . 'js/';
-        $connectorFilePath = $this->assetsPath . 'connector.php';
-
-        // Only generate these if they don't exist already
-        // If the css, js directories don't exist
-        if (!is_dir($cssPath) && !is_dir($jsPath) && !is_file($connectorFilePath)) {
-            // Define the source directories and files
-            $sourceCssPath = MODX_CORE_PATH . 'components/extrabuilder/_build/cmpexample/assets/css/';
-            $sourceJsPath = MODX_CORE_PATH . 'components/extrabuilder/_build/cmpexample/assets/js/';
-            $sourceConnectorFilePath = MODX_CORE_PATH . 'components/extrabuilder/_build/cmpexample/assets/connector.php';
-
-            // Copy the directories
-            $this->modx->extrabuilder->copydir($sourceCssPath, $this->assetsPath);
-            $this->modx->extrabuilder->copydir($sourceJsPath, $this->assetsPath);
-
-            // Copy the connector
-            copy($sourceConnectorFilePath, $connectorFilePath);
-        }
-
-        // Core files and directories
-        $controllerPath = $this->packageBasePath . 'controllers/';
-        $templatePath = $this->packageBasePath . 'templates/';
-
-        // Only create if they don't exist yet
-        if (!is_dir($controllerPath) && !is_dir($templatePath)) {
-            mkdir($controllerPath, 0775);
-            mkdir($templatePath, 0775);
-
-            // Template sources
-            $indexControllerPath = MODX_CORE_PATH . 'components/extrabuilder/_build/cmpexample/controllers/index.class.php.tpl';
-            $indexHtmlFilePath = MODX_CORE_PATH . 'components/extrabuilder/_build/cmpexample/templates/index.html';
-
-            // Get the template contents
-            $indexController = file_get_contents($indexControllerPath);
-            $indexController = str_replace('[[+package_class]]', ucfirst($this->object->get('package_key')), $indexController);
-
-            // Write the controller file
-            file_put_contents($controllerPath . 'index.class.php', $indexController);
-
-            // Copy the index.html file
-            copy($indexHtmlFilePath, $templatePath . 'index.html');
-        }
-    }
-
-    /**
-     * Delete generated schema files
-     *
-     * Directory and contents:
-     *  - <key>/model/<key>/mysql
-     *
-     * Delete files:
-     *  - Schema File: <key>/model/<key>/<key>.mysql.schema.xml
-     *  - Class files: <key>/model/<key>/
-     *    - metadata.mysql.php
-     *    - <key>objectclass.class.php
-     */
-    public function deleteSchemaFiles($package)
-    {
-        // First delete the directory
-        $this->rrmdir($this->classPath . 'mysql/');
-
-        // Get the object entries for this package
-        $objects = $package->getMany('Objects');
-        if ($objects) {
-            foreach ($objects as $object) {
-                // Delete each corresponding table class file
-                unlink($this->classPath . strtolower($object->get('class')) . '.class.php');
-            }
-        }
-
-        // Delete the schema file
-        //unlink($this->classPath.'metadata.mysql.php');
-    }
-
-    /**
      * Drop associated model tables
      *
      */
@@ -662,16 +601,20 @@ class Build extends Processor
         $manager = $this->modx->getManager();
 
         // Get the related object entries and loop through
-        $objectEntries = $this->object->getMany('Objects');
+        $objectEntries = $this->package->getMany('Objects');
         $dropErrors = [];
         if ($objectEntries) {
             foreach ($objectEntries as $entry) {
-                $className = $entry->get('class');
+				// Get the class based on version
+                $className = $object->get('class');
+				if ($this->eb->isV3) {
+					$className = $this->packageConfig['classPrefix'].$className;
+				}
                 if ($className) {
                     // Get the xpdo manager and drop the table
-					$this->logMessages[] = "Dropping table for class: {$this->packageKey}\\{$className}";
+					$this->logMessages[] = "Dropping table for class: {$className}";
 					try {
-						if (!$manager->removeObjectContainer($this->packageKey . '\\' .  $className)) {
+						if (!$manager->removeObjectContainer($className)) {
 							// Add to the error list
 							$dropErrors[] = $className;
 						}
@@ -688,45 +631,6 @@ class Build extends Processor
 			}
         } else {
             $this->failure('Unable to determine tables to drop. Please remove manually.');
-        }
-    }
-
-    /**
-     * Replace placeholders with values
-     *
-     */
-    public function replaceValues($objectArray, $stringTpl)
-    {
-        $string = $stringTpl;
-        foreach ($objectArray as $key => $value) {
-            $string = str_replace('{' . $key . '}', $value, $string);
-        }
-
-        // Return the new string
-        return $string;
-    }
-
-    /**
-     * Delete directory recursively
-     *
-     */
-    public function rrmdir($src)
-    {
-        $dir = opendir($src);
-        if ($dir) {
-            while (false !== ($file = readdir($dir))) {
-                if (($file != '.') && ($file != '..')) {
-                    $full = $src . '/' . $file;
-                    if (is_dir($full)) {
-                        $this->rrmdir($full);
-                    } else {
-                        unlink($full);
-                    }
-                }
-            }
-
-            closedir($dir);
-            rmdir($src);
         }
     }
 

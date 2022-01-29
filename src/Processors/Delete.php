@@ -2,11 +2,11 @@
 
 namespace ExtraBuilder\Processors;
 
-use \MODX\Revolution\Processors\Model\RemoveProcessor;
+use MODX\Revolution\Processors\Model\RemoveProcessor;
 
 class Delete extends RemoveProcessor {
     public $classKey;
-    public $languageTopics = ['ExtraBuilder:default'];
+    public $languageTopics = ['extrabuilder:default'];
     public $objectType = 'extrabuilder.';
 
 	/** @var ExtraBuilder\ExtraBuilder $eb */
