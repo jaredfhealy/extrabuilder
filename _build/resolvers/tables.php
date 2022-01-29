@@ -8,13 +8,57 @@ if ($transport->xpdo) {
     switch ($options[xPDOTransport::PACKAGE_ACTION]) {
         case xPDOTransport::ACTION_INSTALL:
         case xPDOTransport::ACTION_UPGRADE:
+			// Initial variables
 			$packageKey = '{package_key}';
 			$keyLower = strtolower($packageKey);
             $corePath = MODX_CORE_PATH . "components/$keyLower/";
-            $eb; /* Service class */
             $isV3 = $modx->getVersionData()['version'] >= 3;
+
+			// Include model based on version
             if (!$isV3) {
-                $modx->addPackage("$keyLower.v2.model", MODX_CORE_PATH.'components/');
+				// Main class path
+				$classFilePath = $corePath . "src/{$packageKey}.php";
+				if (is_file($classFilePath)) {
+					// Get the contents
+					$contents = file_get_contents($classFilePath);
+
+					// For our main class file, remove namespace block
+					$key = '//v3 only';
+					$start = strpos($contents, $key);
+					if ($start !== false) {
+						$end = strpos($contents, $key, $start + strlen($key));
+						$contents = substr_replace($contents, '', $start, $end - $start + strlen($key));
+					}
+
+					// Write the file back
+					file_put_contents($classFilePath, $contents);
+
+					// Now try including and loading the file
+					@include_once $classFilePath;
+					$myService = new $packageKey($modx, ["install" => true]);
+					if ($myService) {
+						// Rename classes and remove namespaces in processors
+						$myService->replaceOnV2Install($corePath."src/Processors/");
+
+						// Also replace classes on index class file
+						$myService->replaceClassesForV2($corePath.'index.class.php');
+
+						// Attempt to add the package
+						$result = $modx->addPackage("$keyLower.v2.model", MODX_CORE_PATH.'components/');
+						if (!$result) {
+							$modx->log(xPDO::LOG_LEVEL_ERROR, "Unable to add package. Install failed.");
+							exit();
+						}
+					}
+				}
+				else {
+					// This package has no class file, just add the package
+					$result = $modx->addPackage("$keyLower.v2.model", MODX_CORE_PATH.'components/');
+					if (!$result) {
+						$modx->log(xPDO::LOG_LEVEL_ERROR, "Unable to add package. Install failed.");
+						exit();
+					}
+				}
             }
             else {
                 // Check for the bootstrap file and include it
@@ -37,7 +81,19 @@ if ($transport->xpdo) {
             $objects = [];
 			$classPrefix = "";
             $schemaFile = MODX_CORE_PATH . "components/{$keyLower}/schema/{$keyLower}.mysql.schema.xml";
-            if (is_file($schemaFile)) {
+			if (!is_file($schemaFile)) {
+				$schemaFile = MODX_CORE_PATH . "components/{$keyLower}/v2/schema/{$keyLower}.mysql.schema.xml";
+				if (!is_file($schemaFile)) {
+					$schemaFile = MODX_CORE_PATH . "components/{$keyLower}/model/schema/{$keyLower}.mysql.schema.xml";
+					if (!is_file($schemaFile)) {
+						$modx->log(xPDO::LOG_LEVEL_ERROR, "Unable to load schema file...");
+						exit();
+					}
+				}
+			}
+            
+			// If we have a schema file
+			if (is_file($schemaFile)) {
                 $schema = new SimpleXMLElement($schemaFile, 0, true);
                 if (isset($schema->object)) {
                     foreach ($schema->object as $obj) {
@@ -46,7 +102,7 @@ if ($transport->xpdo) {
                 }
 
 				// Store the package value
-				$classPrefix = $schema[0]['package'];
+				$classPrefix = trim($schema[0]['package'], '\\').'\\';
                 unset($schema);
             }
 

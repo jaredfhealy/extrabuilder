@@ -2,7 +2,8 @@
 EB.model['{$gridClass}'].window.config = {
 
 	// This is a wider form, override default 600 width
-	width: 800,
+	width: '90%',
+	boxMaxWidth: 1200,
 	
 	// Fields to apply to our form
 	fields: [
@@ -38,6 +39,10 @@ EB.model['{$gridClass}'].window.config = {
             html: _('{$cmpNamespace}.{$gridClass|lower}.html_desc')
 		},
 		{
+			xtype: 'label',
+            html: '<hr style="width:60%;text-align:center;margin:20px auto;" />'
+		},
+		{
             layout: 'column',
             border: false,
             anchor: '100%',
@@ -69,8 +74,7 @@ EB.model['{$gridClass}'].window.config = {
 						fieldLabel: _("{$cmpNamespace}.{$gridClass|lower}.table_name"),
 						name: 'table_name',
 						id: '{$gridClass|lower}-table_name',
-						anchor: '90%',
-						allowBlank: false
+						anchor: '90%'
 					},
 					{
 						xtype: 'textfield',
@@ -104,7 +108,12 @@ EB.model['{$gridClass}'].window.config = {
 			xtype: 'textarea',
 			fieldLabel: _("{$cmpNamespace}.{$gridClass|lower}.raw_xml"),
 			name: 'raw_xml',
-			anchor: '90%'
+			anchor: '100%',
+			height: 300
+		},
+		{
+			xtype: 'label',
+            html: '<br/><br/>'
 		}
 	]
 

@@ -10,9 +10,8 @@ use xPDO\xPDO;
 
 // Add the service
 try {
-    // Load the classes
-    $loader = $modx::getLoader();
-    $loader->addPsr4('ExtraBuilder\\', $namespace['path'].'src/');
+    // Add the package and model classes
+    $modx->addPackage('ExtraBuilder\Model', $namespace['path'] . 'src/', null, 'ExtraBuilder\\');
 
     if (class_exists('ExtraBuilder\\ExtraBuilder')) {
         $modx->services->add('ExtraBuilder', function($c) use ($modx) {

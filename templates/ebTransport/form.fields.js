@@ -221,7 +221,7 @@ EB.model['{$gridClass}'].window.packageComboConfig = {
 	url: {$phpNamespace}.config.connectorUrl,
 	baseParams: {
 		classKey: 'ebPackage',
-		action: '{if $isV3}{$phpNamespace}\\Processors\\{/if}ebGetList',
+		action: '{if $isV3}{$phpNamespace}\\Processors\\{/if}GetList',
 		type: 'combo'
 	},
 	fields: [
@@ -249,8 +249,8 @@ EB.model['{$gridClass}'].window.categoryComboConfig = {
 
 	url: {$phpNamespace}.config.connectorUrl,
 	baseParams: {
-		classKey: 'MODX\\Revolution\\modCategory',
-		action: '{if $isV3}{$phpNamespace}\\Processors\\{/if}ebGetList',
+		classKey: '{if $isV3}MODX\\Revolution\\{/if}modCategory',
+		action: '{if $isV3}{$phpNamespace}\\Processors\\{/if}GetList',
 		type: 'combo'
 	},
 	fields: [

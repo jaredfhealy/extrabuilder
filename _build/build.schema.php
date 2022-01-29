@@ -27,10 +27,10 @@ $generator = $manager->getGenerator();
 //{base_path}/core/components/
 $projectRootDir = MODX_BASE_PATH . 'core/components/';
 
-//{base_path}/core/components/ExtraBuilder
-$corePath = $projectRootDir . 'ExtraBuilder/';
+//{base_path}/core/components/extrabuilder
+$corePath = $projectRootDir . 'extrabuilder/';
 
-//{base_path}/core/components/ExtraBuilder/schema/extrabuilder.mysql.schema.xml
+//{base_path}/core/components/extrabuilder/schema/extrabuilder.mysql.schema.xml
 $schemaFile = $corePath . "schema/extrabuilder.mysql.schema.xml";
 
 /**

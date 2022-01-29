@@ -1,12 +1,10 @@
 <?php
 
-//v3 only
 namespace ExtraBuilder\Processors;
 
-use \MODX\Revolution\Processors\Model\CreateProcessor;
-//v3 only
+use MODX\Revolution\Processors\Model\CreateProcessor;
 
-class ebCreate extends CreateProcessor {
+class Create extends CreateProcessor {
     public $classKey;
     public $languageTopics = ['extrabuilder:default'];
     public $objectType = 'extrabuilder.';

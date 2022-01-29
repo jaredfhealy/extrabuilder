@@ -1,17 +1,24 @@
-Full Documentation: https://gearvy.com/extrabuilder
+Full Documentation
+===================
+For more exhaustive documentation, refer to Github and Gearvy.com. 
+ - https://github.com/jaredfhealy/extrabuilder
+ - https://gearvy.com/docs/extrabuilder/
 
-Manage Packages and Tables
---------------------------
-This Extra allows you to build custom tables, and packages. You can then create a transport package to move that functionality between MODX instance, or publish to the MODX Extras directory for the community to utilize.
+Create Custom Tables, Manage Packages and Transport
+==========================
+This Extra allows you to build custom tables, fields, and package it all up. You can then create a transport package to move that functionality between MODX instance, or publish to the MODX Extras directory for the community to utilize.
 
-Features Include
---------------------------
-1. Package Builder
-   a. Create custom packages including the model, objects (custom tables), fields and relationships
-   b. Preview schema xml
-   c. Build and create missing tables or add columns
-2. Transport Builder
-   a. Create a transport package and specify the version details
-   b. Generate the transport zip and directories
-   c. Automatically includes file preservers based on the Category
-   d. Automatically includes elements for that Category
+Use this in non-production instances to develop new MODX Extras, or custom data tables for clients.
+
+Package Builder (Custom tables)
+=============================
+ - Create custom packages including the model, objects (custom tables), fields and relationships
+ - Preview schema xml
+ - Build and create missing tables or add columns
+ 
+Transport Builder
+=================
+ - Create a transport package and specify the version details
+ - Generate the transport zip and directories
+ - Automatically includes file preservers based on the Category
+ - Automatically includes elements for that Category

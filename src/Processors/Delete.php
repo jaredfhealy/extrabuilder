@@ -1,12 +1,10 @@
 <?php
 
-//v3 only
 namespace ExtraBuilder\Processors;
 
-use \MODX\Revolution\Processors\Model\RemoveProcessor;
-//v3 only
+use MODX\Revolution\Processors\Model\RemoveProcessor;
 
-class ebDelete extends RemoveProcessor {
+class Delete extends RemoveProcessor {
     public $classKey;
     public $languageTopics = ['extrabuilder:default'];
     public $objectType = 'extrabuilder.';

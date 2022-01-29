@@ -18,6 +18,7 @@ use xPDO\xPDO;
  * @property string $attributes
  * @property string $generated
  * @property string $extra
+ * @property string $index_attributes
  *
  * @package ExtraBuilder\Model
  */

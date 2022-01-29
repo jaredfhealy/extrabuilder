@@ -1,17 +1,15 @@
 <?php
 
-//v3 only
 namespace ExtraBuilder\Processors\ebTransport;
 
 use MODX\Revolution\Processors\Processor;
 use MODX\Revolution\modX;
-//v3 only
 
 /**
  * Handle all build options
  *
  */
-class TpActions extends Processor
+class Actions extends Processor
 {
     public $languageTopics = array('extrabuilder:default');
     public $objectType = 'extrabuilder.transport';
@@ -28,6 +26,13 @@ class TpActions extends Processor
 
 	/** @var string Resolvers directory */
 	public $resolversDir;
+
+	/**
+	 * Config for the current package being built
+	 * 
+	 * @var array $packageConfig
+	 */
+	public $packageConfig = [];
 
     /**
      * Override the process function
@@ -56,9 +61,14 @@ class TpActions extends Processor
             return $this->failure('Unable to get the related Package object record.');
         }
 
+		// Get the configuration for this package
+        $this->packageConfig = $this->eb->getPackageConfig($this->package);
+		if ($this->packageConfig === false) {
+			return $this->failure("Failed to get package configuration paths.");
+		}
+
 		// Determine the resolvers directory and paths
-		$this->resolversDir = $this->eb->replaceCorePaths($this->package->get('core_path'), explode("\\", $this->package->get('package_key'))[0]);
-        $this->resolversDir = $this->resolversDir . '_build/resolvers/';
+        $this->resolversDir = $this->packageConfig['corePath'] . '_build/resolvers/';
 
         // Check if the directory exists
         if (!is_dir($this->resolversDir)) {

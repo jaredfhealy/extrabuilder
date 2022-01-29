@@ -29,6 +29,7 @@ class ebField extends \ExtraBuilder\Model\ebField
             'attributes' => '',
             'generated' => '',
             'extra' => '',
+            'index_attributes' => '',
         ),
         'fieldMeta' => 
         array (
@@ -121,6 +122,14 @@ class ebField extends \ExtraBuilder\Model\ebField
                 'default' => '',
             ),
             'extra' => 
+            array (
+                'dbtype' => 'varchar',
+                'precision' => '191',
+                'phptype' => 'string',
+                'null' => true,
+                'default' => '',
+            ),
+            'index_attributes' => 
             array (
                 'dbtype' => 'varchar',
                 'precision' => '191',

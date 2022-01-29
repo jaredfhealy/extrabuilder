@@ -67,7 +67,7 @@ Ext.apply(EB.model['{$gridClass}'].grid.overrides, {
 		Ext.Ajax.request({
 			url: {$phpNamespace}.config.connectorUrl,
 			params: { 
-				action: '{if $isV3}{$phpNamespace}\\Processors\\ebTransport\\{else}ebtransport/{/if}TpBuild',
+				action: '{if $isV3}{$phpNamespace}\\Processors\\ebTransport\\{else}ebtransport/{/if}Build',
 				id: transportId
 			},
 			success: function (response) {
@@ -105,7 +105,7 @@ Ext.apply(EB.model['{$gridClass}'].grid.overrides, {
 					Ext.Ajax.request({
 						url: {$phpNamespace}.config.connectorUrl,
 						params: { 
-							action: '{if $isV3}{$phpNamespace}\\Processors\\ebTransport\\{else}ebtransport/{/if}TpActions',
+							action: '{if $isV3}{$phpNamespace}\\Processors\\ebTransport\\{else}ebtransport/{/if}Actions',
 							id: transportId,
 							subAction: 'addResolver',
 							filename: text
@@ -141,7 +141,7 @@ Ext.apply(EB.model['{$gridClass}'].grid.overrides, {
 		Ext.Ajax.request({
 			url: {$phpNamespace}.config.connectorUrl,
 			params: { 
-				action: '{if $isV3}{$phpNamespace}\\Processors\\ebTransport\\{else}ebtransport/{/if}TpActions',
+				action: '{if $isV3}{$phpNamespace}\\Processors\\ebTransport\\{else}ebtransport/{/if}Actions',
 				id: transportId,
 				subAction: subAction
 			},
@@ -172,7 +172,7 @@ Ext.apply(EB.model['{$gridClass}'].grid.overrides, {
 		Ext.Ajax.request({
 			url: {$phpNamespace}.config.connectorUrl,
 			params: { 
-				action: '{if $isV3}{$phpNamespace}\\Processors\\ebTransport\\{else}ebtransport/{/if}TpBuild',
+				action: '{if $isV3}{$phpNamespace}\\Processors\\ebTransport\\{else}ebtransport/{/if}Build',
 				id: transportId,
 				backup_only: 'true'
 			},

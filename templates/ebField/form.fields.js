@@ -21,6 +21,14 @@ EB.model['{$gridClass}'].window.config =  {
 			value: '{$gridClass}'
 		},
 		{
+			xtype: 'label',
+            html: _('{$cmpNamespace}.{$gridClass|lower}.html_desc')
+		},
+		{
+			xtype: 'label',
+            html: '<hr style="width:60%;text-align:center;margin:20px auto;" />'
+		},
+		{
 			xtype: 'textfield',
 			name: 'object',
 			id: '{$gridClass|lower}-object',
@@ -131,13 +139,27 @@ EB.model['{$gridClass}'].window.config =  {
 						fieldLabel: _("{$cmpNamespace}.{$gridClass|lower}.index"),
 						name: 'indexDisplayValue',
 						id: '{$gridClass|lower}-index',
-						anchor: '90%'
+						anchor: '90%',
+						listeners: {
+							select: function(_this, record, index) {
+								// Map the attributes based on value
+								var map = {
+									BTREE: 'primary="false" unique="false"',
+									BTREE2: 'primary="false" unique="true"',
+									BTREE3: 'primary="true" unique="true"',
+									FULLTEXT: 'primary="false" unique="false"'
+								};
+								// Set the index attributes field
+								Ext.getCmp('{$gridClass|lower}-index_attributes')
+									.setValue(map[record.data.indexValue]);
+							}
+						}
 					},
 					{
 						xtype: 'textfield',
-						fieldLabel: _("{$cmpNamespace}.{$gridClass|lower}.attributes"),
-						name: 'attributes',
-						id: '{$gridClass|lower}-attributes',
+						fieldLabel: _("{$cmpNamespace}.{$gridClass|lower}.index_attributes"),
+						name: 'index_attributes',
+						id: '{$gridClass|lower}-index_attributes',
 						anchor: '90%'
 					},
 					{
@@ -152,7 +174,14 @@ EB.model['{$gridClass}'].window.config =  {
         },
 		{
 			xtype: 'label',
-			html: "<hr style='width:50%;text-align:center;margin:40px auto;' /><h3>" + _("{$cmpNamespace}.{$gridClass|lower}.less_common") + "</h3>"
+			html: "<hr style='width:50%;text-align:center;margin:40px auto;' /><h3 style='text-decoration:underline;'>" + _("{$cmpNamespace}.form.less_common") + "</h3>"
+		},
+		{
+			xtype: 'textfield',
+			fieldLabel: _("{$cmpNamespace}.{$gridClass|lower}.attributes"),
+			name: 'attributes',
+			id: '{$gridClass|lower}-attributes',
+			anchor: '90%'
 		},
 		{
 			xtype: 'textfield',
@@ -286,7 +315,7 @@ EB.constructExtendRegister(
 	MODx.combo.ComboBox
 );
 
-// Define the relationship type drop down
+// Define the index drop down
 EB.model['{$gridClass}'].window.indexSelectConfig = {
 
 	store: new Ext.data.ArrayStore({
@@ -294,8 +323,10 @@ EB.model['{$gridClass}'].window.indexSelectConfig = {
 		fields: ['indexValue', 'indexDisplay'],
 		data: [
 			["","-- None --"],
-			['BTREE', 'BTREE'],
-			['FULLTEXT', 'FULLTEXT']
+			['BTREE', 'BTREE ( primary="false" unique="false" )'],
+			['BTREE2', 'BTREE ( primary="false" unique="true" )'],
+			['BTREE3', 'BTREE ( primary="true" unique="true" )'],
+			['FULLTEXT', 'FULLTEXT ( primary="false" unique="false" )']
 		]
 	}),
 	mode: 'local',

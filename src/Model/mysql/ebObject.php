@@ -39,7 +39,7 @@ class ebObject extends \ExtraBuilder\Model\ebObject
                 'dbtype' => 'varchar',
                 'precision' => '100',
                 'phptype' => 'string',
-                'null' => false,
+                'null' => true,
                 'default' => '',
             ),
             'extends' => 

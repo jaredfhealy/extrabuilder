@@ -1,13 +1,11 @@
 <?php
 
-//v3 only
 namespace ExtraBuilder\Processors;
 
-use \MODX\Revolution\Processors\Model\UpdateProcessor;
+use MODX\Revolution\Processors\Model\UpdateProcessor;
 use xPDO\Om\xPDOQuery;
-//v3 only
 
-class ebUpdate extends UpdateProcessor {
+class Update extends UpdateProcessor {
     public $classKey;
     public $languageTopics = ['extrabuilder:default'];
     public $objectType = 'extrabuilder.';

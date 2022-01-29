@@ -6,7 +6,7 @@ EB.panel.config = {
 	cls: 'container',
 	items: [
 		{
-			html: _('{$cmpNamespace}.transport_home_title'),
+			html: {if !$isV3}'<h3 style="font-weight:normal;font-size:18px;">'+{/if}_('{$cmpNamespace}.transport_home_title'){if !$isV3}+'</h3>'{/if},
 			border: false,
 			cls: 'modx-page-header'
 		},

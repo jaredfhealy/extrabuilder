@@ -22,6 +22,7 @@ $xpdo_meta_map['ebField']= array (
     'attributes' => '',
     'generated' => '',
     'extra' => '',
+	'index_attributes' => '',
   ),
   'fieldMeta' => 
   array (
@@ -121,6 +122,14 @@ $xpdo_meta_map['ebField']= array (
       'null' => true,
       'default' => '',
     ),
+	'index_attributes' => 
+	array (
+		'dbtype' => 'varchar',
+		'precision' => '191',
+		'phptype' => 'string',
+		'null' => true,
+		'default' => '',
+	),
   ),
   'aggregates' => 
   array (

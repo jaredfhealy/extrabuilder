@@ -151,7 +151,11 @@ EB.model['{$gridClass}'].window.config = {
 					}
 				]
             }]
-        }
+        },
+		{
+			xtype: 'label',
+            html: '<br/><br/>'
+		}
 	]
 
 };

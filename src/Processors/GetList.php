@@ -1,15 +1,13 @@
 <?php
 
-//v3 only
 namespace ExtraBuilder\Processors;
-use ExtraBuilder\Extrabuilder;
+
 use MODX\Revolution\Processors\Model\GetListProcessor;
 use MODX\Revolution\Model\modCateogry;
 use xPDO\Om\xPDOQuery;
 use xPDO;
-//v3 only
 
-class ebGetList extends GetListProcessor {
+class GetList extends GetListProcessor {
     public $classKey;
     public $languageTopics = ['extrabuilder:default'];
     public $defaultSortField = 'id';
@@ -41,7 +39,7 @@ class ebGetList extends GetListProcessor {
 		else {
 			if (strpos($className, '\\') === false) {
 				// Set our class variable
-				$this->classKey = $this->eb->model[$className]['class'];
+				$this->classKey = $this->eb->getClass($className);
 				
 				// Set object type
 				$this->objectType .= $className;
@@ -67,20 +65,19 @@ class ebGetList extends GetListProcessor {
     public function prepareQueryBeforeCount(xPDOQuery $c)
     {
         // Start a new query condition
-		$qc = [];
+		$parentQc = [];
+		$searchQc = [];
 		$searchFields = [];
+		$parentId = "";
 		
 		// If class is not ebPackage
 		if ($this->isEbClass === true) {
-			if (!empty($this->eb->model[$this->className]['parentField'])) {
+			if ($parentField = $this->eb->model[$this->className]['parentField']) {
 				// Check for parentId
-				$parentId = $this->getProperty('parentId') ?: 0;
-				
-				// Get the parent field storing the id
-				$parentField = $this->eb->model[$this->className]['parentField'];
+				$parentId = $this->getProperty('parentId');
 
 				// Add parent to the query
-				$qc[$parentField.':='] = $parentId;
+				$parentQc[$parentField.':='] = $parentId;
 			}
 		}
 		
@@ -91,23 +88,33 @@ class ebGetList extends GetListProcessor {
 			// Handle the category query
 			if (!$this->isEbClass && $this->className == 'MODX\\Revolution\\modCategory') {
 				// Only return top level categories
-				$qc['parent:='] = 0;
+				$searchQc['parent:='] = 0;
 				$searchFields[] = 'category';
 			}
 			else {
 				// Dynamically build our criteria
 				$keyTemplate = "OR:%s:LIKE";
-				$qc = ['id:=' => "'".$search."'"];
+				$searchQc = ['id:=' => "'".$search."'"];
 
 				// Loop through the fields for this class
 				$fields = count($searchFields) > 0 ? $searchFields : $this->eb->model[$this->className]['searchFields'];
 				foreach ($fields as $field) {
 					// If this is not the ID field, add it to the search
 					if ($field !== 'id')
-						$qc[sprintf($keyTemplate, $field)] = '%'.$search.'%';
+						$searchQc[sprintf($keyTemplate, $field)] = '%'.$search.'%';
 				}
 			}
         }
+
+		// If we have a parent ID, add the queries together
+		// Creates query: <parentField> = <parentId> AND (field1 like %search% OR field2 like %search%...)
+		if ($parentId) {
+			$parentQc[] = $searchQc;
+			$qc = $parentQc;
+		}
+		else {
+			$qc = $searchQc;
+		}
 
 		if (count($qc) > 0) {
 			// Apply the criteria

@@ -42,9 +42,6 @@ class ExtrabuilderIndexManagerController extends modExtraManagerController
 			// Include our main class
 			@include_once MODX_CORE_PATH . "components/{$keyLower}/src/{$packageKey}.php";
 			$service = new $packageKey($this->modx);
-
-			// Also call add package since there is no bootstrap feature
-			$this->modx->addPackage("$keyLower.v2.model", MODX_CORE_PATH.'components/');
 		}
 		else {
 			$service = $this->modx->services->has($packageKey) ? $this->modx->services->get($packageKey) : "";
@@ -92,6 +89,7 @@ class ExtrabuilderIndexManagerController extends modExtraManagerController
 			"model"	=> $this->eb->model,
 			"loadApp" => $map[$loadApp],
 			"isV3" => $this->eb->isV3,
+			"version" => $this->eb->version,
 			"phpNamespace" => $this->eb->config['phpNamespace'],
 			"cmpNamespace" => $this->config['namespace']
 		];

@@ -25,6 +25,14 @@ Ext.apply(EB.model['{$gridClass}'].grid.config, {
 			}
 		},
 		{
+			header: _("{$cmpNamespace}.{$gridClass|lower}.precision"),
+			dataIndex: "precision",
+			sortable: true,
+			editor: {
+				xtype: "textfield"
+			}
+		},
+		{
 			header: _("{$cmpNamespace}.{$gridClass|lower}.phptype"),
 			dataIndex: "phptype",
 			sortable: true,
@@ -33,17 +41,17 @@ Ext.apply(EB.model['{$gridClass}'].grid.config, {
 			}
 		},
 		{
+			header: _("{$cmpNamespace}.{$gridClass|lower}.index"),
+			dataIndex: "index",
+			sortable: true
+		},
+		{
 			header: _("{$cmpNamespace}.sort_order"),
 			dataIndex: "sortorder",
 			sortable: true,
 			editor: {
 				xtype: "textfield"
 			}
-		},
-		{
-			header: "Actions",
-			dataIndex: 'actions',
-			sortable: false
 		}
 	]
 	

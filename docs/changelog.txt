@@ -1,4 +1,13 @@
-ExtraBuilder 2.0.0 alpha
+ExtraBuilder 2.0.0 rc2
+========================
+- Corrected directory capitalization to follow standard
+- Unified codebase for MODX 2/3 so both have the same ExtJS UI
+- Refactored and improved importing of existing schemas
+- Enhanced Index specification capabilities
+- Added MODX version dependent descriptions and logic where needed
+- Use MODX 3 to build packages for both MODX 2 & 3
+
+ExtraBuilder 2.0.0 rc1
 ========================
 - Complete rebuild for MODX 3
 - Complete UI rebuild using ExtJS instead of Vue

@@ -49,10 +49,15 @@ Ext.apply(EB.panel.overrides, {
 			var store = Ext.StoreMgr.get(nsLower + '-store-' + childClassLower);
 			if (store) {
 				// Update the parameters and reload
+				store.removeAll();
 				store.baseParams.parentId = selected.id;
 				store.lastOptions.params.parentId = selected.id;
 				store.lastOptions.params.start = 0;
+				store.lastOptions.params.search = "";
 				store.reload();
+
+				// Clear the search input
+				Ext.getCmp(nsLower + '-' + childClassLower + '-search-input').setValue("");
 			}
 
 			// Unhide the panel if its an existing hidden panel

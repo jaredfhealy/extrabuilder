@@ -18,28 +18,19 @@ if ($transport->xpdo) {
 				$modx->addPackage("$keyLower.v2.model", MODX_CORE_PATH.'components/');
 			}
 			else {
-				// Check for the bootstrap file and include it
-				if (file_exists($corePath.'bootstrap.php')) {
-					require $corePath.'bootstrap.php';
-				}
+				$modx->addPackage("$packageKey\Model", $namespace['path'] . 'src/', null, "{$packageKey}\\");
 			}
 
 			// Get the manager
 			$manager = $modx->getManager();
 
 			// Classes array is dynamically replaced on Transport build
-			$classes = $classesPlaceholder;
+			$classes3 = $classesPlaceholder3;
+			$classes2 = $classesPlaceholder2;
+			$classes = $isV3 ? $classes3 : $classes2;
 			
 			// Only proceed if the json has been replaced
 			foreach ($classes as $index => $class) {
-				// If this is not v3 check the classes
-				if(!$isV3) {
-					// If they are namespaced, remove them
-					if (strpos($class, '\\\\') !== false) {
-						$class = end(explode('\\\\', $class));
-					}
-				}
-				
 				// Remove the class/table
 				$manager->removeObjectContainer($class);
 			}

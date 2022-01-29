@@ -5,11 +5,11 @@ EB.model['{$gridClass}'].grid.config = {
 	classKey: "{$gridClass}",
 	url: {$phpNamespace}.config.connectorUrl,
 	baseParams: { 
-		action: "{if $isV3}{$phpNamespace}\\Processors\\{/if}ebGetList",
+		action: "{if $isV3}{$phpNamespace}\\Processors\\{/if}GetList",
 		classKey: "{$gridClass}",
 		parentId: 0
 	},
-	save_action: '{if $isV3}{$phpNamespace}\\Processors\\{/if}ebUpdate',
+	save_action: '{if $isV3}{$phpNamespace}\\Processors\\{/if}Update',
 	saveParams: {
 		classKey: "{$gridClass}",
 		parentId: 0
@@ -116,7 +116,7 @@ EB.model['{$gridClass}'].grid.overrides = {
             text: _("{$cmpNamespace}.delete_record_warning"),
             url: this.config.url,
             params: {
-                action: "{if $isV3}{$phpNamespace}\\Processors\\{/if}ebDelete",
+                action: "{if $isV3}{$phpNamespace}\\Processors\\{/if}Delete",
                 id: this.menu.record.id,
 				classKey: '{$gridClass}'
             },
@@ -195,7 +195,7 @@ EB.model['{$gridClass}'].window.create = {
 	y: 130,
 	modal: true,
 	baseParams: {
-		action: '{if $isV3}{$phpNamespace}\\Processors\\{/if}ebCreate',
+		action: '{if $isV3}{$phpNamespace}\\Processors\\{/if}Create',
 	},
 	fields: [
 		{
@@ -217,7 +217,7 @@ EB.model['{$gridClass}'].window.update = {
 	y: 130,
 	modal: true,
 	baseParams: {
-		action: '{if $isV3}{$phpNamespace}\\Processors\\{/if}ebUpdate',
+		action: '{if $isV3}{$phpNamespace}\\Processors\\{/if}Update',
 	},
 	fields: [
 		{

@@ -68,7 +68,7 @@ var schemaBtn = {
 			Ext.Ajax.request({
 				url: {$phpNamespace}.config.connectorUrl,
 				params: { 
-					action: '{if $isV3}{$phpNamespace}\\Processors\\ebPackage\\{else}ebpackage/{/if}PkgBuild',
+					action: '{if $isV3}{$phpNamespace}\\Processors\\ebPackage\\{else}ebpackage/{/if}Build',
 					id: EB.model.ebPackage.data.selectedId
 				},
 				success: function (response) {
@@ -98,7 +98,7 @@ var schemaBtn = {
 			Ext.Ajax.request({
 				url: {$phpNamespace}.config.connectorUrl,
 				params: { 
-					action: '{if $isV3}{$phpNamespace}\\Processors\\ebPackage\\{else}ebpackage/{/if}PkgBuild',
+					action: '{if $isV3}{$phpNamespace}\\Processors\\ebPackage\\{else}ebpackage/{/if}Build',
 					id: EB.model.ebPackage.data.selectedId,
 					write_schema: 'true'
 				},
@@ -164,7 +164,7 @@ Ext.apply(EB.model['{$gridClass}'].grid.overrides, {
 	previewOrBuild: function (key, value) {
 		// Set default params
 		var params = {
-			action: '{if $isV3}{$phpNamespace}\\Processors\\ebPackage\\{else}ebpackage/{/if}PkgBuild',
+			action: '{if $isV3}{$phpNamespace}\\Processors\\ebPackage\\{else}ebpackage/{/if}Build',
 			id: EB.model.ebPackage.data.selectedId,
 		};
 
