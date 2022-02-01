@@ -351,11 +351,11 @@ class ExtraBuilder
 		$packageConfig = [
 			'corePath' => '{core_path}components/{cmp_namespace}/',
 			'sourcePath' => '{core_path}components/{cmp_namespace}/src/',
-			'modelPath2' => '{core_path}components/{cmp_namespace}/v2/model/',
+			'modelPath2' => '{core_path}components/',
 			'modelPath3' => '{core_path}components/{cmp_namespace}/src/Model/',
 			'publicAssetsPath' => '{assets_path}components/{cmp_namespace}/',
 			'coreAssetsPath' => '{core_path}components/{cmp_namespace}/assets/',
-			'schemaPath2' => '{core_path}components/{cmp_namespace}/v2/schema/',
+			'schemaPath2' => '{core_path}components/',
 			'schemaPath3' => '{core_path}components/{cmp_namespace}/schema/',
 			'schemaFileName' => '{cmp_namespace}.mysql.schema.xml',
 			'schemaFilePath' => '',
@@ -385,8 +385,36 @@ class ExtraBuilder
 			$packageConfig['cmpNamespace'] = strtolower($packageConfig['phpNamespace']);
 		}
 		else {
+			// Set values from package
 			$packageConfig['phpNamespace'] = explode('.', $packageKey)[0];
 			$packageConfig['cmpNamespace'] = strtolower($packageConfig['phpNamespace']);
+
+			/**
+			 * Turn dot format into path: mycomp.model.mycomp = mycomp/model/mycomp/
+			 * Schema path will be one level down from model directory.
+			 * Ex: mycomp/model/schema
+			 * 
+			 * OR for v2 structure
+			 * Ex: mycomp/v2/schema
+			 */
+			// Split package to an array
+			$pathArr = explode('.', $packageKey);
+
+			// Loop through the parts
+			$count = count($pathArr);
+			for ($i = 0; $i < $count; $i++) {
+				// Add to the two paths
+				$packageConfig['modelPath2'] .= $pathArr[$i].'/';
+
+				// If not the final item, add to the schema path as well
+				if ($i != ($count - 1)) {
+					$packageConfig['schemaPath2'] .= $pathArr[$i].'/';
+				}
+				else {
+					// Add the final schema directory
+					$packageConfig['schemaPath2'] .= 'schema/';
+				}
+			}
 		}
 
 		// Map replacement keys for all paths

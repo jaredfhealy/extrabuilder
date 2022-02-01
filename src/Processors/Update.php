@@ -93,11 +93,9 @@ class Update extends UpdateProcessor {
 			$package = strtolower($package);
 			if (strpos($package, '.v2.model') === false) {
 				if (strpos($package, '.') === false) {
-					$package .= '.v2.model';
-				}
-				else {
-					// Get the beginning
-					$package = explode('.', $package)[0] . '.v2.model';
+					$msg = "For the standard build path, please use: $package.model.$package";
+					$msg .= "<br/>Or to prepare your model for moving to MODX3, isolate v2 models by using $package.v2.model";
+					$this->addFieldError('package_key', $msg);
 				}
 			}
 
