@@ -16,7 +16,8 @@ EB.panel.config = {
 			id: '{$cmpNamespace}-tabs',
 			defaults: { 
 				border: false, 
-				autoHeight: true 
+				autoHeight: true,
+				layout: 'anchor'
 			},
 			border: true,
 			listeners: {
