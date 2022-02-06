@@ -118,7 +118,7 @@ class ExtraBuilder
 		// For v2, if this is not the initial install, call add package
 		if (!$this->isV3 && $this->config['install'] === false) {
 			// Call add package since there is no bootstrap feature in v2
-			$result = $this->modx->addPackage("extrabuilder.v2.model", MODX_CORE_PATH.'components/');
+			$this->modx->addPackage("extrabuilder.v2.model", MODX_CORE_PATH.'components/');
 		}
 		
 		if ($this->config['install'] === false) {
@@ -362,6 +362,7 @@ class ExtraBuilder
 			'classPrefix' => '',
 			'cmpNamespace' => '',
 			'phpNamespace' => '',
+			'packageKey' => $package->get('package_key')
 		];
 
         // Get package key and paths

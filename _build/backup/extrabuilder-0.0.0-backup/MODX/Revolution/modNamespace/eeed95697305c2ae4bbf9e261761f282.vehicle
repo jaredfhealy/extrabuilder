@@ -1,0 +1,17 @@
+<?php return array (
+  'unique_key' => 'name',
+  'preserve_keys' => true,
+  'update_object' => true,
+  'resolve_files' => true,
+  'resolve_php' => true,
+  'namespace' => 'extrabuilder',
+  'resolve' => NULL,
+  'validate' => NULL,
+  'vehicle_class' => 'xPDO\\Transport\\xPDOObjectVehicle',
+  'guid' => 'd82eb273e0762c1c9354cd9621568888',
+  'package' => '',
+  'class' => 'MODX\\Revolution\\modNamespace',
+  'signature' => 'eeed95697305c2ae4bbf9e261761f282',
+  'native_key' => 'extrabuilder',
+  'object' => '{"name":"extrabuilder","path":"{core_path}components\\/extrabuilder\\/","assets_path":"{assets_path}components\\/extrabuilder\\/","id":null}',
+);

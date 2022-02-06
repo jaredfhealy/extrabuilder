@@ -9,15 +9,37 @@ if ($transport->xpdo) {
 		case xPDOTransport::ACTION_UNINSTALL:
 			// Store the core path and version
 			$packageKey = '{package_key}';
-			$keyLower = strtolower($packageKey);
-			$corePath = MODX_CORE_PATH . "components/{$keyLower}/";
 			$isV3 = $modx->getVersionData()['version'] >= 3;
 
 			// If this is 2.x
 			if (!$isV3) {
-				$modx->addPackage("$keyLower.v2.model", MODX_CORE_PATH.'components/');
+				$keyLower = strtolower($packageKey);
+				$keyPath = "";
+				$componentsDir = MODX_CORE_PATH."components/";
+				// If this doesn't have "dots"
+				if (strpos($packageKey, '.') === false) {
+					// Determine the directory path, try build from 3 cross-compatible path
+					$keyPath = "$keyLower/v2/model/";
+					$dir = $componentsDir.$keyPath;
+					
+					// If that's not valid
+					if (!is_dir($dir)) {
+						// Try the traditional path
+						$keyPath = "$keyLower/model/$keyLower";
+						$dir = $componentsDir.$keyPath;
+						if (!is_dir($dir)) {
+							return false;
+						}
+					}
+				}
+				if ($keyPath) {
+					// Convert keyPath to "dot" notation and overwrite
+					$packageKey = str_replace('/', '.', $keyPath);
+				}
+				$modx->addPackage($packageKey, MODX_CORE_PATH.'components/');
 			}
 			else {
+				// Use 3.x syntax
 				$modx->addPackage("$packageKey\Model", $namespace['path'] . 'src/', null, "{$packageKey}\\");
 			}
 

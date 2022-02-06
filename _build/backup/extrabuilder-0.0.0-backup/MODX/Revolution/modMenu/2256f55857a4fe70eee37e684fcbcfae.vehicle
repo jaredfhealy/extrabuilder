@@ -1,0 +1,15 @@
+<?php return array (
+  'preserve_keys' => true,
+  'update_object' => true,
+  'unique_key' => 'text',
+  'namespace' => 'extrabuilder',
+  'resolve' => NULL,
+  'validate' => NULL,
+  'vehicle_class' => 'xPDO\\Transport\\xPDOObjectVehicle',
+  'guid' => '4d720ced02fddfd1c86bff28eeabeb05',
+  'package' => '',
+  'class' => 'MODX\\Revolution\\modMenu',
+  'signature' => '2256f55857a4fe70eee37e684fcbcfae',
+  'native_key' => 'extrabuilder.menu.transport',
+  'object' => '{"text":"extrabuilder.menu.transport","parent":"extrabuilder.menu.main","action":"index","description":"extrabuilder.menu.transport_desc","icon":"","menuindex":1,"params":"&loadapp=transport-builder","handler":"","permissions":"","namespace":"extrabuilder"}',
+);

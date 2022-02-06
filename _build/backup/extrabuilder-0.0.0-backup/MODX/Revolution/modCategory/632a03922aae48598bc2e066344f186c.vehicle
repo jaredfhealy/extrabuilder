@@ -6,16 +6,16 @@
   array (
     'Snippets' => 
     array (
-      'ab01b78579ed18152e46199c42cfe97e' => 
+      '3deab8cf32bfba355427643b8189386b' => 
       array (
         'unique_key' => 'name',
         'preserve_keys' => false,
         'update_object' => true,
         'class' => 'MODX\\Revolution\\modSnippet',
         'object' => '{"id":0,"source":1,"property_preprocess":0,"name":"getAppHtml","description":"","editor_type":0,"category":5,"cache_type":0,"snippet":"\\/\\/ Get query parameters\\n$file = $_GET[\'file\'];\\n\\nif (!empty($file)) {\\n    \\/\\/ Get the static HTML\\n    $html = file_get_contents(MODX_CORE_PATH . \\"components\\/extrabuilder\\/assets\\/$file.html\\");\\n    \\n    \\/\\/ Modify the paths\\n    $html = str_replace(\'css\\/\', \'assets\\/components\\/extrabuilder\\/css\\/\', $html);\\n    $html = str_replace(\'js\\/\', \'assets\\/components\\/extrabuilder\\/js\\/\', $html);\\n    \\n    \\/\\/ Add on the site id for connectors\\n    $html .= \'<script>siteId = \\"\'. $modx->user->getUserToken(\'mgr\') . \'\\";\'.PHP_EOL;\\n    \\n    \\/\\/ Add on the config JS contents\\n    $html .= file_get_contents(MODX_CORE_PATH . \\"components\\/extrabuilder\\/templates\\/$file.js\\").\'<\\/script>\';\\n    $html = str_replace(\'[[+connector_url]]\', MODX_ASSETS_URL.\'components\\/extrabuilder\\/connector.php\', $html);\\n    \\n    \\/\\/ Replace VueJS with the dev version\\n    $html = str_replace(\'vuejs-2.6.12.min.js\', \'vuejs-2.6.12.dev.js\', $html);\\n}\\n\\n\\/\\/ Return the HTML\\nreturn $html;","locked":0,"properties":"a:0:{}","moduleguid":"","static":0,"static_file":"","content":"\\/\\/ Get query parameters\\n$file = $_GET[\'file\'];\\n\\nif (!empty($file)) {\\n    \\/\\/ Get the static HTML\\n    $html = file_get_contents(MODX_CORE_PATH . \\"components\\/extrabuilder\\/assets\\/$file.html\\");\\n    \\n    \\/\\/ Modify the paths\\n    $html = str_replace(\'css\\/\', \'assets\\/components\\/extrabuilder\\/css\\/\', $html);\\n    $html = str_replace(\'js\\/\', \'assets\\/components\\/extrabuilder\\/js\\/\', $html);\\n    \\n    \\/\\/ Add on the site id for connectors\\n    $html .= \'<script>siteId = \\"\'. $modx->user->getUserToken(\'mgr\') . \'\\";\'.PHP_EOL;\\n    \\n    \\/\\/ Add on the config JS contents\\n    $html .= file_get_contents(MODX_CORE_PATH . \\"components\\/extrabuilder\\/templates\\/$file.js\\").\'<\\/script>\';\\n    $html = str_replace(\'[[+connector_url]]\', MODX_ASSETS_URL.\'components\\/extrabuilder\\/connector.php\', $html);\\n    \\n    \\/\\/ Replace VueJS with the dev version\\n    $html = str_replace(\'vuejs-2.6.12.min.js\', \'vuejs-2.6.12.dev.js\', $html);\\n}\\n\\n\\/\\/ Return the HTML\\nreturn $html;"}',
-        'guid' => 'b0bad220e889c79ab71546872189051c',
+        'guid' => '4dee35a755c9eb5d22d6ce2f3914e553',
         'native_key' => 0,
-        'signature' => '8433b8c0a7616342864aca3ac2d9415a',
+        'signature' => 'e172128940490968b470d729332ad90a',
       ),
     ),
   ),
@@ -92,14 +92,14 @@
       ),
     ),
   ),
-  'namespace' => 'ExtraBuilder',
+  'namespace' => 'extrabuilder',
   'resolve' => NULL,
   'validate' => NULL,
   'vehicle_class' => 'xPDO\\Transport\\xPDOObjectVehicle',
-  'guid' => 'a8558702beecc0da6e400392ed572140',
+  'guid' => '25d67384c67d62612aba5ad336c72176',
   'package' => '',
   'class' => 'MODX\\Revolution\\modCategory',
-  'signature' => '331945abd942d15884898509f584d84b',
+  'signature' => '632a03922aae48598bc2e066344f186c',
   'native_key' => NULL,
   'object' => '{"id":null,"parent":0,"category":"ExtraBuilder","rank":0}',
 );

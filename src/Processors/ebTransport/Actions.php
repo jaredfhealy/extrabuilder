@@ -34,6 +34,12 @@ class Actions extends Processor
 	 */
 	public $packageConfig = [];
 
+	/**
+	 * Cache Manager
+	 * @var object $cacheManager
+	 */
+	public $cacheManager;
+
     /**
      * Override the process function
      *
@@ -70,10 +76,9 @@ class Actions extends Processor
 		// Determine the resolvers directory and paths
         $this->resolversDir = $this->packageConfig['corePath'] . '_build/resolvers/';
 
-        // Check if the directory exists
-        if (!is_dir($this->resolversDir)) {
-            mkdir($this->resolversDir, 0775, true);
-        }
+        // Create the directory if it doesn't exist
+		$this->cacheManager = $this->modx->getCacheManager();
+		$this->cacheManager->writeTree($this->resolversDir);
 
         // Determine the action
 		$action = $this->getProperty('subAction');
@@ -134,7 +139,7 @@ class Actions extends Processor
 	public function addTablesResolver () 
 	{
 		// Determine the tables resolver source path
-        $tablesResolver = $this->eb->config['resolversPath'] . 'tables.php';
+        $tablesResolver = $this->eb->config['resolversPath'] . '_tables' . $this->eb->version . '.php';
         if (is_file($tablesResolver)) {
 			// Define the destination file path
             $destinationFile = $this->resolversDir . 'tables.php';
@@ -169,7 +174,7 @@ class Actions extends Processor
         $removeTablesResolver = $this->eb->config['resolversPath'] . 'uninstall/remove_tables.php';
         if (is_file($removeTablesResolver)) {
 			// Define the destination file path
-            $destinationFile = $this->resolversDir . 'remove_tables.php';
+            $destinationFile = $this->resolversDir . 'uninstall/remove_tables.php';
 
 			// If the file doesn't exist yet
             if (!is_file($destinationFile)) {

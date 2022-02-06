@@ -1,0 +1,15 @@
+<?php return array (
+  'preserve_keys' => true,
+  'update_object' => true,
+  'unique_key' => 'text',
+  'namespace' => 'extrabuilder',
+  'resolve' => NULL,
+  'validate' => NULL,
+  'vehicle_class' => 'xPDO\\Transport\\xPDOObjectVehicle',
+  'guid' => 'b522542837f262e5e1a6ef6fed357777',
+  'package' => '',
+  'class' => 'MODX\\Revolution\\modMenu',
+  'signature' => '45ee79d7bc0c6246f525c1c48b475476',
+  'native_key' => 'extrabuilder.menu.package',
+  'object' => '{"text":"extrabuilder.menu.package","parent":"extrabuilder.menu.main","action":"index","description":"extrabuilder.menu.package_desc","icon":"","menuindex":0,"params":"&loadapp=package-builder","handler":"","permissions":"","namespace":"extrabuilder"}',
+);

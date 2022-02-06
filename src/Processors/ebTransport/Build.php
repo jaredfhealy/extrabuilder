@@ -23,10 +23,10 @@ class Build extends Processor
     protected $builder;
 
     /** @var xPDOTransport */
-    protected $package;
+    protected $transport;
 
-	/** @var $ebPackage */
-	public $ebPackage;
+	/** @var object ExtraBuilder\Model\ebPackage $ebPackage */
+	public $package;
 
 	/** @var $ebTransport */
 	public $ebTransport;
@@ -37,7 +37,7 @@ class Build extends Processor
 	/**
 	 * Main category for package
 	 * 
-	 * @var boolean $category 
+	 * @var object $category 
 	 */
 	public $category;
 
@@ -125,9 +125,8 @@ class Build extends Processor
 		 * it doesn't add much value and is just a wrapper that adds
 		 * an autoinstall class feature.
 		 * 
-		 * We'll use our namespace object to package in our file resolvers.
-		 */ 
-		// Not using the modPackageBuilder->registerNamespace 
+		 * We'll use our namespace object to package in our install/update file resolvers.
+		 */
 		$this->addNamespaceWithResolvers($nsObj);
 
 		// Add the menues
@@ -139,7 +138,17 @@ class Build extends Processor
 		// Define the main category and element attributes
 		$this->defineAttributes();
 
-		// Add main category
+		/**
+		 * Add main category first so that uninstall resolvers run before files are removed
+		 * 
+		 * MODX reverses the vehicle array found in the build manifest and then uninstalls
+		 * each vehicle. The vehicle objects are handled first like file resolvers, then
+		 * script resolvers run after.
+		 * 
+		 * If uninstall resolvers need your object model, the files are gone before it runs
+		 * if the resovler is attached to the namespace vehicle. Attaching uninstall resolvers
+		 * to the category and adding it last ensures it runs first before files are removed.
+		 */
 		$this->addCategoryWithElements();
 
 		// Add the package attributes
@@ -224,7 +233,7 @@ class Build extends Processor
 	/**
 	 * Add the namespace and any file resolvers
 	 * 
-	 * @param array $nsObj The namespace object
+	 * @param object $nsObj The namespace object
 	 */
 	public function addNamespaceWithResolvers($nsObj)
 	{
@@ -235,9 +244,6 @@ class Build extends Processor
 		// Add file and build resolvers if this is NOT a backupOnly
 		$resolvers = [];
         if (!$this->backupOnly) {
-            // Add Uninstall resolvers: These execute before file resolvers remove all files
-			$resolvers = array_merge($resolvers, $this->getBuildResolvers('uninstall'));
-
             // Add file resolvers to the category vehicle
 			$resolvers = array_merge($resolvers, $this->getFileResolvers());
 
@@ -257,9 +263,7 @@ class Build extends Processor
 		]);
 		
 		// Set the resolvers
-		foreach ($resolvers as $resolver) {
-			array_push($v->resolvers, $resolver);
-		}
+		$v->resolvers = $resolvers;
 
 		// Put the vehicle
 		$this->builder->putVehicle($v);
@@ -420,9 +424,14 @@ class Build extends Processor
 			$filePath = $resolverPath . $result;
 
             // Handle possible replacements and get source contents
+			// If the packageKey has "." we're building a package in 2.x
+			$packageKey = $this->packageConfig['phpNamespace'];
+			if (strpos($this->packageConfig['packageKey'], '.') !== false) {
+				$packageKey = $this->packageConfig['packageKey'];
+			}
             $contents = str_replace(
                 '{package_key}',
-                $this->packageConfig['phpNamespace'],
+                $packageKey,
                 file_get_contents($sourceFilePath)
             );
             $contents = str_replace(
@@ -573,8 +582,25 @@ class Build extends Processor
             }
         }
 
+		// Attach uninstall resolvers to the category. Files are removed with the namespace
+		// But we need the files to be able to uninstall tables.
+		// Add Uninstall resolvers: These execute before file resolvers remove all files
+		$resolvers = $this->getBuildResolvers('uninstall');
+		if (count($resolvers) > 0) {
+			// Set the attributes to resolve php files
+			$this->categoryAttr[xPDOTransport::RESOLVE_FILES] = true;
+			$this->categoryAttr[xPDOTransport::RESOLVE_PHP] = true;
+		}
+
 		// Create the vehicle and add it
 		$v = $this->builder->createVehicle($tempCategory, $this->categoryAttr);
+
+		// If we have resolvers
+		if (count($resolvers) > 0) {
+			$v->resolvers = $resolvers;
+		}
+
+		// Add the vehicle
 		$this->builder->putVehicle($v);
 		unset($v, $tempCategory);
     }
@@ -818,8 +844,8 @@ class Build extends Processor
 			}
 		}
 
-		// Also replace any blocks wrapped in //v3 only
-		$key = '//v3 only';
+		// Also replace any blocks wrapped in "v3 only" comments
+		$key = '//'.'v3 only';
 		$start = strpos($contents, $key);
 		if ($start !== false) {
 			$end = strpos($contents, $key, $start + strlen($key));
