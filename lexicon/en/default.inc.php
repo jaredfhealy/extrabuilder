@@ -77,9 +77,9 @@ $_lang["extrabuilder.ebpackage.sortorder"] = "Sort Order";
 $_lang["extrabuilder.ebpackage.version"] = "Schema Version (Default for MODX-3: 3.0)";
 $_lang["extrabuilder.ebpackage.version_short"] = "Schema Version";
 $_lang["extrabuilder.ebpackage.core_path"] = "Core Path Override";
-$_lang["extrabuilder.ebpackage.core_path_desc"] = "Allowed placeholders: {base_path}, {core_path}, {assets_path}, {cmp_namespace}, {php_namespace}";
+$_lang["extrabuilder.ebpackage.core_path_desc"] = "Example: {base_path}project3/core/ --OR-- {base_path}mycomponent/core/<br/>Allowed placeholders: {base_path}, {core_path}, {assets_path}, {cmp_namespace}, {php_namespace}";
 $_lang["extrabuilder.ebpackage.assets_path"] = "Assets Path Override";
-$_lang["extrabuilder.ebpackage.assets_path_desc"] = "Allowed placeholders: {base_path}, {core_path}, {assets_path}, {cmp_namespace}, {php_namespace}";
+$_lang["extrabuilder.ebpackage.assets_path_desc"] = "Example: {base_path}project3/assets/  --OR-- {base_path}mycomponent/assets/<br/>Allowed placeholders: {base_path}, {core_path}, {assets_path}, {cmp_namespace}, {php_namespace}";
 $_lang["extrabuilder.ebpackage.lexicon"] = "Option: Generate Starting Lexicon File";
 
 // Objects: General

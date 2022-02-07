@@ -1,3 +1,11 @@
+ExtraBuilder 2.0.0 rc6
+========================
+- Enhanced core/asset path override functionality
+- Removed dependency on symlink and instead moved to syncing the assets directory
+- Should work better with other extras and allow more flexibility
+- Bugfix: Transport uninstall for MODX 3 corrected
+- Corrected ExtJS panel to use anchor layout (Thanks Murray!)
+
 ExtraBuilder 2.0.0 rc5
 ========================
 - Corrected MODX 2 bug for uninstall resolvers removing tables.

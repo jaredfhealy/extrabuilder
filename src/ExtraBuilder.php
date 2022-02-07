@@ -9,7 +9,9 @@ use ExtraBuilder\Model\ebField;
 use ExtraBuilder\Model\ebRel;
 use ExtraBuilder\Model\ebTransport;
 use MODX\Revolution\modX;
-use xPDO;
+use xPDO\xPDO;
+use RecursiveDirectoryIterator;
+use RecursiveIteratorIterator;
 //v3 only
 
 /**
@@ -349,12 +351,17 @@ class ExtraBuilder
 	{
 		// Default paths
 		$packageConfig = [
+			'dirStructureType' => 'core',
 			'corePath' => '{core_path}components/{cmp_namespace}/',
+			'projectRoot' => '{project_root}',
+			'buildPath' => '{project_root}_build/',
+			'resolversPath' => '{project_root}_build/resolvers/',
+			'distPath' => '{project_root}_dist/',
 			'sourcePath' => '{core_path}components/{cmp_namespace}/src/',
 			'modelPath2' => '{core_path}components/',
 			'modelPath3' => '{core_path}components/{cmp_namespace}/src/Model/',
 			'publicAssetsPath' => '{assets_path}components/{cmp_namespace}/',
-			'coreAssetsPath' => '{core_path}components/{cmp_namespace}/assets/',
+			'coreAssetsPath' => '{core_path}components/{cmp_namespace}/_assets/',
 			'schemaPath2' => '{core_path}components/',
 			'schemaPath3' => '{core_path}components/{cmp_namespace}/schema/',
 			'schemaFileName' => '{cmp_namespace}.mysql.schema.xml',
@@ -362,19 +369,11 @@ class ExtraBuilder
 			'classPrefix' => '',
 			'cmpNamespace' => '',
 			'phpNamespace' => '',
-			'packageKey' => $package->get('package_key')
+			'packageKey' => trim($package->get('package_key'), '\\'),
 		];
 
         // Get package key and paths
         $packageKey = $package->get('package_key');
-
-		// Set the core and assets paths if different
-        if ($corePath = $package->get('core_path')) {
-			$packageConfig['corePath'] = $corePath;
-		}
-        if ($assetsPath = $package->get('assets_path')) {
-			$packageConfig['publicAssetsPath'] = $assetsPath;
-		}
 
 		// Set the build namespace for v3
 		if ($this->isV3) {
@@ -418,20 +417,46 @@ class ExtraBuilder
 			}
 		}
 
-		// Map replacement keys for all paths
-		$mapKeys = [
+		// Default paths
+		$mapDefault = [
 			'core_path' => MODX_CORE_PATH,
 			'base_path' => MODX_BASE_PATH,
 			'assets_path' => MODX_ASSETS_PATH,
-			'package_key' => $packageKey,
 			'cmp_namespace' => $packageConfig['cmpNamespace'],
 			'php_namespace' => $packageConfig['phpNamespace']
 		];
+
+		// Set any overrides if different from default
+		$mapKeys = [];
+
+		// Check for core path override
+        if ($corePath = $package->get('core_path')) {
+			$mapKeys['core_path'] = $this->replaceValues($mapDefault, $corePath);
+			$mapKeys['project_root'] = str_replace('core/', '', $mapKeys['core_path']);
+			$packageConfig['dirStructureType'] = 'custom';
+		}
+		else {
+			$mapKeys['project_root'] = $this->replaceValues($mapDefault, $packageConfig['corePath']);
+		}
+
+		// Also get asset path override if set
+        if ($assetsPath = $package->get('assets_path')) {
+			$mapKeys['assets_path'] = $this->replaceValues($mapDefault, $assetsPath);
+
+			// If path override is present assume it's web accessible
+			// Public and core are then the same path
+			$packageConfig['coreAssetsPath'] = $packageConfig['publicAssetsPath']."";
+		}
+		
+		// Now merge in the defaults
+		$mapKeys = array_merge($mapDefault, $mapKeys);
 
 		// Loop through the packageConfig and replace values for each
 		foreach ($packageConfig as $key => $tpl) {
 			$packageConfig[$key] = $this->replaceValues($mapKeys, $tpl);
 		}
+
+		// Set final values
 		$packageConfig['schemaFilePath'] = $packageConfig['schemaPath'.$this->version] . $packageConfig['schemaFileName'];
 
 		// Return the final config
@@ -459,7 +484,7 @@ class ExtraBuilder
 
 	/**
 	 * Replace placeholders with values
-	 * @param array $objectArray The array object
+	 * @param array $objectArray The array object with key:value to replace from
 	 * @param string $stringTpl String with placeholders {fieldname}
 	 * @return string Template value with placeholders replaced
 	 */
@@ -516,8 +541,7 @@ class ExtraBuilder
 	{
 		// If the file is invalid
 		if (!is_file($filePath)) {
-			$this->modx->log(xPDO::LOG_LEVEL_INFO, "replaceOnV2Install: $dir");
-			$this->logError("File is invalid: $file");
+			$this->logError("File is invalid: $filePath");
 			return;
 		}
 

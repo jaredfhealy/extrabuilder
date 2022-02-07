@@ -1,0 +1,105 @@
+<?php return array (
+  'unique_key' => 'category',
+  'preserve_keys' => false,
+  'update_object' => true,
+  'related_objects' => 
+  array (
+    'Snippets' => 
+    array (
+      '17be4cc111df94cc2578afe30049d70a' => 
+      array (
+        'unique_key' => 'name',
+        'preserve_keys' => false,
+        'update_object' => true,
+        'class' => 'MODX\\Revolution\\modSnippet',
+        'object' => '{"id":0,"source":1,"property_preprocess":0,"name":"getAppHtml","description":"","editor_type":0,"category":2,"cache_type":0,"snippet":"\\/\\/ Get query parameters\\n$file = $_GET[\'file\'];\\n\\nif (!empty($file)) {\\n    \\/\\/ Get the static HTML\\n    $html = file_get_contents(MODX_CORE_PATH . \\"components\\/extrabuilder\\/assets\\/$file.html\\");\\n    \\n    \\/\\/ Modify the paths\\n    $html = str_replace(\'css\\/\', \'assets\\/components\\/extrabuilder\\/css\\/\', $html);\\n    $html = str_replace(\'js\\/\', \'assets\\/components\\/extrabuilder\\/js\\/\', $html);\\n    \\n    \\/\\/ Add on the site id for connectors\\n    $html .= \'<script>siteId = \\"\'. $modx->user->getUserToken(\'mgr\') . \'\\";\'.PHP_EOL;\\n    \\n    \\/\\/ Add on the config JS contents\\n    $html .= file_get_contents(MODX_CORE_PATH . \\"components\\/extrabuilder\\/templates\\/$file.js\\").\'<\\/script>\';\\n    $html = str_replace(\'[[+connector_url]]\', MODX_ASSETS_URL.\'components\\/extrabuilder\\/connector.php\', $html);\\n    \\n    \\/\\/ Replace VueJS with the dev version\\n    $html = str_replace(\'vuejs-2.6.12.min.js\', \'vuejs-2.6.12.dev.js\', $html);\\n}\\n\\n\\/\\/ Return the HTML\\nreturn $html;","locked":0,"properties":"a:0:{}","moduleguid":"","static":0,"static_file":"","content":"\\/\\/ Get query parameters\\n$file = $_GET[\'file\'];\\n\\nif (!empty($file)) {\\n    \\/\\/ Get the static HTML\\n    $html = file_get_contents(MODX_CORE_PATH . \\"components\\/extrabuilder\\/assets\\/$file.html\\");\\n    \\n    \\/\\/ Modify the paths\\n    $html = str_replace(\'css\\/\', \'assets\\/components\\/extrabuilder\\/css\\/\', $html);\\n    $html = str_replace(\'js\\/\', \'assets\\/components\\/extrabuilder\\/js\\/\', $html);\\n    \\n    \\/\\/ Add on the site id for connectors\\n    $html .= \'<script>siteId = \\"\'. $modx->user->getUserToken(\'mgr\') . \'\\";\'.PHP_EOL;\\n    \\n    \\/\\/ Add on the config JS contents\\n    $html .= file_get_contents(MODX_CORE_PATH . \\"components\\/extrabuilder\\/templates\\/$file.js\\").\'<\\/script>\';\\n    $html = str_replace(\'[[+connector_url]]\', MODX_ASSETS_URL.\'components\\/extrabuilder\\/connector.php\', $html);\\n    \\n    \\/\\/ Replace VueJS with the dev version\\n    $html = str_replace(\'vuejs-2.6.12.min.js\', \'vuejs-2.6.12.dev.js\', $html);\\n}\\n\\n\\/\\/ Return the HTML\\nreturn $html;"}',
+        'guid' => '20f5793c9d8fded9a630f2cdb91b7793',
+        'native_key' => 0,
+        'signature' => 'a6af6cb182502809e5713aa47272ca01',
+      ),
+    ),
+  ),
+  'related_object_attributes' => 
+  array (
+    'Snippets' => 
+    array (
+      'unique_key' => 'name',
+      'preserve_keys' => false,
+      'update_object' => true,
+    ),
+    'Chunks' => 
+    array (
+      'unique_key' => 'name',
+      'preserve_keys' => false,
+      'update_object' => true,
+    ),
+    'PropertySets' => 
+    array (
+      'unique_key' => 'name',
+      'preserve_keys' => false,
+      'update_object' => true,
+    ),
+    'TemplateVars' => 
+    array (
+      'unique_key' => 'name',
+      'preserve_keys' => false,
+      'update_object' => true,
+    ),
+    'Templates' => 
+    array (
+      'unique_key' => 'templatename',
+      'preserve_keys' => false,
+      'update_object' => true,
+    ),
+    'Children' => 
+    array (
+      'unique_key' => 
+      array (
+        0 => 'parent',
+        1 => 'category',
+      ),
+      'preserve_keys' => false,
+      'update_object' => true,
+    ),
+    'Plugins' => 
+    array (
+      'unique_key' => 'name',
+      'preserve_keys' => false,
+      'update_object' => true,
+      'related_objects' => true,
+      'related_object_attributes' => 
+      array (
+        'PluginEvents' => 
+        array (
+          'unique_key' => 
+          array (
+            0 => 'pluginid',
+            1 => 'event',
+          ),
+          'preserve_keys' => true,
+          'update_object' => true,
+          'related_objects' => true,
+          'related_object_attributes' => 
+          array (
+            'PropertySets' => 
+            array (
+              'unique_key' => 'name',
+              'preserve_keys' => false,
+              'update_object' => true,
+            ),
+          ),
+        ),
+      ),
+    ),
+  ),
+  'namespace' => 'extrabuilder',
+  'resolve' => NULL,
+  'validate' => NULL,
+  'vehicle_class' => 'xPDO\\Transport\\xPDOObjectVehicle',
+  'guid' => 'd0d6eea1960c9c94caef5d68524526f8',
+  'package' => '',
+  'class' => 'MODX\\Revolution\\modCategory',
+  'signature' => '38b5b071688767b682a5b3471ba1f82e',
+  'native_key' => NULL,
+  'object' => '{"id":null,"parent":0,"category":"ExtraBuilder","rank":0}',
+);

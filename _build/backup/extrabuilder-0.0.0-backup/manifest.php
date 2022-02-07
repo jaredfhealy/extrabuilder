@@ -2,9 +2,6 @@
   'manifest-version' => '1.1',
   'manifest-attributes' => 
   array (
-    'license' => 'Backup',
-    'readme' => 'Backup',
-    'changelog' => 'Backup',
   ),
   'manifest-vehicles' => 
   array (
@@ -13,9 +10,9 @@
       'vehicle_package' => '',
       'vehicle_class' => 'xPDO\\Transport\\xPDOObjectVehicle',
       'class' => 'MODX\\Revolution\\modNamespace',
-      'guid' => 'd82eb273e0762c1c9354cd9621568888',
+      'guid' => '1809d5557618c36fde3c36e8e582f07f',
       'native_key' => 'extrabuilder',
-      'filename' => 'MODX/Revolution/modNamespace/eeed95697305c2ae4bbf9e261761f282.vehicle',
+      'filename' => 'MODX/Revolution/modNamespace/cfd17a632dcd578a0dbdddeba75beac9.vehicle',
       'namespace' => 'extrabuilder',
     ),
     1 => 
@@ -23,9 +20,9 @@
       'vehicle_package' => '',
       'vehicle_class' => 'xPDO\\Transport\\xPDOObjectVehicle',
       'class' => 'MODX\\Revolution\\modMenu',
-      'guid' => '10df9e40e9ef872645234233419a8c48',
+      'guid' => '17251fa4f264f6f18dcdf45ead113e69',
       'native_key' => 'extrabuilder.menu.main',
-      'filename' => 'MODX/Revolution/modMenu/71e32d7d46786937f76e6348806458d9.vehicle',
+      'filename' => 'MODX/Revolution/modMenu/43056232b4037f4e5638f2176b0f7b47.vehicle',
       'namespace' => 'extrabuilder',
     ),
     2 => 
@@ -33,9 +30,9 @@
       'vehicle_package' => '',
       'vehicle_class' => 'xPDO\\Transport\\xPDOObjectVehicle',
       'class' => 'MODX\\Revolution\\modMenu',
-      'guid' => 'b522542837f262e5e1a6ef6fed357777',
+      'guid' => 'a5789df03ec18d55c9688d7ef15754ca',
       'native_key' => 'extrabuilder.menu.package',
-      'filename' => 'MODX/Revolution/modMenu/45ee79d7bc0c6246f525c1c48b475476.vehicle',
+      'filename' => 'MODX/Revolution/modMenu/5da9e4d47498ebb64432184189d81af4.vehicle',
       'namespace' => 'extrabuilder',
     ),
     3 => 
@@ -43,9 +40,9 @@
       'vehicle_package' => '',
       'vehicle_class' => 'xPDO\\Transport\\xPDOObjectVehicle',
       'class' => 'MODX\\Revolution\\modMenu',
-      'guid' => '4d720ced02fddfd1c86bff28eeabeb05',
+      'guid' => 'a6b275512ce2327bd8f1f29f76b6eacc',
       'native_key' => 'extrabuilder.menu.transport',
-      'filename' => 'MODX/Revolution/modMenu/2256f55857a4fe70eee37e684fcbcfae.vehicle',
+      'filename' => 'MODX/Revolution/modMenu/4986048589c7214b9bcffba0fb4c6868.vehicle',
       'namespace' => 'extrabuilder',
     ),
     4 => 
@@ -53,9 +50,9 @@
       'vehicle_package' => '',
       'vehicle_class' => 'xPDO\\Transport\\xPDOObjectVehicle',
       'class' => 'MODX\\Revolution\\modCategory',
-      'guid' => '25d67384c67d62612aba5ad336c72176',
+      'guid' => 'd0d6eea1960c9c94caef5d68524526f8',
       'native_key' => NULL,
-      'filename' => 'MODX/Revolution/modCategory/632a03922aae48598bc2e066344f186c.vehicle',
+      'filename' => 'MODX/Revolution/modCategory/38b5b071688767b682a5b3471ba1f82e.vehicle',
       'namespace' => 'extrabuilder',
     ),
   ),
