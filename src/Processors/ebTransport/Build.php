@@ -118,6 +118,15 @@ class Build extends Processor
 			return $this->failure("Unable to get Namespace object, make sure it exists: ".$this->packageConfig['cmpNamespace']);
 		}
 
+		// If we're using the core path structure, copy from public assets to core assets prior to building the transport
+		if ($this->packageConfig['dirStructureType'] === 'core') {
+			// Check if public exists
+			if (is_dir($this->packageConfig['publicAssetsPath'])) {
+				// Copy from public to core
+				$this->cacheManager->copyTree($this->packageConfig['publicAssetsPath'], $this->packageConfig['coreAssetsPath']);
+			}
+		}
+
 		/**
 		 * Register the namespace for this package
 		 * 
@@ -139,11 +148,9 @@ class Build extends Processor
 		$this->defineAttributes();
 
 		/**
-		 * Add main category first so that uninstall resolvers run before files are removed
-		 * 
-		 * MODX reverses the vehicle array found in the build manifest and then uninstalls
-		 * each vehicle. The vehicle objects are handled first like file resolvers, then
-		 * script resolvers run after.
+		 * During uninstall, MODX reverses the vehicle array in the manifest and then
+		 * uninstalls each vehicle. The vehicle objects are handled first like file resolvers,
+		 * then script resolvers run after.
 		 * 
 		 * If uninstall resolvers need your object model, the files are gone before it runs
 		 * if the resovler is attached to the namespace vehicle. Attaching uninstall resolvers
@@ -158,8 +165,9 @@ class Build extends Processor
         if ($this->builder->pack()) {
 			// If not a backup only, we should have a _dist directory
 			if (!$this->backupOnly) {
+				// Delete the "_dist" directory created during our two-step build
 				// Backup only creates the elements which doesn't need the _dist folder
-				$this->cacheManager->deleteTree("{$this->packageConfig['corePath']}_dist/", [
+				$this->cacheManager->deleteTree($this->packageConfig['distPath'], [
 					'deleteTop' => true,
 					'skipDirs' => false,
 					'extensions' => '' 
@@ -216,14 +224,14 @@ class Build extends Processor
 		// If backupOnly set different directories and naming
         if ($this->backupOnly !== true) {
 			// Set the destination directory
-			$this->builder->directory = $this->packageConfig['corePath'] . '_build/_packages/';
+			$this->builder->directory = $this->packageConfig['buildPath'] . '_packages/';
 
 			// Create and return the package
 			return $this->builder->createPackage($this->packageConfig['cmpNamespace'], $version, $release);
         } 
 		else {
 			// Set the backup directory
-			$this->builder->directory = $this->packageConfig['corePath'] . '_build/backup/';
+			$this->builder->directory = $this->packageConfig['buildPath'] . 'backup/';
 
 			// Create and return the package with alternate version and release
             return $this->builder->createPackage($this->packageConfig['cmpNamespace'], '0.0.0', 'backup');
@@ -241,32 +249,44 @@ class Build extends Processor
 		$nsObj->set('id', null);
 		$this->builder->{'namespace'} = $nsObj;
 
+		// Default namespace attributes
+		$nsAttr = [
+			xPDOTransport::UNIQUE_KEY    => 'name',
+            xPDOTransport::PRESERVE_KEYS => true,
+            xPDOTransport::UPDATE_OBJECT => true
+		];
+
 		// Add file and build resolvers if this is NOT a backupOnly
 		$resolvers = [];
         if (!$this->backupOnly) {
-            // Add file resolvers to the category vehicle
+			// Add file resolvers to the category vehicle
 			$resolvers = array_merge($resolvers, $this->getFileResolvers());
 
             // Add resolvers from the build directory
             // Files in the root /resolvers directory are assumed to be install actions
 			$resolvers = array_merge($resolvers, $this->getBuildResolvers('install'));
+
+            if (count($resolvers) > 0) {
+                // Add resolver attributes
+                $nsAttr = array_merge($nsAttr, [
+                    xPDOTransport::RESOLVE_FILES => true,
+                    xPDOTransport::RESOLVE_PHP   => true
+                ]);
+            }
         }
 
-		// Create the vehicle and register it
-		//$this->eb->logInfo("Resolvers: ".print_r($resolvers, true));
-		$v = $this->builder->createVehicle($nsObj, [
-			xPDOTransport::UNIQUE_KEY    => 'name',
-            xPDOTransport::PRESERVE_KEYS => true,
-            xPDOTransport::UPDATE_OBJECT => true,
-            xPDOTransport::RESOLVE_FILES => true,
-            xPDOTransport::RESOLVE_PHP   => true
-		]);
+		// Create the vehicle
+		$v = $this->builder->createVehicle($nsObj, $nsAttr);
 		
-		// Set the resolvers
-		$v->resolvers = $resolvers;
+		// If we have resolvers
+        if (count($resolvers) > 0) {
+            // Set the resolvers
+            $v->resolvers = $resolvers;
+        }
 
-		// Put the vehicle
+		// Add the vehicle to the package
 		$this->builder->putVehicle($v);
+		unset($v);
 	}
 
     /**
@@ -335,35 +355,39 @@ class Build extends Processor
         // Resolvers array
 		$resolvers = [];
 
-		// Add the assets folder
-        $resolvers[] = [
-			'type' => 'file',
-            'source' => $this->packageConfig['publicAssetsPath'],
-            'target' => "return MODX_ASSETS_PATH . 'components/';",
-        ];
+		// If there is an assets folder
+        if (is_dir($this->packageConfig['publicAssetsPath'])) {
+            // Add the assets folder
+            $resolvers[] = [
+                'type' => 'file',
+                'source' => $this->packageConfig['publicAssetsPath'],
+                'target' => "return MODX_ASSETS_PATH . 'components/';",
+            ];
+        }
 
-        // Due to limitations in xPDOTransport, we will copy only the folders
-        // and files we need to a _dist/<package_key> directory and add a resolver
-        // from there. The _dist folder should be added to your .gitignore file.
-        $dist = $this->packageConfig['corePath'] . "_dist/{$this->packageConfig['cmpNamespace']}/";
+		// For flexibility in packaged file contents and to replace string values,
+		// we will use a _dist/<package_key> directory and add a resolver
+		// from there. The _dist folder should be added to your .gitignore file.
+		$dist = $this->packageConfig['distPath'] . "{$this->packageConfig['cmpNamespace']}/";
 
-		// Make sure the directory is deleted or doesn't exist
+		// Make sure the directory is deleted or doesn't exist and recreate it
 		$this->cacheManager->deleteTree($dist);
 		if (!$this->cacheManager->writeTree($dist)) {
 			return "Check permissions; unable to create directory: $dist";
 		}
 
-        // For ExtraBuilder only, copy specific _build directories
-        if ($this->packageConfig['cmpNamespace'] === 'extrabuilder') {
+		// For ExtraBuilder only, copy specific _build directories
+		if ($this->packageConfig['cmpNamespace'] === 'extrabuilder') {
 			$this->cacheManager->copyTree($this->packageConfig['corePath'] . '_build/resolvers', $dist . '_build/resolvers');
 			$this->cacheManager->copyTree($this->packageConfig['corePath'] . '_build/templates', $dist . '_build/templates');
-        }
+		}
 
-        // Copy all files except our "excludes" into the $dist folder
+		// Copy all files except our "excludes" into the $dist folder
 		$this->cacheManager->copyTree($this->packageConfig['corePath'], $dist, [
 			'copy_exclude_items' => ['.', '..', 'workspace.code-workspace', '.svn','.svn/','.svn\\'],
 			'copy_exclude_patterns' => ['/^_.*/', '/^\..*/']
 		]);
+        
         $resolvers[] = [
 			'type' => 'file',
             'source' => $dist,
@@ -383,21 +407,21 @@ class Build extends Processor
 		$resolvers = [];
 
 		// Setup the resolver directory
-        $resolverTemplatePath = "{$this->packageConfig['corePath']}_build/resolvers/";
-        $resolverPath = "{$this->packageConfig['corePath']}_dist/resolvers/";
+        $resolverTemplatePath = "{$this->packageConfig['buildPath']}resolvers/";
+        $resolverPath = "{$this->packageConfig['distPath']}resolvers/";
         if ($action === 'uninstall') {
             $resolverTemplatePath .= 'uninstall/';
             $resolverPath .= 'uninstall/';
         }
         if (!is_dir($resolverPath)) {
-            if (!mkdir($resolverPath, 0775, true)) {
-				return "Check permissions; unable to create directory: $resolverPath";
+            if (!$this->cacheManager->writeTree($resolverPath)) {
+				return "Check permissions, unable to create directory: $resolverPath";
 			}
         }
         if (!is_dir($resolverTemplatePath)) {
             // Create the directory
-            if (!mkdir($resolverTemplatePath, 0775, true)) {
-				return "Check permissions; unable to create directory: $resolverTemplatePath";
+            if (!$this->cacheManager->writeTree($resolverTemplatePath)) {
+				return "Check permissions, unable to create directory: $resolverTemplatePath";
 			}
         }
 
@@ -414,8 +438,11 @@ class Build extends Processor
             $objects = $this->package->getMany('Objects');
             if ($objects) {
                 foreach ($objects as $object) {
+					// MODX 2 has no class prefix
 					$classArr2[] = $object->get('class');
-                    $classArr3[] = $this->eb->getClass($object->get('class'));
+
+					// MODX 3 needs the full namespaced class
+                    $classArr3[] = $this->packageConfig['packageKey'] . '\\' . $object->get('class');
                 }
             }
 
@@ -582,15 +609,21 @@ class Build extends Processor
             }
         }
 
-		// Attach uninstall resolvers to the category. Files are removed with the namespace
-		// But we need the files to be able to uninstall tables.
-		// Add Uninstall resolvers: These execute before file resolvers remove all files
-		$resolvers = $this->getBuildResolvers('uninstall');
-		if (count($resolvers) > 0) {
-			// Set the attributes to resolve php files
-			$this->categoryAttr[xPDOTransport::RESOLVE_FILES] = true;
-			$this->categoryAttr[xPDOTransport::RESOLVE_PHP] = true;
-		}
+		// If this is not a backup only
+		$resolvers = [];
+        if (!$this->backupOnly) {
+            // Attach uninstall resolvers to the category. Files are removed with the namespace
+            // But we need the files to be able to uninstall tables.
+            // Add Uninstall resolvers: These execute before file resolvers remove all files
+            $resolvers = $this->getBuildResolvers('uninstall');
+            if (count($resolvers) > 0) {
+                // Set the attributes to resolve php files
+				$this->categoryAttr = array_merge($this->categoryAttr, [
+					xPDOTransport::RESOLVE_FILES => true,
+					xPDOTransport::RESOLVE_PHP => true
+				]);
+            }
+        }
 
 		// Create the vehicle and add it
 		$v = $this->builder->createVehicle($tempCategory, $this->categoryAttr);
@@ -611,18 +644,13 @@ class Build extends Processor
     public function definePackageAttributes()
     {
         // Determine what should be included dynamically
-        if ($this->backupOnly) {
+		$attr = [];
+        if (!$this->backupOnly) {
             $attr = [
-                'license' => 'Backup',
-                'readme' => 'Backup',
-                'changelog' => 'Backup',
-            ];
-        } else {
-            $attr = array(
                 'license' => is_file($this->packageConfig['corePath'] . 'LICENSE') ? file_get_contents($this->packageConfig['corePath'] . 'LICENSE') : "",
                 'readme' => is_file($this->packageConfig['corePath'] . 'docs/readme.txt') ? file_get_contents($this->packageConfig['corePath'] . 'docs/readme.txt') : "",
                 'changelog' => is_file($this->packageConfig['corePath'] . 'docs/changelog.txt') ? file_get_contents($this->packageConfig['corePath'] . 'docs/changelog.txt') : "",
-            );
+			];
         }
 
         return $attr;

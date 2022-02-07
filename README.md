@@ -35,5 +35,5 @@ This area allows you to create a transport package that has all your component f
     1. Create New PHP Resolver (Run a script on Install/Update/Uninstall)
     2. Add "Create Tables Resolver" (Creates/Updates Tables on Install/Uninstall)
     3. Add "Remove Tables Resolver" (Drop Tables on Uninstall)
-    4. Backup All Elements (Create a backup in your _build/ for source control)
+    4. Backup All Elements (Create a backup of Elements in your `_build/` directory for source control)
 5. Build Transport Package!

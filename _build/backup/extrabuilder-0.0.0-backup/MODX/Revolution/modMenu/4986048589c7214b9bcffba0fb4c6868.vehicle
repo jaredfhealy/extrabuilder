@@ -6,10 +6,10 @@
   'resolve' => NULL,
   'validate' => NULL,
   'vehicle_class' => 'xPDO\\Transport\\xPDOObjectVehicle',
-  'guid' => '4d720ced02fddfd1c86bff28eeabeb05',
+  'guid' => 'a6b275512ce2327bd8f1f29f76b6eacc',
   'package' => '',
   'class' => 'MODX\\Revolution\\modMenu',
-  'signature' => '2256f55857a4fe70eee37e684fcbcfae',
+  'signature' => '4986048589c7214b9bcffba0fb4c6868',
   'native_key' => 'extrabuilder.menu.transport',
   'object' => '{"text":"extrabuilder.menu.transport","parent":"extrabuilder.menu.main","action":"index","description":"extrabuilder.menu.transport_desc","icon":"","menuindex":1,"params":"&loadapp=transport-builder","handler":"","permissions":"","namespace":"extrabuilder"}',
 );

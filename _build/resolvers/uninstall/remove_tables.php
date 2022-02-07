@@ -11,11 +11,13 @@ if ($transport->xpdo) {
 			$packageKey = '{package_key}';
 			$isV3 = $modx->getVersionData()['version'] >= 3;
 
-			// If this is 2.x
+			// MODX 3 uses the bootstrap.php file which already called addPackage for us
+			// If this is 2.x, we need to determine the path and call addPackage
 			if (!$isV3) {
 				$keyLower = strtolower($packageKey);
 				$keyPath = "";
 				$componentsDir = MODX_CORE_PATH."components/";
+				
 				// If this doesn't have "dots"
 				if (strpos($packageKey, '.') === false) {
 					// Determine the directory path, try build from 3 cross-compatible path
@@ -32,15 +34,15 @@ if ($transport->xpdo) {
 						}
 					}
 				}
+
+				// If we determined a valid directory using the keyPath
 				if ($keyPath) {
 					// Convert keyPath to "dot" notation and overwrite
 					$packageKey = str_replace('/', '.', $keyPath);
 				}
+
+				// Call addPackage with "dot" notation
 				$modx->addPackage($packageKey, MODX_CORE_PATH.'components/');
-			}
-			else {
-				// Use 3.x syntax
-				$modx->addPackage("$packageKey\Model", $namespace['path'] . 'src/', null, "{$packageKey}\\");
 			}
 
 			// Get the manager

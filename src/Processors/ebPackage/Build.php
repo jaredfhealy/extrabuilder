@@ -73,7 +73,8 @@ class Build extends Processor
         $this->schemaOptions['buildDeleteAndDrop'] = $buildDeleteAndDrop = $this->getProperty('build_delete_drop') === 'true';
 
         // Get the object using the passed in primary id
-		$this->package = $this->modx->getObject($this->eb->getClass('ebPackage'), $this->getProperty('id', 0));
+		$packageId = $this->getProperty('id', 0);
+		$this->package = $this->modx->getObject($this->eb->getClass('ebPackage'), $packageId);
         if (!$this->package) {
             // Return here
             return $this->failure("Unable to retrieve package with supplied ID: $packageId");
@@ -115,6 +116,11 @@ class Build extends Processor
         $schema = $this->generateSchema();
 
         if ($writeSchemaOnly || !$this->previewOnly) {
+			// If write only, log out the config
+			if ($writeSchemaOnly) {
+				$this->logMessages[] = print_r($this->packageConfig, true);
+			}
+
             // Make sure at least the schema directory exists
 			$schemaPathKey = 'schemaPath'.$this->eb->version;
 			$schemaDir = $this->packageConfig[$schemaPathKey];
@@ -154,38 +160,60 @@ class Build extends Processor
     public function buildSchema()
     {
         /**
-		 * Make the assets directories if it doesn't exist
+		 * Make the assets directories if they don't exist
 		 * 
-		 * ExtraBuilder uses a 'symlink' pointing:
-		 *  from: {root_path}assets/components/MyComponent/
-		 *  to: {core_path}MyComponent/assets/
+		 * To allow usage of Git or source control and still build
+		 * your package in the "core/components/" directory which
+		 * is not web accessible, ExtraBuilder syncronizes from
+		 * "MODX_ASSETS_PATH . <mycomponent>/" to the corresponding
+		 * directory in "core/components/<mycomponent>/assets/".
 		 * 
-		 * This allows you to have one directory within the
-		 * core components directory for all the files and
-		 * resources needed for your Extra. This also effectively
-		 * makes part of your core directory web accessible.
+		 * This sync occurs any time you build and any time you
+		 * backup all elements.
 		 * 
-		 * When you build the transport package, the assests
-		 * will be installed to the standard assets directory.
+		 * When building the transport package, the directory in
+		 * "core/components/" is used as the source.
 		 */
 
-		// First check for an assets directory in core
-		$this->cacheManager->writeTree($this->packageConfig['coreAssetsPath']);
-        if (!is_dir($this->packageConfig['publicAssetsPath'])) {
-			// Remove the slash from publicAssetsPath to use as our symlink name
-			$linkName = substr($this->packageConfig['publicAssetsPath'], 0, -1);
-			$this->logMessages[] = "Creating symlink from: ".$linkName.", to: ".$this->packageConfig['coreAssetsPath'];
-            $this->logMessages[] = "Symlink created: ".(symlink($this->packageConfig['coreAssetsPath'], $linkName) == true ? 'True' : 'False');
+		// If we're using the "core" structure type, use the symlink to map publicAssets to coreAssets
+        if ($this->packageConfig['dirStructureType'] == 'core') {
+			// If the core path exists but public does not, copy from core to public (assume cloned from git or similar)
+			if (is_dir($this->packageConfig['coreAssetsPath'])) {
+				// If public doesn't exist yet
+                if (!is_dir($this->packageConfig['publicAssetsPath'])) {
+                    // Copy from core to public
+                    $this->cacheManager->copyTree($this->packageConfig['coreAssetsPath'], $this->packageConfig['publicAssetsPath']);
+                }
+				else {
+					// Both directories already exist:
+					// Copy contents from public to non-public
+					$this->cacheManager->copyTree($this->packageConfig['publicAssetsPath'], $this->packageConfig['coreAssetsPath']);
+				}
+			}
+			else {
+				// First check that the coreAssetsPath exists
+				$this->cacheManager->writeTree($this->packageConfig['coreAssetsPath']);
+
+				// Check if public exists
+				if (is_dir($this->packageConfig['publicAssetsPath'])) {
+                    // Copy from public to core
+                    $this->cacheManager->copyTree($this->packageConfig['publicAssetsPath'], $this->packageConfig['coreAssetsPath']);
+                }
+				else {
+					// Create the public directory
+					$this->cacheManager->writeTree($this->packageConfig['publicAssetsPath']);
+				}
+			}
         }
 
 		// Create the namespace first in v3 since it plays a key role
 		$this->logMessages[] = "Creating Namespace: {$this->packageConfig['cmpNamespace']}";
         $namespaceObj = $this->modx->getObject($this->eb->getClass('modNamespace'), ['name' => $this->packageConfig['cmpNamespace']]);
         if (!$namespaceObj) {
-			// Generate a new namespace
+			// Generate a new namespace using designated paths
 			$namespaceObj = $this->modx->newObject($this->eb->getClass('modNamespace'), [ 
-                'path' => "{core_path}components/{$this->packageConfig['cmpNamespace']}/",
-                'assets_path' => "{assets_path}components/{$this->packageConfig['cmpNamespace']}/",
+                'path' => $this->package->get('core_path') ?: "{core_path}components/{$this->packageConfig['cmpNamespace']}/",
+                'assets_path' => $this->package->get('assets_path') ?: "{assets_path}components/{$this->packageConfig['cmpNamespace']}/",
             ]);
 			$namespaceObj->set('name', $this->packageConfig['cmpNamespace']);
 
@@ -234,8 +262,6 @@ class Build extends Processor
 
 		// Log out all the calculated paths
 		$this->logMessages[] = "Sources: " . print_r($this->packageConfig, true);
-        // Load the transport package class
-        //$this->modx->loadClass('transport.modPackageBuilder', '', false, true);
 
         // Get the manager and generator
         $manager = $this->modx->getManager();
@@ -276,8 +302,7 @@ class Build extends Processor
 		else {
 			// Check the schema format
 			if (is_file($this->packageConfig['schemaFilePath'])) {
-				$schemaContents = file_get_contents($this->packageConfig['schemaFilePath']);
-				if (strpos('.v2.model') === false) {
+				if (strpos($this->packageConfig['packageKey'], '.v2.model') === false) {
 					return $this->failure("To prepare for MODX 3.0 compatibility, set your package key format to: <mycomponent>.v2.model");
 				}
 			}
@@ -306,15 +331,13 @@ class Build extends Processor
 			// Set variables needed by the bootstrap file
 			$modx =& $this->modx;
 
-			// If namespace is not defined
-			if (!isset($namespace) || !isset($namespace['path']) || strpos($namespace['path'], '{core_path}') !== false) {
-				// Set namespace as an array so it can be accessed in bootstrap.php on first build
-				$namespace = [
-					'name' => $this->packageConfig['cmpNamespace'],
-					'path' => $this->packageConfig['corePath'],
-					'assets_path' => $this->packageConfig['publicAssetsPath']
-				];
-			}
+			// Set namespace as an array so it can be accessed in bootstrap.php on first build
+			// Since the file was just created, MODX didn't load it
+			$namespace = [
+				'name' => $this->packageConfig['cmpNamespace'],
+				'path' => $this->packageConfig['corePath'],
+				'assets_path' => $this->packageConfig['publicAssetsPath']
+			];
 
 			// Include the newly generated bootstrap file to register our classes
 			@include $this->packageConfig['corePath'].'bootstrap.php';
@@ -606,7 +629,7 @@ class Build extends Processor
         if ($objectEntries) {
             foreach ($objectEntries as $entry) {
 				// Get the class based on version
-                $className = $object->get('class');
+                $className = $entry->get('class');
 				if ($this->eb->isV3) {
 					$className = $this->packageConfig['classPrefix'].$className;
 				}

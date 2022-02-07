@@ -73,12 +73,9 @@ class Actions extends Processor
 			return $this->failure("Failed to get package configuration paths.");
 		}
 
-		// Determine the resolvers directory and paths
-        $this->resolversDir = $this->packageConfig['corePath'] . '_build/resolvers/';
-
         // Create the directory if it doesn't exist
 		$this->cacheManager = $this->modx->getCacheManager();
-		$this->cacheManager->writeTree($this->resolversDir);
+		$this->cacheManager->writeTree($this->packageConfig['resolversPath']);
 
         // Determine the action
 		$action = $this->getProperty('subAction');
@@ -110,7 +107,10 @@ class Actions extends Processor
 	{
 		// Get the passed in filename
         $filename = $this->getProperty('filename', 'example');
-        $filename = $this->resolversDir . "{$filename}.php";
+        $filename = $this->packageConfig['resolversPath'] . "{$filename}.php";
+		
+		// Write directory if needed
+		$this->cacheManager->writeTree($this->packageConfig['resolversPath']);
 
 		// If the file doesn't exist yet
         if (!is_file($filename)) {
@@ -141,8 +141,9 @@ class Actions extends Processor
 		// Determine the tables resolver source path
         $tablesResolver = $this->eb->config['resolversPath'] . '_tables' . $this->eb->version . '.php';
         if (is_file($tablesResolver)) {
-			// Define the destination file path
-            $destinationFile = $this->resolversDir . 'tables.php';
+			// Define the destination file path and write directories if needed
+            $destinationFile = $this->packageConfig['resolversPath'] . 'tables.php';
+			$this->cacheManager->writeTree($this->packageConfig['resolversPath']);
 
 			// If the file doesn't exist yet
             if (!is_file($destinationFile)) {
@@ -173,8 +174,9 @@ class Actions extends Processor
 		// Determine the remove tables resolver source path
         $removeTablesResolver = $this->eb->config['resolversPath'] . 'uninstall/remove_tables.php';
         if (is_file($removeTablesResolver)) {
-			// Define the destination file path
-            $destinationFile = $this->resolversDir . 'uninstall/remove_tables.php';
+			// Define the destination file path and write directories if needed
+            $destinationFile = $this->packageConfig['resolversPath'] . 'uninstall/remove_tables.php';
+			$this->cacheManager->writeTree($this->packageConfig['resolversPath'] . 'uninstall/');
 
 			// If the file doesn't exist yet
             if (!is_file($destinationFile)) {
