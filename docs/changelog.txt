@@ -1,3 +1,8 @@
+ExtraBuilder 2.0.0 pl
+========================
+- Stable release
+- Bugfix: One final correction to MODX 2 schema "package" format
+
 ExtraBuilder 2.0.0 rc6
 ========================
 - Enhanced core/asset path override functionality
