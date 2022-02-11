@@ -302,8 +302,8 @@ class Build extends Processor
 		else {
 			// Check the schema format
 			if (is_file($this->packageConfig['schemaFilePath'])) {
-				if (strpos($this->packageConfig['packageKey'], '.v2.model') === false) {
-					return $this->failure("To prepare for MODX 3.0 compatibility, set your package key format to: <mycomponent>.v2.model");
+				if (strpos($this->packageConfig['packageKey'], '.') === false) {
+					return $this->failure("Package format should use 'dot' format such as: <mycomponent>.model.<mycomponent> -OR- <mycomponent>.v2.model");
 				}
 			}
 			$parseSchema = $generator->parseSchema(
