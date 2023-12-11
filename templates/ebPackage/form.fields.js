@@ -48,7 +48,8 @@ EB.model['{$gridClass}'].window.config = {
                 items: [
 					{
 						xtype: 'textfield',
-						fieldLabel: _("{$cmpNamespace}.{$gridClass|lower}.package_key_short"),
+						fieldLabel: '<a href="#" onclick="Ext.ComponentMgr.get(\'{$cmpNamespace}-panel-index\').showHelpModal(_(\'{$cmpNamespace}.{$gridClass|lower}.package_key_help_title\'), _(\'{$cmpNamespace}.{$gridClass|lower}.package_key_help_html{$version}\')); return false;">' 
+							+ _("{$cmpNamespace}.{$gridClass|lower}.package_key_short") + '&nbsp;<i class="icon-question-circle icon"></i></a>',
 						name: 'package_key',
 						anchor: '90%',
 						allowBlank: false,

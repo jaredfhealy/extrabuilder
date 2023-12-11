@@ -65,7 +65,22 @@ $_lang["extrabuilder.ebpackage.display"] = "Display Value (Not used by Modx)";
 $_lang["extrabuilder.ebpackage.display_short"] = "Display Value";
 $_lang["extrabuilder.ebpackage.package_key_short"] = "Package Key";
 $_lang["extrabuilder.ebpackage.package_desc3"] = "This is the PHP Namespace that will be generated at the top of your class files. It is also used to determine the output directory. Recommended format: <span style='font-weight:bold;'>MyComponent\Model</span>";
-$_lang["extrabuilder.ebpackage.package_desc2"] = "To prepare for MODX 3, use lowercase: mycomponent.v2.model (This will build to mycomponent/v2/model/)";
+$_lang["extrabuilder.ebpackage.package_desc2"] = "Use \"dot\" notation: mycomp.model.mycomp --OR-- mycomp.v2.model<br/>(This will build to: mycomp/model/mycomp --OR-- mycomp/v2/model/)";
+$_lang["extrabuilder.ebpackage.package_key_help_title"] = "Package Key Help";
+$_lang["extrabuilder.ebpackage.package_key_help_html2"] = "<p>This version of ExtraBuilder uses a different approach the the Package value and leverages a little-known-feature available in xPDO to parse the schema and make your model class files.</p>
+<p>The package key should be in \"dot notation\" meaning it represents the file path starting at \"core/components/\". xPDO then automatically replaces the \"dots\" or periods with slashes to determine the output directory.</p>
+<p>If you want to use the standard directory path for Extras in MODX 2 (core/components/mycomponent/model/mycomponent/), you would take everything after the components directory and replace the slashes with dots.</p>
+<p>So, \"mycomponent.model.mycomponent\" would build to \"core/components/mycomponent/model/mycomponent/\". This is just leveraging a format that xPDO supports when calling the \"parseSchema\" and the \"addPackage\" function.</p>
+<p>For more details, you'd have to read the function code since there doesn't appear to be any documentation :) - To see more about xPDO function, take a look at this line in <a href=\"https://github.com/modxcms/revolution/blob/4e4735d81bc0ad8a35c3f8816b8e033b64c4c5c5/core/xpdo/om/xpdogenerator.class.php#L460\" target=\"_blank\">xPDOGenerator->parseSchema</a>.
+	to see where xPDO replaces any periods with slashes and adds it to the output directory.</p>
+<p>The main reason for this change is to provide full flexibility to define your output directory. Other Extras, such as MIGX, may look for your model files in the \"standard\" location.</p>
+<p>If that is not a concern, and you're going to be converting your Extra to MODX 3, and try and keep it backward compatible, you may want to use something like \"mycomponent.v2.model\" which would build to \"core/components/mycomponent/v2/model/\". This way you could isolate your \"legacy\" MODX 2 model and processors.</p>";
+$_lang["extrabuilder.ebpackage.package_key_help_html3"] = "<p>In MODX 3, the Package value is your PHP Namespace and is also used to determine the output directory.</p>
+<p>If your package was \"MyComp\\Model\" and we pass the target as the \"core/components/\", the resulting class files would be generated in \"core/components/MyComp/Model\".</p>
+MODX also allows for an options array to be passed in which can include a \"Namespace Prefix\". This value is removed from the Package string and only the remainder is converted to a directory path.</p>
+<p>So, given our package value of \"MyComp\\Model\", a target or output directory of \"core/components/mycomp/src/\" and a prefix of \"MyComp\\\\\", the resulting directory 
+will be \"core/components/mycomp/src/Model/\".</p><p>This is the desired result. The component directory name matches our namespace prefix converted to lowercase. The Model directory within \"src/\" is camelCase/PascalCase to represent that it contains
+autoloadable classes.</p><p>For more details, see the MODX 3 docs. This is a good quick reference tutorial on <a href='https://docs.modx.com/3.x/en/extending-modx/tutorials/using-custom-database-tables#what-s-changed-in-modx-3' target='_blank'>What's changed in MODX3?</a></p>";
 $_lang["extrabuilder.ebpackage.base_class"] = "Base Class";
 $_lang["extrabuilder.ebpackage.platform"] = "DB Platform";
 $_lang["extrabuilder.ebpackage.default_engine"] = "Default Engine";

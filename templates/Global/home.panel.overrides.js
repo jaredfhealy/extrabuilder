@@ -69,5 +69,16 @@ Ext.apply(EB.panel.overrides, {
 				parentPanel.setActiveTab(tabCmp);
 			}
 		}
+	},
+
+	showHelpModal: function(title, content) {
+		Ext.Msg.show({
+			title: title,
+			msg: content,
+			buttons: Ext.Msg.OK,
+			icon: Ext.MessageBox.QUESTION,
+			minWidth: 700,
+			maxWidth: 1000
+		});
 	}
 });

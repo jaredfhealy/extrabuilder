@@ -157,6 +157,7 @@ class ExtraBuilder
 	{
 		// Store the classname
 		$className = ebPackage::class;
+		$this->modx->lexicon->load();
 		
 		// Return the model
 		$model = [
@@ -169,7 +170,12 @@ class ExtraBuilder
 			'gridfields' => ['id', 'display', 'package_key', 'version', 'sortorder'],
 			'searchFields' => ['display', 'package_key', 'version'],
 			'rowActionDescription' => "Manage Objects",
-			'tabDisplayField' => 'package_key'
+			'tabDisplayField' => 'package_key',
+			'lexicon' => [
+				'packageKeyHelpTitle' => $this->modx->lexicon('extrabuilder.ebpackage.package_key_help_title'),
+				'packageKeyHelpHtml2' => $this->modx->lexicon('extrabuilder.ebpackage.package_key_help_html2'),
+				'packageKeyHelpHtml3' => $this->modx->lexicon('extrabuilder.ebpackage.package_key_help_html3')
+			]
 		];
 
 		// Set the version default for packages
